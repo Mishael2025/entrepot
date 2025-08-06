@@ -1,0 +1,178 @@
+/* ✅ Décaler le contenu principal */
+#dashboard {
+    margin-left: 240px;
+    /* adapt selon largeur de la sidebar */
+    padding: 20px;
+}
+
+.main {
+    margin-left: 250px;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 30px;
+    background: #f5f6f8;
+
+}
+
+.carousel {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 300px;
+    overflow: hidden;
+    border-radius: 10px;
+    margin: 20px auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.slide {
+    position: relative;
+    display: none;
+    width: 100%;
+}
+
+.slide.active {
+    display: block;
+}
+
+.slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.caption {
+    position: absolute;
+    bottom: 20px;
+    text-align: center;
+    background: rgba(0, 0, 0.5, 0.5);
+    /* fond semi-transparent */
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 5px;
+    font-size: 1.2em;
+    width: 100%;
+}
+
+
+.annonces {
+    margin: 40px auto;
+    max-width: 900px;
+    padding: 20px;
+}
+
+.annonces h2 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: #0d6efd;
+}
+
+.annonce {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    background: linear-gradient(135deg, #f5f5f5, #ffffff);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+.annonce:hover {
+    transform: scale(1.02);
+}
+
+.annonce img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.texte-annonce h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #0d6efd;
+}
+
+.texte-annonce p {
+    margin: 8px 0 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.annonces-dynamiques {
+    margin: 40px auto;
+    max-width: 960px;
+    padding: 20px;
+}
+
+.annonces-dynamiques h2 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: #0d6efd;
+}
+
+.annonces-slider {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 10px;
+    scroll-snap-type: x mandatory;
+}
+
+.annonce-card {
+    flex: 0 0 280px;
+    background: linear-gradient(120deg, #ffffff, #f3f3f3);
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+    padding: 15px;
+    scroll-snap-align: start;
+    transition: transform 0.3s ease;
+}
+
+.annonce-card:hover {
+    transform: scale(1.02);
+}
+
+.annonce-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.annonce-card h3 {
+    margin: 10px 0 5px;
+    font-size: 20px;
+    color: #0d6efd;
+}
+
+.annonce-card p {
+    font-size: 15px;
+    color: #444;
+}
+
+body {
+    margin-left: 80px;
+}
+
+h1 {
+    text-align: center;
+}
+
+.badge-stock {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 13px;
+    background-color: #28a745;
+    color: white;
+}

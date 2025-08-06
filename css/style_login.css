@@ -1,0 +1,90 @@
+#login-body {
+    background: url("../Images/Entrepot_img.jpg") no-repeat center center fixed;
+    background-size: cover;
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    min-height: 100vh;
+}
+
+.login-container {
+    background-color: rgba(255, 255, 255, 0.2);
+    /* 👈 très transparent */
+    backdrop-filter: blur(6px);
+    /* 👈 effet de verre flouté */
+    -webkit-backdrop-filter: blur(6px);
+    /* 👈 compatibilité Safari */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    max-width: 400px;
+    padding: 30px 25px;
+    margin: 10vh auto;
+    animation: fadeIn 1s ease;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: #fff;
+    /* texte blanc pour bon contraste */
+}
+
+.login-container h1 {
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: orange;
+    text-align: center;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 12px 0px;
+    margin: 10px 0px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+}
+
+.login-container input:focus {
+    border-color: #0d6efd;
+    outline: none;
+}
+
+input {
+    text-align: center;
+}
+
+input::placeholder {
+    text-align: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#login-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #0d6efd;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#login-btn:hover {
+    background-color: #0b5ed7;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/acceuil.css">
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+    <div class="main">
+        <div class="app-container">
+
+            <main class="main-content">
+                <h1>Bienvenue dans votre entrepôt</h1>
+                <div class="carousel">
+                    <div class="slide active">
+                        <img src="../Images/Feuille de manioc.jpeg" alt="Feuille de manioc">
+                        <div class="caption">Feuille de Manioc — Source locale</div>
+                    </div>
+                    <div class="slide">
+                        <img src="../Images/huile-de-palme_1753192586.jpg" alt="Huile de palme">
+                        <div class="caption">Huile de Palme — Pure et naturelle</div>
+                    </div>
+                    <div class="slide">
+                        <img src="../Images/legumes.jpg" alt="Légumes">
+                        <div class="caption">Légumes frais — Livraison quotidienne</div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+
+        <section class="annonces">
+            <h2>🛍️ Produits en Stock</h2>
+
+            <div class="annonce">
+                <img src="../Images/Food2.jpg" alt="Produit 1">
+                <div class="texte-annonce">
+                    <h3>Riz parfumé</h3>
+                    <p>🌾 Stock élevé — prêt pour distribution. Disponible en sacs de 25kg.</p>
+                </div>
+            </div>
+
+            <div class="annonce">
+                <img src="../Images/huile-de-palme_1753192586.jpg" alt="Produit 2">
+                <div class="texte-annonce">
+                    <h3>Huile végétale</h3>
+                    <p>🛢️ Livraison fraîche — bidons de 5L disponibles immédiatement.</p>
+                </div>
+            </div>
+
+            <div class="annonce">
+                <img src="../Images/Riz.jpeg" alt="Produit 3">
+                <div class="texte-annonce">
+                    <h3>Riz en Grande quantite</h3>
+                    <p>🍝 Stock renforcé — prix préférentiel pour commandes groupées.</p>
+                </div>
+            </div>
+        </section>
+        <section id="annonces-produits" class="annonces-dynamiques">
+            <h2>🟢 Produits disponibles</h2>
+            <div class="annonces-slider"></div>
+        </section>
+    </div>
+    <script>
+
+        // Place ce code juste après l'injection du sidebar
+        fetch("../html/sidebard.html")
+            .then(r => r.text())
+            .then(html => {
+                document.getElementById("sidebar-container").innerHTML = html;
+
+                // Ajoute le listener sur le bouton de déconnexion
+                const logoutBtn = document.getElementById("logout-btn");
+                if (logoutBtn) {
+                    logoutBtn.addEventListener("click", function () {
+                        sessionStorage.clear();
+                        localStorage.clear();
+                        window.location.href = "../html/PageConnexion.html";
+                    });
+                }
+            });
+
+
+        let current = 0;
+        const slides = document.querySelectorAll(".slide");
+
+        // Ajoute ce log pour voir combien de slides sont détectées
+        console.log("🔍 Nombre de slides détectées :", slides.length);
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove("active");
+                slide.style.display = "none";
+            });
+            slides[index].classList.add("active");
+            slides[index].style.display = "block";
+        }
+
+        showSlide(current);
+
+        setInterval(() => {
+            current = (current + 1) % slides.length;
+            showSlide(current);
+        }, 3000);
+
+
+    </script>
+</body>
+
+</html>

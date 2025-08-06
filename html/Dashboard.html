@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="../css/Dashboard.css">
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+    <div id="admin-panel" style="display: online-block;">
+        <button id="refresh-btn">🔄refresh</button>
+        <h2>Gestion des Utilisateurs</h2>
+        <form id="user-form" name="user-form">
+            <input type="text" id="user-name" placeholder="Nom" required>
+            <input type="email" id="user-email" placeholder="Email" required>
+            <input type="password" id="user-password" placeholder="Mot de passe" required>
+            <select id="user-role">
+                <option value="admin">Admin</option>
+                <option value="manager">Manager</option>
+                <option value="employee">Employé</option>
+            </select>
+            <button type="button" id="add-user-btn">Ajouter Utilisateur</button>
+            <button type="button" id="res-user-btn">Supp Utilisateur</button>
+        </form>
+        <table id="user-table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div id="notifications">
+
+        </div>
+        <h4>🔧 Gestion des seuils de stock par catégorie</h4>
+
+        <button id="edit-btn">🛠️ Éditer Seuil</button>
+
+        <div style="max-height: 60vh; overflow: auto;" id="modal-seuil" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" title="Fermer">❌</span>
+                <h2>🔧 Gestion des seuils de stock</h2>
+
+                <table id="seuils-table">
+                    <thead>
+                        <tr>
+                            <th>Catégorie</th>
+                            <th>Seuil</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <form id="add-form">
+                    <input type="text" id="categorie" placeholder="Nom de la catégorie" required>
+                    <input type="number" id="seuil" placeholder="Seuil critique" required>
+                    <button type="submit">Ajouter</button>
+                </form>
+            </div>
+        </div>
+        <h2 id="vue">📦 Produits en stock critique</h2>
+        <input type="text" id="search" placeholder="👁‍🗨Recheche un produit">
+
+        <div style="margin-bottom:10px;">
+            <strong>Légende :</strong>
+            <span class="pastille alert">❌ Périmé</span>
+            <span class="pastille warn">⏰ Bientôt (≤ 7j)</span>
+            <span class="pastille ok">✅ OK</span>
+        </div>
+        <table id="rapport_stock">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Catégorie</th>
+                    <th>Quantité</th>
+                    <th>Seuil</th>
+                    <th>Péremption</th>
+                </tr>
+            </thead>
+            <tbody id="rapport-body"></tbody>
+        </table>
+        <h3>📦 Suggestions de réapprovisionnement</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Raison</th>
+                    <th>Quantité / Date</th>
+                    <th>Suggestion</th>
+                    <th>Fournisseurs</th>
+                </tr>
+            </thead>
+            <tbody id="suggestion-body"></tbody>
+        </table>
+
+        <h2>📦 Fournisseurs</h2>
+
+        <form id="fournisseur-form">
+            <input type="text" id="nom" placeholder="Nom du fournisseur" required>
+            <input type="text" id="contact" placeholder="Contact">
+            <input type="email" id="email" placeholder="Email">
+            <textarea id="adresse" placeholder="Adresse"></textarea>
+
+            <select id="categorie-select" required>
+                <option value="">-- Choisir une catégorie --</option>
+                <option value="Produits laitiers">Produits laitiers</option>
+                <option value="Céréales">Céréales</option>
+                <option value="Boissons">Boissons</option>
+                <option value="Équipements">Équipements</option>
+            </select>
+
+            <button type="submit">Ajouter</button>
+        </form>
+        <div class="cards-container">
+            <div class="fournisseur-card"></div><!-- etc. -->
+        </div>
+
+
+
+    </div>
+
+    <script src="../js/notifications.js"></script>
+    <script src="../js/utilisateurs.js"></script>
+    <script>
+        // Place ce code juste après l'injection du sidebar
+        fetch("../html/sidebard.html")
+            .then(r => r.text())
+            .then(html => {
+                const container = document.getElementById("sidebar-container");
+                container.innerHTML = html;
+
+                // Attendre que le DOM injecté soit bien interprété
+                setTimeout(() => {
+                    const logoutBtn = document.getElementById("logout-btn");
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener("click", () => {
+                            sessionStorage.clear();
+                            localStorage.clear();
+                            window.location.href = "../html/PageConnexion.html";
+                        });
+                    } else {
+                        console.warn("🔍 Bouton #logout-btn introuvable dans sidebard.html");
+                    }
+                }, 50); // ← Ajustable selon la complexité du HTML injecté
+            });
+
+    </script>
+
+</body>
+
+</html>

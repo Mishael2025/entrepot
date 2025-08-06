@@ -1,0 +1,259 @@
+:root {
+  --fond-carte: #ffffff;
+  --couleur-principale: #3498db;
+  --couleur-secondaire: #2ecc71;
+  --couleur-accent: #1e2a42;
+  --ombre: rgba(0, 0, 0, 0.1);
+}
+
+/* === RESET & BASE === */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f6f9fc;
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+}
+
+/* === SIDEBAR CONTAINER === */
+#sidebar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 220px;
+  height: 100vh;
+  background-color: var(--couleur-accent);
+  color: white;
+  z-index: 1000;
+}
+
+/* === DASHBOARD MAIN === */
+#dashboard {
+  margin-left: 220px;
+  padding: 20px;
+  max-width: 1400px;
+}
+
+/* === HEADER === */
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px var(--ombre);
+}
+
+header h1 {
+  flex: 1;
+  font-size: 24px;
+  color: var(--couleur-accent);
+}
+
+header input, header select, header button {
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+header .print-btn {
+  background: var(--couleur-secondaire);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+header .print-btn:hover {
+  background: #27ae60;
+}
+
+/* === FORMULAIRE PRODUIT === */
+#product-form {
+  background-color: var(--fond-carte);
+  padding: 20px;
+  margin: 30px 0;
+  border-radius: 8px;
+  box-shadow: 0 0 8px var(--ombre);
+  display: grid;
+  gap: 15px;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.form-row input,
+.form-row select {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+#add-product-btn {
+  background-color: var(--couleur-principale);
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#add-product-btn:hover {
+  background-color: #2980b9;
+}
+
+/* === BADGES === */
+.badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.badge-warning {
+  background-color: #f1c40f;
+  color: #fff;
+}
+
+.badge-dark {
+  background-color: #2c3e50;
+  color: #fff;
+}
+
+/* === PRODUCT GRID === */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.product-card {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 6px var(--ombre);
+}
+
+/* === MODALS === */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  z-index: 2000;
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 20px;
+  width: 95%;
+  max-width: 600px;
+  border-radius: 10px;
+}
+
+.close1, .close-history {
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* === TABLE HISTORIQUE === */
+#history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+#history-table th,
+#history-table td {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+}
+
+/* === CHART ZONE === */
+#chart-section {
+  margin: 50px auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px var(--ombre);
+  max-width: 1000px;
+  text-align: center;
+}
+
+canvas {
+  margin-top: 20px;
+  max-width: 100%;
+}
+
+/* === MEDIA QUERIES POUR TOUS ÉCRANS === */
+@media screen and (max-width: 1024px) {
+  header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  #dashboard {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  #sidebar-container {
+    position: static;
+    width: 100%;
+    height: auto;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  #product-form {
+    padding: 15px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  #chart-section {
+    margin: 20px 0;
+    padding: 15px;
+  }
+
+  .modal-content {
+    width: 90%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  header input,
+  header select,
+  header button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .form-row input,
+  .form-row select {
+    width: 100%;
+  }
+}

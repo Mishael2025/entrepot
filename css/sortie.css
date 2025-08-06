@@ -1,0 +1,230 @@
+:root {
+    --couleur-primaire: #3498db;
+    --couleur-secondaire: #2ecc71;
+    --couleur-texte: #ffffff;
+    --fond-carte: linear-gradient(135deg, #1e2a42, #2c3e50);
+    --ombre-carte: rgba(0, 0, 0, 0.3);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Styles pour le formulaire de sortie de stock */
+#stock-out-form {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px var(--ombre-carte);
+    display: grid;
+    align-items: center;
+    max-width: 500px;
+    height: 300px;
+}
+
+#stock-out-form input,
+#stock-out-form select,
+#stock-out-form button {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin: 10px;
+}
+
+#stock-out-form button {
+    background-color: var(--couleur-primaire);
+    color: var(--couleur-texte);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#stock-out-form button:hover {
+    background-color: #2980b9;
+}
+
+/* Styles pour le sidebar de stock */
+#stock-sidebar {
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    padding: 12px;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+}
+
+#liste-produits {
+    overflow-y: auto;
+    max-height: 300px;
+    /* 🔁 hauteur fixe pour scroll */
+    padding-right: 5px;
+}
+
+
+#liste-produits::-webkit-scrollbar {
+  width: 10px;
+}
+
+#liste-produits::-webkit-scrollbar-thumb {
+  background-color: #666;
+  border-radius: 4px;
+}
+
+.flex-zone,
+#stock-out-form,
+#stock-sidebar {
+    display: inline-table;
+    background-color: rgba(200, 200, 255, 0.05);
+}
+
+#motif-chart {
+    width: 400px;
+    height: 400px;
+    margin-top: 20px;
+    border: 1px dashed goldenrod;
+    margin-left: 300px;
+    align-items: center;
+    /* Pour le graphique */
+}
+
+/* Performaces entrepots*/
+
+.badge {
+    padding: 4px 10px;
+    /* Épaisseur plus fine */
+    border-radius: 10px;
+    /* Coins toujours arrondis mais plus discrets */
+    font-weight: 50;
+    font-size: 0.5em;
+    /* Taille plus modeste */
+    color: white;
+    display: inline-block;
+    margin: 4px 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: background 0.3s, transform 0.2s;
+    line-height: 1.4;
+}
+
+#badges-container {
+    max-width: 600px;
+    margin-left: 300px;
+    margin-right: auto;
+    max-width: 1000px;
+}
+
+.badge:hover {
+    transform: scale(1.03);
+}
+
+.badge-success {
+    background-color: #2ecc71;
+}
+
+.badge-danger {
+    background-color: #e74c3c;
+}
+
+.badge-warning {
+    background-color: #f39c12;
+}
+
+.badge-info {
+    background-color: #3498db;
+}
+
+.badge-default {
+    background-color: #7f8c8d;
+}
+
+.badge:hover {
+    transform: scale(1.05);
+}
+
+
+#stock-sidebar.active {
+    transform: translateX(0);
+}
+
+#toggle-stock-btn {
+    margin-left: 50px;
+    padding: 10px;
+    background: var(--couleur-secondaire);
+    color: var(--couleur-texte);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+h1 {
+    color: var(--couleur-primaire);
+    text-align: center;
+    margin-bottom: 20px;
+    margin-left: 300px;
+}
+
+.flex-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Centrage horizontal des enfants */
+    justify-content: flex-start;
+    padding: 20px;
+    width: 100%;
+    max-width: 1000px;
+    /* Conteneur limité */
+    margin-left: 300px;
+    margin-right: auto;
+    z-index: 1;
+    position: relative;
+}
+
+#chart-section {
+    background: #ffffff;
+    padding: 20px;
+    margin-left: 300px;
+    margin-right: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 10px var(--ombre-carte);
+    text-align: center;
+    width: 90%;
+    max-width: 1000px;
+}
+
+#liste-produits,
+#search-product {
+    margin-left: 30px;
+    margin-right: auto;
+}
+
+#stock-sidebar {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Sur écran large, côte à côte */
+@media screen and (min-width: 768px) {
+
+    .flex-zone {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    #stock-out-form,
+    #stock-sidebar {
+        flex: 1;
+        min-width: 300px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+
+}
+
+/* Le graphique reste en dessous, sans changement */

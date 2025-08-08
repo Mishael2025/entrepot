@@ -106,17 +106,17 @@
               <!-- Liste dynamique des cellules -->
             </ul>
           </div>
-
+          <div class="organe">
+            <input type="text" id="search-bar" placeholder="Rechercher un produit...">
+            <button id="history-btn">Voir Historique</button>
+          </div>
         </div>
         <div id="barcode-preview">
           <svg id="generated-barcode"></svg>
         </div>
 
 
-        <div class="organe">
-          <input type="text" id="search-bar" placeholder="Rechercher un produit...">
-          <button id="history-btn">Voir Historique</button>
-        </div>
+
         <div id="product-grid" class="product-grid">
           <div class="product-card">
             <!-- Produit 1 -->
@@ -217,14 +217,15 @@
               <!-- Les lignes seront ajoutées dynamiquement -->
             </tbody>
           </table>
-          <button class="clear-history">ViderHistory</button>
+          <button id="clear-history">Vider l'historique</button>
         </div>
       </div>
 
     </main>
   </div>
-  <script src="../js/Emplacements.js"></script>
+  <script src="../js/sessionStorage.js"></script>
   <script src="../js/Historique.sortie.js"></script>
+  <script src="../js/Emplacements.js"></script>
   <script src="../js/script.js"></script>
   <script>
     // Place ce code juste après l'injection du sidebar
@@ -234,7 +235,7 @@
         const container = document.getElementById("sidebar-container");
         container.innerHTML = html;
 
-        // ⏱️ Attendre que le DOM injecté soit bien interprété
+        // ⏱ Attendre que le DOM injecté soit bien interprété
         setTimeout(() => {
           const logoutBtn = document.getElementById("logout-btn");
           if (logoutBtn) {

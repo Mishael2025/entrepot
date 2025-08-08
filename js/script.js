@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
         editModal.style.display = "none";
 
         window.addEventListener("DOMContentLoaded", () => {
+            updateHistoryDisplay();
             document.getElementById("edit-modal").style.display = "none";
             document.getElementById("history-modal").style.display = "none";
         });
@@ -37,19 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
  
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const clearBtn = document.getElementById("clear-history");
-        if (!clearBtn) {
-            console.error("❌ Le bouton avec id='clear-history' est introuvable !");
-        } else {
-            clearBtn.addEventListener("click", () => {
-                localStorage.removeItem("history");
-                updateHistoryDisplay();
-                console.log("🚮 Historique vidé !");
-            });
-        }
-
-    });
     // export en fichier excel
     document.addEventListener("DOMContentLoaded", () => {
         const downloadBtn = document.getElementById("download-excel");
@@ -537,11 +525,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // Ton code ici
         }
 
 
-        updateHistoryDisplay();
+        window.updateHistoryDisplay();
 
         const userRole = sessionStorage.getItem("userRole");
 
@@ -694,46 +681,9 @@ document.addEventListener("DOMContentLoaded", () => {
     attachDeleteEvents(); // ✅ Fixe les événements `click` sur les boutons de suppression
 
     // ✅ Fonction pour afficher l'historique sauvegardé
-    function updateHistoryDisplay() {
-        const tbody = document.querySelector("#history-table tbody");
-        if (!tbody) {
-            console.error("⚠️ Le tableau avec id='history-table' est introuvable !");
-            return;
-        }
-        tbody.innerHTML = "";
-
-        const history = JSON.parse(localStorage.getItem("history")) || [];
-        console.log("🔎 Historique chargé :", history);
-
-        history.forEach(entry => {
-            const row = document.createElement("tr");
-            row.dataset.date = entry.date; // Ajout de l'attribut data-date pour le tri
-
-
-            row.innerHTML = `
-      <td>${entry.date}</td>
-      <td><strong>${entry.action}</strong></td>
-      <td>${entry.nom}</td>
-      <td>${entry.utilisateur || "—"}</td>
-      <td>${entry.dlc ? `DLC : ${entry.dlc}` : "—"}</td>
-    `;
-
-            row.classList.add(`history-${entry.action.toLowerCase()}`); // utile pour styliser par type d'action
-            tbody.appendChild(row);
-        });
-    }
-
+  
     // Ajouter à l'historique
-    function addToHistory(action, nom, date, dlc, utilisateur = "inconnu") {
-        const history = JSON.parse(localStorage.getItem("history")) || [];
-
-        history.push({ action, nom, date, dlc, utilisateur });
-
-        if (history.length > 50) history.shift();
-
-        localStorage.setItem("history", JSON.stringify(history));
-        updateHistoryDisplay();
-    }
+    
 
 
     // ✅ Fonction pour afficher l'historique au démarrage

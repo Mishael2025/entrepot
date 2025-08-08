@@ -1,18 +1,19 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const clearBtn = document.getElementById("clear-history");
-    if (clearBtn) {
-        clearBtn.addEventListener("click", () => {
-            localStorage.removeItem("history");
-            updateHistoryDisplay();
-            console.log("🚮 Historique vidé !");
-        });
-    }
+
+// Historique des actions de sortie
+const clearBtn = document.getElementById("clear-history");
+clearBtn.addEventListener("click", (e) => {
+  e.preventDefault(); // ← évite tout comportement par défaut
+  if (confirm("Voulez-vous vraiment effacer l'historique ?")) {
+    localStorage.removeItem("history");
+    window.updateHistoryDisplay();
+    console.log("🚮 Historique vidé !");
+  }
 });
 
-function updateHistoryDisplay() {
+window.updateHistoryDisplay = function () {
     const tbody = document.querySelector("#history-table tbody");
     if (!tbody) {
-        console.info("ℹ️ Aucun tableau à mettre à jour ici.");
+        console.info("ℹ Aucun tableau à mettre à jour ici.");
         return;
     }
     tbody.innerHTML = "";
@@ -35,23 +36,21 @@ function updateHistoryDisplay() {
         tbody.appendChild(row);
     });
 }
-
+updateHistoryDisplay(); // Appel initial pour afficher l'historique au chargement
 // Ajouter à l'historique
-function addToHistory(action, nom, date, dlc, utilisateur = "inconnu") {
+window.addToHistory = function (action, nom, date, dlc, utilisateur = SessionManager.get("username") || "inconnu") {
     const history = JSON.parse(localStorage.getItem("history")) || [];
 
     history.push({ action, nom, date, dlc, utilisateur });
 
-    if (history.length > 50) history.shift();
-    if (typeof updateHistoryDisplay === "function") {
-        updateHistoryDisplay();
-    }
+    if (history.length > 70) history.shift();
+    console.log("Historique actuel :", history);
 
     localStorage.setItem("history", JSON.stringify(history));
-    updateHistoryDisplay();
-}
+    window.updateHistoryDisplay();
+    console.log(`📜 Historique mis à jour : ${action} - ${nom} (${date}) par ${utilisateur}${dlc ? `, DLC : ${dlc}` : ""}`);
 
-
+};
 // ✅ Fonction pour afficher l'historique au démarrage
 
 

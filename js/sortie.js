@@ -163,8 +163,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 console.log(
     sessionStorage.getItem("username") ?
-    `👤 Utilisateur connecté : ${sessionStorage.getItem("username")}` :
-    "👤 Aucun utilisateur connecté"
+        `👤 Utilisateur connecté : ${sessionStorage.getItem("username")}` :
+        "👤 Aucun utilisateur connecté"
 );
 
 
@@ -270,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const refreshButton = document.getElementById("refresh-btn");
     if (refreshButton) {
         refreshButton.addEventListener("click", () => {
-            location.reload(); // 🔄 Recharge toute la page
+            location.reload(); //  Recharge toute la page
         });
     }
 });
@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await renderCharts()
 });
 async function renderCharts() {
-    console.log("📊 Rechargement des graphiques...");
+    console.log(" Rechargement des graphiques...");
 
     const ctxLine = document.getElementById("line-chart")?.getContext("2d");
     const ctxBar = document.getElementById("bar-chart")?.getContext("2d");
@@ -290,7 +290,6 @@ async function renderCharts() {
     }
 
     try {
-        // 🔄 Charger les entrées (produits)
         const getJsonData = async (url) => {
             try {
                 const res = await fetch(url);
@@ -317,55 +316,67 @@ async function renderCharts() {
                 return [];
             }
         };
+
         const entriesRaw = await getJsonData("http://localhost/entrepot/Info/php/produits_api.php");
         const movementsRaw = await getJsonData("http://localhost/entrepot/Info/php/sortie_api.php?mode=timeline");
 
+        // 🔧 Format mois brut → "2025-08"
+        const formatToMonthKey = (dateStr) => {
+            const [year, month] = dateStr.split("-"); // "2025-08-08" → ["2025", "08"]
+            return `${year}-${month}`;
+        };
 
+        // 🔧 Format mois lisible → "Août 2025"
+        const formatMonthLabel = (monthKey) => {
+            const [year, month] = monthKey.split("-");
+            const moisNoms = ["Janv", "Févr", "Mars", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc"];
+            return `${moisNoms[parseInt(month) - 1]} ${year}`;
+        };
 
-        const dates = [];
-        const entreesParDate = {};
-        const sortiesParDate = {};
+        const mois = [];
+        const entreesParMois = {};
+        const sortiesParMois = {};
 
-        // 🧮 Traiter les entrées (produits créés)
         entriesRaw.forEach(produit => {
             const date = produit.created_at?.split(" ")[0];
-            const qte = parseFloat(produit.quantite) || 0;
             if (!date) return;
-
-            if (!dates.includes(date)) dates.push(date);
-            entreesParDate[date] = (entreesParDate[date] || 0) + qte;
+            const moisKey = formatToMonthKey(date);
+            const qte = parseFloat(produit.quantite) || 0;
+            if (!mois.includes(moisKey)) mois.push(moisKey);
+            entreesParMois[moisKey] = (entreesParMois[moisKey] || 0) + qte;
         });
 
-        // 🧮 Traiter les sorties (mouvements)
         movementsRaw.forEach(mvt => {
             const date = mvt.date_mouvement?.split(" ")[0];
-            const qte = parseFloat(mvt.quantite) || 0;
             if (!date) return;
-
-            if (!dates.includes(date)) dates.push(date);
+            const moisKey = formatToMonthKey(date);
+            const qte = parseFloat(mvt.quantite) || 0;
+            if (!mois.includes(moisKey)) mois.push(moisKey);
             if (mvt.type === "sortie") {
-                sortiesParDate[date] = (sortiesParDate[date] || 0) + qte;
+                sortiesParMois[moisKey] = (sortiesParMois[moisKey] || 0) + qte;
             } else if (mvt.type === "entrée") {
-                entreesParDate[date] = (entreesParDate[date] || 0) + qte;
+                entreesParMois[moisKey] = (entreesParMois[moisKey] || 0) + qte;
             }
         });
 
-        dates.sort();
+        mois.sort();
 
         // 🧠 Calcul du stock cumulatif
         const stockLevels = [];
         let cumul = 0;
-        dates.forEach(date => {
-            cumul += (entreesParDate[date] || 0) - (sortiesParDate[date] || 0);
-            cumul = Math.max(cumul, 0); // 🔐 Empêche les stocks négatifs
+        mois.forEach(m => {
+            cumul += (entreesParMois[m] || 0) - (sortiesParMois[m] || 0);
+            cumul = Math.max(cumul, 0);
             stockLevels.push(cumul);
         });
+
+        const moisLabels = mois.map(formatMonthLabel);
 
         // 📈 Graphique d’évolution
         new Chart(ctxLine, {
             type: "line",
             data: {
-                labels: dates,
+                labels: moisLabels,
                 datasets: [{
                     label: "📦 Stock net",
                     data: stockLevels,
@@ -379,32 +390,31 @@ async function renderCharts() {
                 plugins: {
                     title: {
                         display: true,
-                        text: "📈 Évolution du stock dans le temps"
+                        text: "📈 Évolution du stock par mois"
                     }
                 },
                 scales: {
                     y: {
-                        beginAtZero: true // 🛠️ Ajout ici
+                        beginAtZero: true
                     }
                 }
             }
-
-        })
+        });
 
         // 📊 Graphique flux entrées / sorties
         new Chart(ctxBar, {
             type: "bar",
             data: {
-                labels: dates,
+                labels: moisLabels,
                 datasets: [
                     {
                         label: "Entrées",
-                        data: dates.map(d => entreesParDate[d] || 0),
+                        data: mois.map(m => entreesParMois[m] || 0),
                         backgroundColor: "#27ae60"
                     },
                     {
                         label: "Sorties",
-                        data: dates.map(d => sortiesParDate[d] || 0),
+                        data: mois.map(m => sortiesParMois[m] || 0),
                         backgroundColor: "#c0392b"
                     }
                 ]
@@ -414,7 +424,7 @@ async function renderCharts() {
                 plugins: {
                     title: {
                         display: true,
-                        text: "📊 Flux de stock par date"
+                        text: "📊 Flux de stock par mois"
                     }
                 },
                 scales: {
@@ -425,9 +435,9 @@ async function renderCharts() {
         });
 
         // 📍 Graphique de corrélation
-        const points = dates.map(date => ({
-            x: sortiesParDate[date] || 0,
-            y: entreesParDate[date] || 0
+        const points = mois.map(m => ({
+            x: sortiesParMois[m] || 0,
+            y: entreesParMois[m] || 0
         }));
 
         const totalEntrees = points.reduce((sum, p) => sum + p.y, 0);

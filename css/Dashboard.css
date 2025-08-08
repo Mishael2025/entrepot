@@ -257,7 +257,8 @@ input[type="number"] {
     box-shadow: 0 8px 32px rgba(60, 60, 120, 0.18);
     position: relative;
     max-height: 80vh;
-    overflow-y: auto;
+    overflow-y: scroll;
+    overflow-x: auto;
 }
 
 #logout-btn {
@@ -348,6 +349,7 @@ input[type="number"] {
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
+    
 }
 
 .actions button:hover {

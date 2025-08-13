@@ -2,7 +2,7 @@ console.log("✅ Script utilisateurs.js chargé !");
 const userRole = sessionStorage.getItem("userRole") || "guest";
 console.log("Rôle utilisateur :", userRole);
 
-let users = []; // Tableau pour stocker les utilisateurs
+
 
 // Vérifier si l'utilisateur est admin et rediriger si nécessaire
 document.addEventListener("DOMContentLoaded", function () {
@@ -16,177 +16,173 @@ document.addEventListener("DOMContentLoaded", function () {
     chargerUtilisateurs(); // Charge les utilisateurs depuis la base de données
 });
 
+let utilisateurs = [];
 
+// 🔄 Charger les utilisateurs depuis l’API
+async function chargerUtilisateurs() {
+    try {
+        const res = await fetch("http://localhost/entrepot/Info/php/lister_utilisateurs.php");
+        const data = await res.json();
+        console.log("📦 Données reçues :", data);
+        if (!data.success || !Array.isArray(data.data)) {
+            throw new Error("Format de données invalide");
+        }
 
-// Fonction pour afficher les utilisateurs dans le tableau HTML
+        utilisateurs = data.data;
+        renderTable();
+    } catch (err) {
+        console.error("❌ Erreur chargement utilisateurs :", err);
+    }
+}
+
+// 🧱 Afficher les utilisateurs dans le tableau
 function renderTable() {
-    const tableBody = document.querySelector("#user-table tbody");
+    const tbody = document.querySelector("#user-table tbody");
+    tbody.innerHTML = "";
 
-    if (!tableBody) {
-        console.error("❌ Erreur : Table HTML introuvable !");
+    if (!utilisateurs.length) {
+        tbody.innerHTML = `<tr><td colspan="6">Aucun utilisateur enregistré.</td></tr>`;
         return;
     }
 
-    tableBody.innerHTML = "";
-
-    if (users.length === 0) {
-        console.warn("⚠️ Aucun utilisateur trouvé !");
-        tableBody.innerHTML = "<tr><td colspan='4'>Aucun utilisateur enregistré.</td></tr>";
-        return;
-    }
-
-    users.forEach(user => {
+    utilisateurs.forEach(user => {
         const row = document.createElement("tr");
         row.innerHTML = `
-            <td>${user.nom || "Inconnu"}</td>
-            <td>${user.email || "Inconnu"}</td>
-            <td>${user.role && user.role.trim() !== "" ? user.role : "Non défini"}</td>
+            <td>${user.nom}</td>
+            <td>${user.email}</td>
+            <td><span class="badge badge-${user.role}">${user.role}</span></td>
+            <td>${user.actif == 1 ? "✅ Actif" : "❌ Inactif"}</td>
+            <td><pre>${user.permissions || "-"}</pre></td>
             <td>
-                <button onclick="modifierUtilisateur(${user.id})">Modifier</button>
+                <button class="btn-edit" onclick="modifierUtilisateur(${user.id})">✏️</button>
+                <button class="btn-delete" onclick="supprimerUtilisateur(${user.id})">🗑️</button>
             </td>
         `;
-        tableBody.appendChild(row);
-        // console.log("Utilisateur :", user.nom, "Email :", user.email, "Rôle :", user.role);
-
+        tbody.appendChild(row);
     });
-
-    //console.log("✅ Table mise à jour :", tableBody.innerHTML);
 }
 
-function modifierUtilisateur(userId) {
-    console.log(`✅ Envoi de la requête UPDATE à : http://localhost/entrepot/Info/php/update_utilisateur.php?id=${userId}`);
-    console.log(userId);
+// ➕ Ajouter un utilisateur
+async function ajouterUtilisateur() {
+    const nom = document.getElementById("user-name").value.trim();
+    const email = document.getElementById("user-email").value.trim();
+    const mot_de_passe = document.getElementById("user-password").value;
+    const roles = Array.from(document.getElementById("user-role").selectedOptions).map(opt => opt.value).join(",");
+    const permissions = document.getElementById("user-permissions").value.trim();
+    const actif = document.getElementById("user-active").checked ? 1 : 0;
 
-    fetch(`http://localhost/entrepot/Info/php/get_utilisateur.php?id=${userId}`)
-        .then(response => response.json())
-        .then(utilisateur => {
-            if (!utilisateur || !utilisateur.nom) {
-                alert("Utilisateur introuvable !");
-                return;
-            }
-
-            // Remplir les champs du formulaire avec ses infos
-            document.getElementById("user-name").value = utilisateur.nom;
-            document.getElementById("user-email").value = utilisateur.email;
-            document.getElementById("user-role").value = utilisateur.role;
-            document.getElementById("user-password").value = utilisateur.password;
-
-
-            // Ajouter un bouton de mise à jour
-            const updateBtn = document.getElementById("update-user-btn");
-            if (!updateBtn) {
-                const newUpdateBtn = document.createElement("button");
-                newUpdateBtn.textContent = "Mettre à jour";
-                newUpdateBtn.id = "update-user-btn";
-                newUpdateBtn.onclick = function () {
-                    mettreAJourUtilisateur(userId);
-
-                };
-                document.getElementById("user-form").appendChild(newUpdateBtn);
-            }
-        })
-        .catch(error => console.error("Erreur lors de la récupération de l'utilisateur :", error));
-}
-
-// Mettre en jour les utilisateurs
-function mettreAJourUtilisateur(userId) {
-    const utilisateur = {
-        id: userId,
-        nom: document.getElementById("user-name").value,
-        email: document.getElementById("user-email").value,
-        role: document.getElementById("user-role").value,
-        password: document.getElementById("user-password").value
-    };
-
-    console.log("📤 Données envoyées :", utilisateur);
-
-    fetch("http://localhost/entrepot/Info/php/update_utilisateur.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(utilisateur)
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log("📥 Réponse du serveur :", data);
-            alert(data.message);
-        })
-        .catch(error => console.error("❌ Erreur lors de la mise à jour :", error));
-    console.log(utilisateur);
-
-}
-
-// Fonction pour charger les utilisateurs depuis MySQL via PHP
-function chargerUtilisateurs() {
-
-    fetch("http://localhost/entrepot/Info/php/lister_utilisateurs.php", {
-        method: "GET",  // Définir la méthode GET
-        headers: { "Content-Type": "application/json" }
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP : ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Utilisateurs reçus :", data);
-            users = data; // Met à jour la liste des utilisateurs
-            renderTable(); // Affiche les utilisateurs dans la table
-        })
-        .catch(error => console.error("Erreur de chargement des utilisateurs :", error));
-}
-function isStrongPassword(pwd) {
-    return pwd.length >= 8 && /[A-Z]/.test(pwd) && /\d/.test(pwd);
-}
-// Fonction pour ajouter un utilisateur
-document.getElementById("add-user-btn").addEventListener("click", () => {
-    const nom = document.getElementById("user-name").value;
-    const email = document.getElementById("user-email").value;
-    const password = document.getElementById("user-password").value;
-    const role = document.getElementById("user-role").value;
-
-    console.log("📤 Envoi des données : ", { nom, email, password, role });
-
-    fetch("http://localhost/entrepot/Info/php/ajouter_utilisateur.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ nom, email, mot_de_passe: password, role })
-    })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            isStrongPassword(email) ? console.log("✅ Mot de passe fort") : console.warn("⚠️ Mot de passe faible");
-            console.log("📥 Réponse du serveur :", data);
-            chargerUtilisateurs(); // Recharge la liste des utilisateurs
-        })
-        .catch(error => console.error("❌ Erreur Fetch:", error));
-
-    resetInputs();
-});
-
-// Fonction pour supprimer un utilisateur
-document.getElementById("res-user-btn").addEventListener("click", () => {
-
-    let userId = parseInt(prompt("Entrez l'ID de l'utilisateur à supprimer :"));
-
-    if (userId) {
-        console.log(`✅ Envoi de la requête DELETE à : http://localhost/entrepot/Info/php/supprimer_utilisateur.php?id=${userId}`);
-        console.log("📤 ID à supprimer :", userId);
-
-        fetch(`http://localhost/entrepot/Info/php/delete_user.php?id=${(userId)}`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: parseInt(userId, 10) })  // ✅ Envoi du JSON avec l'ID
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log("📥 Réponse du serveur :", data);
-                alert(data.message);
-                chargerUtilisateurs(); // Met à jour la liste après suppression
-            })
-            .catch(error => console.error("❌ Erreur lors de la suppression :", error));
+    if (!nom || !email || !mot_de_passe || !roles) {
+        alert("⚠️ Tous les champs obligatoires doivent être remplis");
+        return;
     }
-});
+
+    try {
+        const res = await fetch("http://localhost/entrepot/Info/php/ajouter_utilisateur.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nom, email, mot_de_passe, role: roles, permissions, actif })
+        });
+
+        const data = await res.json();
+        alert(data.message);
+        chargerUtilisateurs();
+        resetForm();
+    } catch (err) {
+        console.error("❌ Erreur ajout utilisateur :", err);
+    }
+}
+
+// ✏️ Modifier un utilisateur
+async function modifierUtilisateur(id) {
+    try {
+        const res = await fetch(`http://localhost/entrepot/Info/php/get_utilisateur.php?id=${id}`);
+        const user = await res.json();
+
+        document.getElementById("user-name").value = user.nom;
+        document.getElementById("user-email").value = user.email;
+        document.getElementById("user-password").value = "";
+        document.getElementById("user-permissions").value = user.permissions || "";
+        document.getElementById("user-active").checked = user.actif == 1;
+
+        const roleSelect = document.getElementById("user-role");
+        Array.from(roleSelect.options).forEach(opt => {
+            opt.selected = user.role.includes(opt.value);
+        });
+
+        injectUpdateButton(id);
+    } catch (err) {
+        console.error("❌ Erreur chargement utilisateur :", err);
+    }
+}
+
+// 💾 Injecter le bouton de mise à jour
+function injectUpdateButton(id) {
+    let btn = document.getElementById("update-user-btn");
+    if (!btn) {
+        btn = document.createElement("button");
+        btn.id = "update-user-btn";
+        btn.textContent = "💾 Mettre à jour";
+        btn.className = "btn-update";
+        btn.onclick = () => mettreAJourUtilisateur(id);
+        document.querySelector(".form-actions").appendChild(btn);
+    }
+}
+
+// 🔁 Mettre à jour un utilisateur
+async function mettreAJourUtilisateur(id) {
+    const nom = document.getElementById("user-name").value.trim();
+    const email = document.getElementById("user-email").value.trim();
+    const mot_de_passe = document.getElementById("user-password").value;
+    const roles = Array.from(document.getElementById("user-role").selectedOptions).map(opt => opt.value).join(",");
+    const permissions = document.getElementById("user-permissions").value.trim();
+    const actif = document.getElementById("user-active").checked ? 1 : 0;
+
+    try {
+        const res = await fetch("http://localhost/entrepot/Info/php/update_utilisateur.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, nom, email, mot_de_passe, role: roles, permissions, actif })
+        });
+
+        const data = await res.json();
+        alert(data.message);
+        chargerUtilisateurs();
+        resetForm();
+    } catch (err) {
+        console.error("❌ Erreur mise à jour :", err);
+    }
+}
+
+// 🗑️ Supprimer un utilisateur
+async function supprimerUtilisateur(id) {
+    if (!confirm("🗑️ Confirmer la suppression ?")) return;
+
+    try {
+        const res = await fetch(`http://localhost/entrepot/Info/php/delete_user.php?id=${id}`, {
+            method: "DELETE"
+        });
+
+        const data = await res.json();
+        alert(data.message);
+        chargerUtilisateurs();
+    } catch (err) {
+        console.error("❌ Erreur suppression :", err);
+    }
+}
+
+// 🔄 Réinitialiser le formulaire
+function resetForm() {
+    document.getElementById("user-form").reset();
+    const updateBtn = document.getElementById("update-user-btn");
+    if (updateBtn) updateBtn.remove();
+}
+
+// 🚀 Initialisation
+document.getElementById("add-user-btn").addEventListener("click", ajouterUtilisateur);
+document.getElementById("res-user-btn").addEventListener("click", () => alert("Utilisez les boutons 🗑️ dans la table"));
+document.addEventListener("DOMContentLoaded", chargerUtilisateurs);
+
+
 
 // Fonction pour réinitialiser les champs du formulaire
 function resetInputs() {

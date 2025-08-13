@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/Iventaire.css">
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+    <select class="field-inventaire editable-field"></select>
+    <div id="role-label" class="role-badge"></div>
+
+    <form id="constat-ecart-form">
+        <h2> Constat d’écart en sortie produit</h2>
+
+        <label for="produit">Produit :</label>
+        <select id="produit" required>
+            <option value="">-- Choisir un produit --</option>
+            <!-- Options dynamiques -->
+        </select>
+
+        <div>Quantité théorique : <span id="quantite-theorique">0</span> kg</div>
+
+        <label for="quantite-observGITee">Quantité réellement disponible :</label>
+        <input type="number" id="quantite-reelle" placeholder="Ex: 750" required>
+
+        <div id="ecart-affichage">Écart : 0 kg</div>
+
+        <textarea id="justification" placeholder="Justification de l’écart (si écart ≠ 0)"></textarea>
+
+        <button type="submit"> Enregistrer le constat</button>
+    </form>
+
+
+    <table id="historique-inventaire">
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Théorique</th>
+                <th>Réel</th>
+                <th>Écart</th>
+                <th>Justification</th>
+                <th>Date</th>
+                <th>Utilisateur</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <script src="../js/sessionStorage.js"></script>
+
+    <script src="../js/Iventaire.js"></script>
+    <script>
+        // Place ce code juste après l'injection du sidebar
+        fetch("../html/sidebard.html")
+            .then(r => r.text())
+            .then(html => {
+                const container = document.getElementById("sidebar-container");
+                container.innerHTML = html;
+
+                // Attendre que le DOM injecté soit bien interprété
+                setTimeout(() => {
+                    const logoutBtn = document.getElementById("logout-btn");
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener("click", () => {
+                            sessionStorage.clear();
+                            localStorage.clear();
+                            window.location.href = "../html/PageConnexion.html";
+                        });
+                    } else {
+                        console.warn("🔍 Bouton #logout-btn introuvable dans sidebard.html");
+                    }
+                }, 50); // ← Ajustable selon la complexité du HTML injecté
+            });
+
+    </script>
+</body>
+
+</html>

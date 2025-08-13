@@ -60,49 +60,125 @@ h4 {
     margin-bottom: 1rem;
 }
 
-form#user-form,
-form#add-form,
-form#fournisseur-form {
+#fournisseur-form {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    align-items: center;
+    flex-direction: column;
+    gap: 12px;
+    width: 300px;
+    min-width: 280px;
+    background-color: #f9f9f9;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-form#user-form input,
-form#user-form select,
-form#add-form input,
-form#fournisseur-form input,
-form#fournisseur-form select {
-    padding: 0.7rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 7px;
-    font-size: 1rem;
-    background: #f7f8fa;
-    min-width: 160px;
+/* 🌐 Structure générale */
+#user-form {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 25px;
+    background-color: #f9f9fc;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', sans-serif;
 }
 
-form#user-form button,
-form#add-form button,
-form#fournisseur-form button {
-    background: linear-gradient(90deg, #4e54c8 0%, #8f94fb 100%);
-    color: #fff;
-    border: none;
-    border-radius: 7px;
-    padding: 0.7rem 1.2rem;
-    font-size: 1rem;
+/* 🧩 Groupes de champs */
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 📝 Champs de saisie */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+    padding: 10px 12px;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.3s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #0078d7;
+    outline: none;
+}
+
+/* 🧠 Labels */
+label {
     font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
+    margin-bottom: 5px;
+    color: #333;
 }
 
-form#user-form button:hover,
-form#add-form button:hover,
-form#fournisseur-form button:hover {
-    background: linear-gradient(90deg, #3b3f99 0%, #6b70d6 100%);
-    transform: translateY(-2px) scale(1.03);
+/* ✅ Checkbox */
+input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-top: 8px;
 }
+
+/* 🎛️ Select multiple */
+select[multiple] {
+    height: 100px;
+    resize: vertical;
+}
+
+/* 🎯 Zone permissions */
+#user-permissions {
+    font-family: monospace;
+    background-color: #f0f0f5;
+}
+
+/* 🎬 Boutons */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+button {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#add-user-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+#add-user-btn:hover {
+    background-color: #218838;
+}
+
+#res-user-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+#res-user-btn:hover {
+    background-color: #c82333;
+}
+
+
+
+
+
+
+
 
 table {
     width: 100%;
@@ -235,6 +311,10 @@ input[type="number"] {
     background: #27ae60;
 }
 
+#fournisseur-form {
+    width: 400px;
+}
+
 .modal {
     display: none;
     position: fixed;
@@ -246,6 +326,11 @@ input[type="number"] {
     background: rgba(0, 0, 0, 0.25);
     align-items: center;
     justify-content: center;
+}
+
+.fournisseur-cadre {
+    float: left;
+    width: 500px;
 }
 
 .modal-content {
@@ -285,17 +370,19 @@ input[type="number"] {
     padding: 20px;
     margin-top: 20px;
     box-sizing: border-box;
+    width: 400px;
 }
 
 
-/* 🧃 Carte produit */
+/* Carte produit */
 .fournisseur-card {
     flex: 0 0 auto;
     /* 👈 garde une largeur fixe */
-    width: 280px;
+    width: 300px;
     background: #f4f7fb;
     border-radius: 10px;
     padding: 16px;
+    height: 200px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
@@ -318,7 +405,16 @@ input[type="number"] {
         width: 300px;
     }
 
-  
+    .fournisseur-section {
+        display: flex;
+        flex-direction: row;
+        gap: 24px;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 20px;
+        flex-wrap: wrap;
+        /* pour que ça s’adapte sur petits écrans */
+    }
 }
 
 
@@ -349,7 +445,7 @@ input[type="number"] {
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
-    
+
 }
 
 .actions button:hover {
@@ -365,7 +461,34 @@ input[type="number"] {
     cursor: pointer;
 }
 
+@media screen and (max-width: 768px) {
+    .fournisseur-section {
+        flex-direction: column;
+        align-items: center;
+    }
 
+    .fournisseur-cadre {
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .fournisseur-card {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .fournisseur-section {
+        display: flex;
+        flex-direction: row;
+        gap: 24px;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 20px;
+        flex-wrap: wrap;
+        /* pour que ça s’adapte sur petits écrans */
+    }
+
+}
 
 @media (max-width: 600px) {
     #admin-panel {

@@ -1,0 +1,130 @@
+#constat-ecart-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 320px;
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 8px;
+  margin-left: 340px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-top: 20px;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 150px;
+  height: 100vh;
+  background-color: #0d6efd;
+  color: white;
+  padding: 20px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  font-size: 22px;
+}
+
+.sidebar nav {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sidebar nav a {
+  text-decoration: none;
+  color: white;
+  font-size: 16px;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar nav a:hover {
+  opacity: 0.7;
+}
+
+#ecart-affichage {
+  font-weight: bold;
+  color: #c0392b;
+}
+
+#historique-inventaire {
+  margin-top: 20px;
+  border-collapse: collapse;
+  width: 100%;
+  margin-left: 340px;
+}
+
+#historique-inventaire th,
+td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+#historique-inventaire th {
+  background-color: #eee;
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  #dashboard {
+    flex-direction: column;
+    padding: 8px;
+  }
+
+  .badge {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  table th,
+  table td {
+    font-size: 12px;
+    padding: 4px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  #dashboard {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .badge {
+    font-size: 14px;
+  }
+
+  .sidebar {
+    display: none;
+    /* Masquer la sidebar si elle gêne */
+  }
+}
+
+@media (min-width: 1024px) {
+  #dashboard {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 20px;
+  }
+
+  .badge {
+    font-size: 16px;
+  }
+
+  .sidebar {
+    display: block;
+  }
+}

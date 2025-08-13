@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         : 0;
 
     $utilisateur = isset($input["utilisateur"]) ? trim($input["utilisateur"]) : "inconnu";
-    $date_mouvement = !empty($input["date"]) ? $input["date"] : date("Y-m-d H:i:s");
+    $date_mouvement = !empty($input["date"]) ? $input["date"] : date("Y-m-d");
 
     $stmt = $conn->prepare("
         INSERT INTO mouvements_stock 

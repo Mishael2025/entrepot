@@ -427,3 +427,26 @@ function modifierFournisseur(id) {
         });
 }
 
+function supprimerFournisseur(id) {
+    if (!confirm("❗ Voulez-vous vraiment supprimer ce fournisseur ?")) return;
+
+    fetch(`http://localhost/entrepot/Info/php/fournisseur_api.php?id=${id}`, {
+        method: "DELETE"
+    })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                alert("🗑️ Fournisseur supprimé avec succès !");
+                // 🔄 Recharger la liste ou rafraîchir l'affichage
+                if (typeof chargerFournisseurs === "function") {
+                    chargerFournisseurs();
+                }
+            } else {
+                alert("❌ Échec suppression : " + res.error);
+            }
+        })
+        .catch(err => {
+            console.error("❌ Erreur réseau :", err);
+            alert("⚠️ Une erreur est survenue lors de la suppression.");
+        });
+}

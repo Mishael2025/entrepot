@@ -27,12 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     exit;
 }
 
-// 📥 Méthode POST : Ajouter un nouveau fournisseur
+//  Méthode POST : Ajouter un nouveau fournisseur
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 🔍 Lecture et nettoyage des données
+    //  Lecture et nettoyage des données
     $data = json_decode(file_get_contents("php://input"), true);
 
-    // ⛑️ Logs pour debug (facultatif)
+    //  Logs pour debug (facultatif)
     error_log("🔍 Reçu POST : " . json_encode($data));
 
     // ✅ Sécurisation des champs
@@ -42,13 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = isset($data['email']) ? trim($data['email']) : '';
     $adresse = isset($data['adresse']) ? trim($data['adresse']) : '';
 
-    // 🚫 Validation des champs obligatoires
+    //  Validation des champs obligatoires
     if ($nom === '' || $categorie === '') {
         echo json_encode(["success" => false, "error" => "❌ Nom et catégorie requis"]);
         exit;
     }
 
-    // 📥 Insertion dans la base
+    //  Insertion dans la base
     $stmt = $conn->prepare("INSERT INTO fournisseur (nom, contact, email, adresse, categorie) VALUES (?, ?, ?, ?, ?)");
     if (!$stmt) {
         echo json_encode(["success" => false, "error" => "❌ Erreur préparation : " . $conn->error]);
@@ -67,11 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 
-// ✏️ Méthode PUT : Modifier un fournisseur
+//  Méthode PUT : Modifier un fournisseur
 if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     $data = json_decode(file_get_contents("php://input"), true);
 
-    // 🔐 Extraction sécurisée
+    //  Extraction sécurisée
     $id = isset($data['id']) ? intval($data['id']) : 0;
     $nom = isset($data['nom']) ? trim($data['nom']) : '';
     $contact = isset($data['contact']) ? trim($data['contact']) : '';
@@ -79,13 +79,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     $adresse = isset($data['adresse']) ? trim($data['adresse']) : '';
     $categorie = isset($data['categorie']) ? trim($data['categorie']) : '';
 
-    // 🚫 Validation
+    //  Validation
     if ($id === 0 || $nom === '' || $categorie === '') {
         echo json_encode(["success" => false, "error" => "❌ Données incomplètes"]);
         exit;
     }
 
-    // 🛠️ Requête SQL
+    //  Requête SQL
     $stmt = $conn->prepare("UPDATE fournisseur SET nom = ?, contact = ?, email = ?, adresse = ?, categorie = ? WHERE id = ?");
     $stmt->bind_param("sssssi", $nom, $contact, $email, $adresse, $categorie, $id);
 
@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 }
 
 
-// 🗑️ Méthode DELETE : Supprimer un fournisseur
+//  Méthode DELETE : Supprimer un fournisseur
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $stmt = $conn->prepare("DELETE FROM fournisseur WHERE id = ?");

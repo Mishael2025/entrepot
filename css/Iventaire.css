@@ -10,6 +10,12 @@
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
+#role-label {
+  float: right;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
 h1 {
   text-align: center;
   color: #333;
@@ -63,6 +69,149 @@ h1 {
   width: 100%;
   margin-left: 340px;
 }
+
+/*style pour le formulaire de planifications de livraisons*/
+
+.form-planification {
+    max-width: 640px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    font-family: 'Inter', sans-serif;
+    border-left: 6px solid #0078d7;
+    transition: box-shadow 0.3s ease;
+    margin-left: 340px;
+}
+
+.form-planification:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.form-planification h3 {
+    font-size: 22px;
+    margin-bottom: 25px;
+    color: #0078d7;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.form-planification label {
+    font-weight: 600;
+    margin-top: 18px;
+    display: block;
+    color: #333;
+    font-size: 15px;
+}
+
+.form-planification input,
+.form-planification select,
+.form-planification textarea {
+    width: 100%;
+    padding: 12px 14px;
+    margin-top: 8px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.form-planification input:focus,
+.form-planification select:focus,
+.form-planification textarea:focus {
+    border-color: #0078d7;
+    background-color: #fff;
+    outline: none;
+}
+
+.form-planification input[type="radio"] {
+    margin-right: 6px;
+    transform: scale(1.1);
+    accent-color: #0078d7;
+}
+
+.form-planification textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.form-planification button {
+    margin-top: 30px;
+    padding: 14px;
+    width: 100%;
+    background: linear-gradient(to right, #0078d7, #005bb5);
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.form-planification button:hover {
+    background: linear-gradient(to right, #005bb5, #004494);
+}
+/*Table de planifications*/
+.table-wrapper {
+  margin: 40px auto;
+  max-width: 1000px;
+  padding: 0 20px;
+}
+
+.table-controls {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  align-items: center;
+  margin-left: 340px;
+}
+
+.table-controls select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+@media screen and (max-width: 768px) {
+  .table-planification thead {
+    display: none;
+  }
+
+  .table-planification, .table-planification tbody, .table-planification tr, .table-planification td {
+    display: block;
+    width: 100%;
+  }
+
+  .table-planification tr {
+    margin-bottom: 20px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .table-planification td {
+    padding: 8px 0;
+    border: none;
+    position: relative;
+  }
+
+  .table-planification td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #0078d7;
+    display: block;
+    margin-bottom: 4px;
+  }
+}
+
+
+
 
 #historique-inventaire th,
 td {

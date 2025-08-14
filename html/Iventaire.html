@@ -49,6 +49,69 @@
         </thead>
         <tbody></tbody>
     </table>
+
+    <form id="planification-form" class="form-planification">
+        <h3>📦 Planifier une livraison</h3>
+
+        <label for="produit-planifie">Produit :</label>
+        <select id="produit-planifie" required>
+            <!-- Options dynamiques via JS -->
+        </select>
+
+        <label>Type :</label>
+        <label><input type="radio" name="type" value="entrée" checked> Entrée</label>
+        <label><input type="radio" name="type" value="sortie"> Sortie</label>
+
+        <label for="quantite-planifiee">Quantité (kg) :</label>
+        <input type="number" id="quantite-planifiee" step="0.01" required>
+
+        <label for="date-prevue">Date prévue :</label>
+        <input type="datetime-local" id="date-prevue" required>
+
+        <label for="commentaire">Commentaire :</label>
+        <textarea id="commentaire" rows="2"></textarea>
+     <label for="fournisseur-planifie">Fournisseur :</label>
+     <select id="fournisseur-planifie">
+         <option value="">-- Sélectionner --</option>
+          <!-- Options dynamiques via JS -->
+     </select>
+
+        <button type="submit">📅 Enregistrer</button>
+    </form>
+
+    <div id="calendrier-planifications">
+        <!-- Calendrier ou tableau des planifications -->
+    </div>
+
+    <div class="table-wrapper">
+        <div class="table-controls">
+            <label for="filtre-statut">Filtrer par statut :</label>
+            <select id="filtre-statut" onchange="filtrerTableau()">
+                <option value="tous">Tous</option>
+                <option value="confirmé">Confirmé</option>
+                <option value="attente">En attente</option>
+                <option value="annulé">Annulé</option>
+            </select>
+        </div>
+
+        <table class="table-planification" id="table-planification">
+            <thead>
+                <tr>
+                    <th onclick="trierTableau(0)">📅 Date</th>
+                    <th onclick="trierTableau(1)">🔁 Type</th>
+                    <th onclick="trierTableau(2)">📦 Produit</th>
+                    <th onclick="trierTableau(3)">⚖️ Quantité</th>
+                    <th>🧾 Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Lignes dynamiques ici -->
+            </tbody>
+        </table>
+    </div>
+
+
+
     <script src="../js/sessionStorage.js"></script>
 
     <script src="../js/Iventaire.js"></script>

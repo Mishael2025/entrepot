@@ -30,7 +30,7 @@ async function chargerProduits() {
     produits.forEach(p => {
         const option = document.createElement("option");
         option.value = p.id;
-        option.textContent = `${p.nom} (${p.quantite} kg)`;
+        option.textContent = `${p.nom} (${p.quantite})`;
         select.appendChild(option);
     });
 }
@@ -64,7 +64,8 @@ function calculerEcart() {
     const ecart = observee - theorique;
     document.getElementById("ecart-affichage").textContent = `Écart : ${ecart} kg`;
 }
-
+const quantiteObservee = document.getElementById("quantite-reelle");
+const quantiteTheorique = document.getElementById("quantite-theorique");
 //  Enregistrement du constat
 document.getElementById("constat-ecart-form").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -73,38 +74,30 @@ document.getElementById("constat-ecart-form").addEventListener("submit", async (
     const produitId = parseInt(document.getElementById("produit").value);
     const quantiteTheorique = parseFloat(document.getElementById("quantite-theorique").textContent);
     const quantiteObservee = parseFloat(document.getElementById("quantite-reelle").value);
-    const ecart = quantiteObservee - quantiteTheorique;
-    const justification = document.getElementById("justification").value.trim();
-    const utilisateurId = SessionManager.get("username"); // ou SessionManager.get("user_id")
+    if (isNaN(quantiteObservee)) {
+        alert("Veuillez saisir une quantité observée valide");
+        return;
+    }
 
-    // ✅ Logs de debug
-    console.log("📤 Données envoyées :", {
+    const corps = {
         produit_id: produitId,
         quantite_theorique: quantiteTheorique,
         quantite_observee: quantiteObservee,
-        ecart,
-        justification,
-        utilisateur_id: utilisateurId
-    });
+        ecart: quantiteObservee - quantiteTheorique,
+        justification: document.getElementById("justification").value.trim(),
+        utilisateur_id: SessionManager.getInt("user_id")
 
-    //  Validation des données
-    if (!produitId || isNaN(produitId)) return alert("❌ Aucun produit sélectionné.");
-    if (isNaN(quantiteObservee)) return alert("❌ Quantité réelle invalide.");
-    if (ecart !== 0 && justification === "") return alert("⚠️ Justification requise pour un écart.");
+    };
+    console.log("utilisateur", SessionManager.get("username"));
 
     try {
+
         const res = await fetch("http://localhost/entrepot/Info/php/Iventaire_.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                produit_id: produitId,
-                quantite_theorique: quantiteTheorique,
-                quantite_observee: quantiteObservee,
-                ecart,
-                justification,
-                utilisateur_id: utilisateurId
-            })
+            body: JSON.stringify(corps)
         });
+        console.log("payload envoye", corps);
 
         const contentType = res.headers.get("content-type");
         const raw = await res.text();
@@ -116,12 +109,7 @@ document.getElementById("constat-ecart-form").addEventListener("submit", async (
         }
 
         let json;
-        try {
-            json = JSON.parse(raw);
-        } catch (err) {
-            console.error("❌ Erreur JSON :", err);
-            return alert("Erreur de parsing JSON : " + err.message);
-        }
+     
 
         if (json.success) {
             alert("✅ Constat enregistré !");
@@ -148,34 +136,6 @@ document.getElementById("produit").addEventListener("change", () => {
 });
 
 
-function afficherMessageErreur(message) {
-    const container = document.getElementById("produits-container");
-    container.innerHTML = `<div class="message-erreur">${message}</div>`;
-}
-
-fetch("http://localhost/entrepot/Info/php/test.php?action=get_produits")
-    .then(res => res.json())
-    .then(response => {
-        if (response.success && Array.isArray(response.data)) {
-            const select = document.getElementById("produit");
-            response.data.forEach(produit => {
-                // Ton code d'affichage ici
-                const option = document.createElement("option");
-                option.value = produit.id;
-                option.textContent = produit.nom; //  correction ici
-                select.appendChild(option);
-                console.log("Produit :", produit.nom);
-                console.log("ID Produit :", produit.id);
-            });
-        } else {
-            console.warn("Format inattendu :", response);
-            afficherMessageErreur("Format de données invalide.");
-        }
-    })
-    .catch(error => {
-        console.error("Erreur fetch :", error);
-        afficherMessageErreur("Impossible de charger les produits.");
-    });
 
 function chargerHistoriqueInventaire() {
     fetch("http://localhost/entrepot/Info/php/Inventaire_.php?action=get_historique")
@@ -207,30 +167,30 @@ function chargerHistoriqueInventaire() {
 
 
 // 🔁 Chargement des produits dans le select
-async function chargerProduits() {
-  fetch("http://localhost/entrepot/Info/php/test.php?action=get_produits")
-    .then(res => res.json())
-    .then(response => {
-        if (response.success && Array.isArray(response.data)) {
-            const select = document.getElementById("produit-planifie");
-            response.data.forEach(produit => {
-                // Ton code d'affichage ici
-                const option = document.createElement("option");
-                option.value = produit.id;
-                option.textContent = produit.nom; //  correction ici
-                select.appendChild(option);
-                console.log("Produit :", produit.nom);
-                console.log("ID Produit :", produit.id);
-            });
-        } else {
-            console.warn("Format inattendu :", response);
-            afficherMessageErreur("Format de données invalide.");
-        }
-    })
-    .catch(error => {
-        console.error("Erreur fetch :", error);
-        afficherMessageErreur("Impossible de charger les produits.");
-    });
+async function chargerProduits1() {
+    fetch("http://localhost/entrepot/Info/php/test.php?action=get_produits")
+        .then(res => res.json())
+        .then(response => {
+            if (response.success && Array.isArray(response.data)) {
+                const select = document.getElementById("produit-planifie");
+                response.data.forEach(produit => {
+                    // Ton code d'affichage ici
+                    const option = document.createElement("option");
+                    option.value = produit.id;
+                    option.textContent = produit.nom; //  correction ici
+                    select.appendChild(option);
+                    console.log("Produit :", produit.nom);
+                    console.log("ID Produit :", produit.id);
+                });
+            } else {
+                console.warn("Format inattendu :", response);
+                afficherMessageErreur("Format de données invalide.");
+            }
+        })
+        .catch(error => {
+            console.error("Erreur fetch :", error);
+            afficherMessageErreur("Impossible de charger les produits.");
+        });
 
 
 
@@ -239,7 +199,7 @@ async function chargerProduits() {
 // 📤 Enregistrement d'une planification
 // 📦 Chargement des fournisseurs dans le select
 async function chargerFournisseurs() {
-    const res = await fetch("/entrepot/Info/php/Fournisseurs.php");
+    const res = await fetch("http://localhost/entrepot/Info/php/fournisseur_api.php");
     const fournisseurs = await res.json();
     const select = document.getElementById("fournisseur-planifie");
     select.innerHTML = '<option value="">-- Sélectionner --</option>';
@@ -251,11 +211,11 @@ async function chargerFournisseurs() {
     });
 }
 
-// 📤 Soumission du formulaire de planification
+//  Soumission du formulaire de planification
 document.getElementById("planification-form").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const type = document.querySelector('input[name="type"]:checked').value;
+    const type = document.getElementById("type").value;
     const fournisseurId = type === "entrée" ? parseInt(document.getElementById("fournisseur-planifie").value) : null;
 
     const payload = {
@@ -264,10 +224,11 @@ document.getElementById("planification-form").addEventListener("submit", async (
         quantite: parseFloat(document.getElementById("quantite-planifiee").value),
         date_prevue: document.getElementById("date-prevue").value,
         commentaire: document.getElementById("commentaire").value.trim(),
-        fournisseur_id: fournisseurId
+        fournisseur_id: fournisseurId,
+        utilisateur_id: SessionManager.get("username")
     };
 
-    const res = await fetch("/entrepot/Info/php/Planification.php", {
+    const res = await fetch("http://localhost/entrepot/Info/php/planification.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -276,6 +237,7 @@ document.getElementById("planification-form").addEventListener("submit", async (
     const json = await res.json();
     if (json.success) {
         alert("✅ Planification enregistrée !");
+        console.log(" Données envoyées :", payload);
         document.getElementById("planification-form").reset();
         afficherPlanifications();
     } else {
@@ -319,7 +281,7 @@ window.addEventListener("DOMContentLoaded", () => {
     chargerFournisseurs();
     afficherPlanifications();
     // 🚀 Initialisation
-    chargerProduits();
+    chargerProduits1();
 });
 
 

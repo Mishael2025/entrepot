@@ -83,6 +83,12 @@ window.SessionManager = {
     get: function (key) {
         return sessionStorage.getItem(key);
     },
+    getInt: function (key) {
+        const val = sessionStorage.getItem(key);
+        return val ? parseInt(val) : null;
+    },
+
+
     clear: function () {
         sessionStorage.clear();
     },

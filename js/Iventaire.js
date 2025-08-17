@@ -97,19 +97,25 @@ document.getElementById("constat-ecart-form").addEventListener("submit", async (
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(corps)
         });
-        console.log("payload envoye", corps);
 
         const contentType = res.headers.get("content-type");
         const raw = await res.text();
-        console.log(" Réponse brute :", raw);
-
-        if (!contentType || !contentType.includes("application/json")) {
-            console.warn("⚠️ Réponse non JSON :", raw);
-            return alert("Réponse serveur invalide : " + raw.slice(0, 100));
-        }
+        console.log("Réponse brute :", raw);
 
         let json;
-     
+        if (contentType && contentType.includes("application/json")) {
+            try {
+                json = JSON.parse(raw);
+            } catch (err) {
+                console.error("❌ Erreur de parsing JSON :", err);
+                alert("Réponse serveur invalide : " + err.message);
+                return;
+            }
+        } else {
+            console.warn("⚠️ Réponse non JSON :", raw);
+            alert("Réponse serveur inattendue.");
+            return;
+        }
 
         if (json.success) {
             alert("✅ Constat enregistré !");
@@ -120,15 +126,15 @@ document.getElementById("constat-ecart-form").addEventListener("submit", async (
             alert("❌ Échec : " + (json.message || "Erreur inconnue"));
         }
 
+
     } catch (err) {
         console.error("❌ Erreur réseau ou serveur :", err);
         alert("Impossible de contacter le serveur : " + err.message);
     }
 });
-// 📜 Chargement de l'historique d'inventaire
-chargerHistoriqueInventaire();
+//  Chargement de l'historique d'inventaire
 
-// 🚀 Initialisation
+//  Initialisation
 document.addEventListener("DOMContentLoaded", chargerProduits);
 document.getElementById("produit").addEventListener("change", () => {
     const produitId = parseInt(document.getElementById("produit").value);
@@ -137,23 +143,23 @@ document.getElementById("produit").addEventListener("change", () => {
 
 
 
-function chargerHistoriqueInventaire() {
-    fetch("http://localhost/entrepot/Info/php/Inventaire_.php?action=get_historique")
+document.addEventListener("DOMContentLoaded", () => {
+    fetch("http://localhost/entrepot/Info/php/Iventaire_.php?action=get_historique")
         .then(res => res.json())
         .then(data => {
-            const historiqueTable = document.getElementById("historique-inventaire");
-            historiqueTable.innerHTML = ""; // Réinitialiser le tableau
+            const historiqueTable = document.getElementById("historique-inventaire").querySelector("tbody");
+            historiqueTable.innerHTML = "";
 
             data.forEach(entry => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${entry.date}</td>
-                    <td>${entry.produit_nom}</td>
-                    <td>${entry.quantite_theorique}</td>
-                    <td>${entry.quantite_reelle}</td>
-                    <td>${entry.ecart}</td>
+                    <td>${entry.produit_nom || "?"}</td>
+                    <td>${entry.quantite_theorique ?? "?"}</td>
+                    <td>${entry.quantite_reelle ?? "?"}</td>
+                    <td>${entry.ecart ?? "?"}</td>
                     <td>${entry.justification || "N/A"}</td>
-                    <td>${entry.utilisateur_nom}</td>
+                    <td>${entry.date_inventaire || "?"}</td>
+                    <td>${entry.utilisateur_nom || "?"}</td>
                 `;
                 historiqueTable.appendChild(row);
             });
@@ -162,7 +168,8 @@ function chargerHistoriqueInventaire() {
             console.error("❌ Erreur chargement historique :", err);
             alert("Impossible de charger l'historique");
         });
-}
+});
+
 // Enregistrer et charger les planifications
 
 
@@ -279,6 +286,8 @@ async function afficherPlanifications() {
 // 🚀 Initialisation
 window.addEventListener("DOMContentLoaded", () => {
     chargerFournisseurs();
+    
+
     afficherPlanifications();
     // 🚀 Initialisation
     chargerProduits1();

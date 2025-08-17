@@ -76,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["upcoming"])) {
     $sql = "SELECT p.*, pr.nom AS produit_nom, f.nom AS fournisseur_nom
             FROM planifications p
             JOIN produits pr ON pr.id = p.produit_id
-            LEFT JOIN fournisseurs f ON f.id = p.fournisseur_id
+            LEFT JOIN fournisseur f ON f.id = p.fournisseur_id
             WHERE p.date_prevue >= NOW()
             ORDER BY p.date_prevue ASC";
 

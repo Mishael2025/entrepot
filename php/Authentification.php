@@ -9,9 +9,9 @@ header("Access-Control-Max-Age: 86400");
 
 // ✅ Connexion à la base de données
 $host = "localhost";
-$user = "root"; 
-$password = ""; 
-$dbname = "entrepotalimentaire"; 
+$user = "root";
+$password = "";
+$dbname = "entrepotalimentaire";
 
 $conn = mysqli_connect($host, $user, $password, $dbname);
 
@@ -38,7 +38,8 @@ $nom = $data["username"];
 $password = $data["password"];
 
 // ✅ Vérification dans la base de données
-$stmt = $conn->prepare("SELECT role, mot_de_passe FROM utilisateurs WHERE nom=?");
+$stmt = $conn->prepare("SELECT id, nom, role, mot_de_passe FROM utilisateurs WHERE nom=?");
+
 $stmt->bind_param("s", $nom);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -46,15 +47,20 @@ $result = $stmt->get_result();
 if ($result->num_rows === 1) {
     $user = $result->fetch_assoc();
 
-    // Vérifier le mot de passe
     if (password_verify($password, $user["mot_de_passe"])) {
-        echo json_encode(["success" => true, "role" => $user["role"]]);
+        echo json_encode([
+            "success" => true,
+            "id" => $user['id'],
+            "username" => $user['nom'],
+            "role" => $user['role']
+        ]);
     } else {
         echo json_encode(["success" => false, "message" => "❌ Mot de passe incorrect"]);
     }
 } else {
     echo json_encode(["success" => false, "message" => "❌ Utilisateur introuvable"]);
 }
+
 
 $stmt->close();
 mysqli_close($conn);

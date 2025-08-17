@@ -30,12 +30,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// 📥 Lecture des données JSON
+//  Lecture des données JSON
 $input = json_decode(file_get_contents("php://input"), true);
+var_dump($input);
 if (!$input || !isset($input['produit_id'], $input['quantite_theorique'], $input['quantite_observee'], $input['ecart'], $input['utilisateur_id'])) {
     http_response_code(400);
     echo json_encode(["success" => false, "message" => "Données incomplètes"]);
     exit;
+}
+foreach (['produit_id', 'quantite_theorique', 'quantite_observee', 'ecart', 'utilisateur_id'] as $champ) {
+    if (!isset($input[$champ])) {
+        error_log("Champ manquant : $champ");
+    }
 }
 
 // 🔍 Vérification existence du produit

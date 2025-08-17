@@ -8,49 +8,74 @@ const loginBtn = document.getElementById("login-btn");
 
 document.addEventListener("DOMContentLoaded", function () {
     const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
 
+    // 🔐 Connexion
     if (loginBtn) {
-        loginBtn.addEventListener("click", () => {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
+        loginBtn.addEventListener("click", async () => {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
 
-            fetch("http://localhost/entrepot/Info/php/Authentification.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert("✅ Connexion réussie !");
-                        SessionManager.set("username", username);
-                        SessionManager.set("userRole", data.role);
+            if (!username || !password) {
+                alert("⚠️ Veuillez remplir tous les champs.");
+                return;
+            }
 
-                        window.location.href = "/entrepot/Info/html/acceuil.html";
-                    } else {
-                        alert("❌ " + data.message);
-                    }
-                })
-                .catch(error => console.error("Erreur lors de la connexion :", error));
+            try {
+                const res = await fetch("http://localhost/entrepot/Info/php/Authentification.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    SessionManager.set("username", data.username);
+                    SessionManager.set("userRole", data.role);
+                    SessionManager.set("user_id", data.id);
+
+                    alert("✅ Connexion réussie !");
+                    window.location.href = "/entrepot/Info/html/acceuil.html";
+                } else {
+                    alert("❌ " + data.message);
+                }
+            } catch (error) {
+                console.error("Erreur lors de la connexion :", error);
+                alert("❌ Erreur serveur. Veuillez réessayer.");
+            }
         });
     }
 
-    // 🔐 Appliquer les restrictions si déjà connecté
-    const role = SessionManager.get("userRole") || "invité";
-    if (window.rolePermissions[role]) {
-        applyRoleRestrictionsByPage(role);
-    }
-
     // 🚪 Déconnexion
-    const logoutBtn = document.getElementById("logout-btn");
     if (logoutBtn) {
-        logoutBtn.addEventListener("click", function () {
+        logoutBtn.addEventListener("click", () => {
             SessionManager.clear();
             alert("👋 Vous avez été déconnecté.");
             window.location.href = "/entrepot/Info/html/PageConnexion.html";
         });
     }
+
+    // 🔐 Application des restrictions selon le rôle
+    const role = SessionManager.get("userRole") || "invité";
+    if (window.rolePermissions?.[role]) {
+        applyRoleRestrictionsByPage(role);
+    }
 });
+
+// ✅ Fonction d’application des permissions
+function configureRoleAccess(role) {
+    applyRoleRestrictionsByPage(role);
+}
+
+// 🔁 Si on est sur la page de connexion, appliquer les restrictions
+if (window.location.pathname.includes("PageConnexion.html")) {
+    const role = SessionManager.get("userRole") || "invité";
+    if (window.rolePermissions?.[role]) {
+        configureRoleAccess(role);
+    }
+}
+
 
 
 
@@ -58,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // ✅ Fonction pour gérer l'affichage selon le rôle
 function configureRoleAccess(role) {
-   applyRoleRestrictionsByPage(role);
+    applyRoleRestrictionsByPage(role);
 }
 if (window.location.pathname.includes("PageConnexion.html")) {
     const role = SessionManager.get("userRole") || "invité";

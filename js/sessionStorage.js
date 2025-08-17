@@ -77,17 +77,18 @@ window.rolePermissions = {
     }
 };
 window.SessionManager = {
-    set: function (key, value) {
-        sessionStorage.setItem(key, value);
-    },
+
     get: function (key) {
         return sessionStorage.getItem(key);
     },
+
+    set: function (key, val) {
+        sessionStorage.setItem(key, val.toString());
+    },
     getInt: function (key) {
         const val = sessionStorage.getItem(key);
-        return val ? parseInt(val) : null;
+        return val !== null ? parseInt(val) : null;
     },
-
 
     clear: function () {
         sessionStorage.clear();

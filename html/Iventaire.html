@@ -17,7 +17,9 @@
             <h2> Constat d’écart en sortie produit</h2>
 
             <label for="produit">Produit :</label>
+            <input type="text" id="filtrer-produits" placeholder="🔄Filtrer les produits">
             <select id="produit" required>
+                
                 <option value>-- Choisir un produit --</option>
                 <!-- Options dynamiques -->
             </select>
@@ -57,6 +59,7 @@
             <h3>📦 Planifier une livraison</h3>
 
             <label for="produit-planifie">Produit :</label>
+            <input type="text" id="filtrer-produit" placeholder="🔄Filtrer les produits">
             <select id="produit-planifie" required>
                 <!-- Options dynamiques via JS -->
             </select>
@@ -87,7 +90,6 @@
         </form>
 
         <div id="calendrier-planifications"></div>
-
 
         <div class="table-wrapper">
             <div class="table-controls">
@@ -120,6 +122,45 @@
 
         <script src="../js/Iventaire.js"></script>
         <script>
+
+
+//Fonction de filtrage du tableau
+function filtrerTableau() {
+    const filtre = document.getElementById("filtre-statut").value;
+    const tbody = document.querySelector("#table-planification tbody");
+    tbody.innerHTML = "";
+
+    const filtrées = filtre === "tous"
+        ? planifications
+        : planifications.filter(p => p.statut === filtre);
+
+    filtrées.forEach(p => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${new Date(p.date_prevue).toLocaleString()}</td>
+            <td>${p.type}</td>
+            <td>${p.produit_nom}</td>
+            <td>${p.quantite} kg</td>
+            <td>${p.statut}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+// Trier colonne
+function trierTableau(colIndex) {
+    const tbody = document.querySelector("#table-planification tbody");
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    const sorted = rows.sort((a, b) => {
+        const valA = a.children[colIndex].textContent.trim().toLowerCase();
+        const valB = b.children[colIndex].textContent.trim().toLowerCase();
+        return valA.localeCompare(valB);
+    });
+
+    tbody.innerHTML = "";
+    sorted.forEach(row => tbody.appendChild(row));
+}
+
            function toggleFournisseur() {
             const type = document.getElementById('type').value;
             document.getElementById('fournisseur-block').style.display = (type === 'entrée') ? 'block' : 'none';

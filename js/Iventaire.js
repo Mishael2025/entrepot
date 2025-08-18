@@ -221,9 +221,14 @@ async function chargerFournisseurs() {
 //  Soumission du formulaire de planification
 document.getElementById("planification-form").addEventListener("submit", async (e) => {
     e.preventDefault();
+    let fournisseurId = null;
 
     const type = document.getElementById("type").value;
-    const fournisseurId = type === "entrée" ? parseInt(document.getElementById("fournisseur-planifie").value) : null;
+    if (type === "entrée") {
+        const raw = document.getElementById("fournisseur-planifie").value;
+        fournisseurId = raw !== "" ? parseInt(raw) : null;
+    }
+
 
     const payload = {
         produit_id: parseInt(document.getElementById("produit-planifie").value),
@@ -232,8 +237,12 @@ document.getElementById("planification-form").addEventListener("submit", async (
         date_prevue: document.getElementById("date-prevue").value,
         commentaire: document.getElementById("commentaire").value.trim(),
         fournisseur_id: fournisseurId,
-        utilisateur_id: SessionManager.get("username")
+        utilisateur_id: SessionManager.getInt("user_id")
     };
+    if (type === "entrée" && fournisseurId === null) {
+        alert("❌ Fournisseur requis pour une entrée.");
+        return;
+    }
 
     const res = await fetch("http://localhost/entrepot/Info/php/planification.php", {
         method: "POST",
@@ -250,6 +259,22 @@ document.getElementById("planification-form").addEventListener("submit", async (
     } else {
         alert("❌ Échec : " + (json.message || "Erreur inconnue"));
     }
+});
+
+document.getElementById("filtrer-produit").addEventListener("input", e => {
+    const filtre = e.target.value.toLowerCase();
+    const options = document.querySelectorAll("#produit-planifie option");
+    options.forEach(opt => {
+        opt.style.display = opt.textContent.toLowerCase().includes(filtre) ? "block" : "none";
+    });
+});
+document.getElementById("filtrer-produits").addEventListener("input", e => {
+    const filtre = e.target.value.toLowerCase();
+    const options = document.querySelectorAll("#produit option");
+    options.forEach(opt => {
+        const visible = opt.textContent.toLowerCase().includes(filtre) || opt.value === "";
+        opt.style.display = visible ? "block" : "none";
+    });
 });
 
 // 📅 Affichage des planifications
@@ -282,11 +307,40 @@ async function afficherPlanifications() {
 
     container.appendChild(table);
 }
+// Afficher les planifications
+let planifications = []; // Stock global pour filtrage et tri
+
+async function afficherPlanifications() {
+    const res = await fetch("/entrepot/Info/php/planification.php?upcoming=true");
+    const data = await res.json();
+    planifications = data; // Stocker pour filtrage
+
+    const tbody = document.querySelector("#table-planification tbody");
+    tbody.innerHTML = "";
+
+    data.forEach(p => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${new Date(p.date_prevue).toLocaleString()}</td>
+            <td>${p.type}</td>
+            <td>${p.produit_nom}</td>
+            <td>${p.quantite} kg</td>
+            <td>${p.statut}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+document.querySelectorAll("#table-planification tbody tr").forEach(row => {
+    const labels = ["📅 Date", "🔁 Type", "📦 Produit", "⚖️ Quantité", "🧾 Statut"];
+    row.querySelectorAll("td").forEach((td, i) => {
+        td.setAttribute("data-label", labels[i]);
+    });
+});
 
 // 🚀 Initialisation
 window.addEventListener("DOMContentLoaded", () => {
     chargerFournisseurs();
-    
+    afficherPlanifications();
 
     afficherPlanifications();
     // 🚀 Initialisation

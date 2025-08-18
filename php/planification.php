@@ -50,16 +50,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
 
-        $fournisseur_id = $input['fournisseur_id'];
+        $utilisateur_id = $input['utilisateur_id']; // ou récupéré depuis session
 
-        $stmt = $conn->prepare("INSERT INTO planifications (produit_id, type, quantite, date_prevue,utlisateur_id, commentaire, fournisseur_id, notifie)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("issssii", $produit_id, $type, $quantite, $date_prevue, $commentaire, $fournisseur_id, $notifie);
+        $stmt = $conn->prepare("INSERT INTO planifications (produit_id, type, quantite, date_prevue, utilisateur_id, commentaire, fournisseur_id, notifie) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+        $stmt->bind_param("isssissi", $produit_id, $type, $quantite, $date_prevue, $utilisateur_id, $commentaire, $fournisseur_id, $notifie);
+
     } else {
         // Sortie : pas de fournisseur
-        $stmt = $conn->prepare("INSERT INTO planifications (produit_id, type, quantite, date_prevue, commentaire, notifie)
-                            VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("issssi", $produit_id, $type, $quantite, $date_prevue, $commentaire, $notifie);
+        $stmt = $conn->prepare("INSERT INTO planifications (produit_id, type, quantite, date_prevue, utilisateur_id, commentaire, notifie) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+        $stmt->bind_param("isssisi", $produit_id, $type, $quantite, $date_prevue, $utilisateur_id, $commentaire, $notifie);
+
     }
 
     $stmt->execute();
@@ -71,7 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     exit;
 }
 
-// 📅 Récupération des planifications à venir
+//  Récupération des planifications à venir
 if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["upcoming"])) {
     $sql = "SELECT p.*, pr.nom AS produit_nom, f.nom AS fournisseur_nom
             FROM planifications p

@@ -125,9 +125,9 @@ header h1 {
 }
 
 #search-bar {
-    height: 45px;
+    height: 30px;
     width: 200px;
-
+    margin-bottom: 0px;
 }
 
 .contenus {
@@ -403,7 +403,7 @@ header h1 {
     right: 10px;
     font-size: 20px;
     cursor: pointer;
-    color:red;
+    color: red;
 }
 
 /* =================== DASHBOARD =================== */

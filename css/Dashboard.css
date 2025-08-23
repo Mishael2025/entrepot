@@ -18,6 +18,16 @@ body {
     box-shadow: 2px 0 10px rgba(78, 84, 200, 0.08);
     z-index: 10;
 }
+.text-primary   { color: #0078D7; }
+.text-info      { color: #17a2b8; }
+.text-success   { color: #28a745; }
+.text-warning   { color: #ffc107; }
+.text-danger    { color: #dc3545; }
+.text-secondary { color: #6c757d; }
+
+.sidebar i {
+  margin-right: 8px;
+}
 
 .sidebar h2 {
     margin-top: 0;

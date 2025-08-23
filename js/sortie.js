@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     badges.push(`
             <span class="badge ${classe}">
               ${raison} : ${info.percent}%<br>
-              💰 Valeur totale : ${valeurFC} FC
+             <i class="fas fa-money-bill-wave text-success"></i>${valeurFC} FC
             </span>
           `);
                 }
@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         })
         .catch(err => {
-            console.error("🚫 Erreur lors du fetch :", err);
+            console.error(" Erreur lors du fetch :", err);
         });
 });
 
@@ -277,103 +277,149 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", async () => {
     await renderCharts()
 });
+
 async function renderCharts() {
-    console.log(" Rechargement des graphiques...");
+    console.log("🔄 Chargement des graphiques par produit...");
 
-    const ctxLine = document.getElementById("line-chart")?.getContext("2d");
-    const ctxBar = document.getElementById("bar-chart")?.getContext("2d");
-    const ctxScatter = document.getElementById("scatter-chart")?.getContext("2d");
+    const chartContainer = document.getElementById("chart-section");
+    const produitSelector = document.getElementById("produit-selector");
 
-    if (!ctxLine || !ctxBar || !ctxScatter) {
-        console.error("❌ Canvas introuvables !");
+    if (!chartContainer || !produitSelector) {
+        console.error("❌ Conteneurs introuvables !");
         return;
     }
 
-    try {
-        const getJsonData = async (url) => {
-            try {
-                const res = await fetch(url);
-                const text = await res.text();
+    chartContainer.innerHTML = "";
+    produitSelector.innerHTML = "";
 
-                let json;
-                try {
-                    json = JSON.parse(text);
-                } catch (e) {
-                    console.error("❌ Erreur JSON : réponse non parsable");
-                    console.warn(text);
-                    return [];
+    const getJsonData = async (url) => {
+        try {
+            const res = await fetch(url);
+            const text = await res.text();
+            const json = JSON.parse(text);
+            return Array.isArray(json.data) ? json.data : [];
+        } catch (err) {
+            console.error("❌ Erreur Fetch ou JSON :", err);
+            return [];
+        }
+    };
+
+    const entriesRaw = await getJsonData("http://localhost/entrepot/Info/php/produits_api.php");
+    const movementsRaw = await getJsonData("http://localhost/entrepot/Info/php/sortie_api.php?mode=timeline");
+
+    const formatToMonthKey = (dateStr) => dateStr.split("-").slice(0, 2).join("-");
+    const formatMonthLabel = (monthKey) => {
+        const [year, month] = monthKey.split("-");
+        const moisNoms = ["Janv", "Févr", "Mars", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc"];
+        return `${moisNoms[parseInt(month) - 1]} ${year}`;
+    };
+
+    const produitsMap = {};
+
+    entriesRaw.forEach(p => {
+        const date = p.created_at?.split(" ")[0];
+        const moisKey = formatToMonthKey(date);
+        const qte = parseFloat(p.quantite) || 0;
+        const id = p.id;
+        const nom = p.nom;
+
+        if (!produitsMap[id]) produitsMap[id] = { nom, entrees: {}, sorties: {} };
+        produitsMap[id].entrees[moisKey] = (produitsMap[id].entrees[moisKey] || 0) + qte;
+    });
+
+    movementsRaw.forEach(mvt => {
+        const date = mvt.date_mouvement?.split(" ")[0];
+        const moisKey = formatToMonthKey(date);
+        const qte = parseFloat(mvt.quantite) || 0;
+        const id = mvt.produit_id;
+        const nom = mvt.nom;
+
+        if (!produitsMap[id]) produitsMap[id] = { nom, entrees: {}, sorties: {} };
+        if (mvt.type === "entrée") {
+            produitsMap[id].entrees[moisKey] = (produitsMap[id].entrees[moisKey] || 0) + qte;
+        } else if (mvt.type === "sortie") {
+            produitsMap[id].sorties[moisKey] = (produitsMap[id].sorties[moisKey] || 0) + qte;
+        }
+    });
+
+    const produitIds = Object.keys(produitsMap);
+    const maxAffichage = 6;
+
+    produitIds.forEach(id => {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = produitsMap[id].nom;
+        produitSelector.appendChild(option);
+    });
+
+    const afficherProduit = (id) => {
+        chartContainer.innerHTML = "";
+
+        const produit = produitsMap[id];
+        const mois = Array.from(new Set([
+            ...Object.keys(produit.entrees),
+            ...Object.keys(produit.sorties)
+        ])).sort();
+
+        const moisLabels = mois.map(formatMonthLabel);
+        const entrees = mois.map(m => produit.entrees[m] || 0);
+        const sorties = mois.map(m => produit.sorties[m] || 0);
+
+        const totalEntrees = entrees.reduce((a, b) => a + b, 0);
+        const totalSorties = sorties.reduce((a, b) => a + b, 0);
+        const tendance = totalEntrees > totalSorties ? "📈 Stock en hausse"
+            : totalSorties > totalEntrees ? "📉 Stock en baisse"
+                : "🔁 Stock stable";
+
+        // 📦 Bloc produit
+        const bloc = document.createElement("div");
+        bloc.style.marginBottom = "40px";
+
+        const titre = document.createElement("h3");
+        titre.textContent = `🧺 ${produit.nom} — ${tendance}`;
+        bloc.appendChild(titre);
+
+        // 📊 Graphique bar
+        const canvasBar = document.createElement("canvas");
+        canvasBar.height = 300;
+        bloc.appendChild(canvasBar);
+
+        new Chart(canvasBar.getContext("2d"), {
+            type: "bar",
+            data: {
+                labels: moisLabels,
+                datasets: [
+                    { label: "Entrées", data: entrees, backgroundColor: "#27ae60" },
+                    { label: "Sorties", data: sorties, backgroundColor: "#c0392b" }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: true, text: "📊 Flux mensuel" },
+                    legend: { position: "bottom" }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true }
                 }
-
-                if (!Array.isArray(json.data)) {
-                    console.warn("⚠️ Clé 'data' manquante ou incorrecte dans la réponse");
-                    return [];
-                }
-
-                return json.data;
-
-            } catch (err) {
-                console.error("❌ Erreur Fetch réseau :", err);
-                return [];
             }
-        };
-
-        const entriesRaw = await getJsonData("http://localhost/entrepot/Info/php/produits_api.php");
-        const movementsRaw = await getJsonData("http://localhost/entrepot/Info/php/sortie_api.php?mode=timeline");
-
-        // 🔧 Format mois brut → "2025-08"
-        const formatToMonthKey = (dateStr) => {
-            const [year, month] = dateStr.split("-"); // "2025-08-08" → ["2025", "08"]
-            return `${year}-${month}`;
-        };
-
-        // 🔧 Format mois lisible → "Août 2025"
-        const formatMonthLabel = (monthKey) => {
-            const [year, month] = monthKey.split("-");
-            const moisNoms = ["Janv", "Févr", "Mars", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc"];
-            return `${moisNoms[parseInt(month) - 1]} ${year}`;
-        };
-
-        const mois = [];
-        const entreesParMois = {};
-        const sortiesParMois = {};
-
-        entriesRaw.forEach(produit => {
-            const date = produit.created_at?.split(" ")[0];
-            if (!date) return;
-            const moisKey = formatToMonthKey(date);
-            const qte = parseFloat(produit.quantite) || 0;
-            if (!mois.includes(moisKey)) mois.push(moisKey);
-            entreesParMois[moisKey] = (entreesParMois[moisKey] || 0) + qte;
         });
 
-        movementsRaw.forEach(mvt => {
-            const date = mvt.date_mouvement?.split(" ")[0];
-            if (!date) return;
-            const moisKey = formatToMonthKey(date);
-            const qte = parseFloat(mvt.quantite) || 0;
-            if (!mois.includes(moisKey)) mois.push(moisKey);
-            if (mvt.type === "sortie") {
-                sortiesParMois[moisKey] = (sortiesParMois[moisKey] || 0) + qte;
-            } else if (mvt.type === "entrée") {
-                entreesParMois[moisKey] = (entreesParMois[moisKey] || 0) + qte;
-            }
-        });
+        // 📈 Graphique dent de scie (stock net)
+        const canvasLine = document.createElement("canvas");
+        canvasLine.height = 300;
+        bloc.appendChild(canvasLine);
 
-        mois.sort();
-
-        // 🧠 Calcul du stock cumulatif
         const stockLevels = [];
         let cumul = 0;
         mois.forEach(m => {
-            cumul += (entreesParMois[m] || 0) - (sortiesParMois[m] || 0);
+            cumul += (produit.entrees[m] || 0) - (produit.sorties[m] || 0);
             cumul = Math.max(cumul, 0);
             stockLevels.push(cumul);
         });
 
-        const moisLabels = mois.map(formatMonthLabel);
-
-        // 📈 Graphique d’évolution
-        new Chart(ctxLine, {
+        new Chart(canvasLine.getContext("2d"), {
             type: "line",
             data: {
                 labels: moisLabels,
@@ -382,107 +428,129 @@ async function renderCharts() {
                     data: stockLevels,
                     borderColor: "#2980b9",
                     backgroundColor: "rgba(52, 152, 219, 0.2)",
-                    fill: true
+                    fill: true,
+                    tension: 0.3
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: "📈 Évolution du stock par mois"
-                    }
+                    title: { display: true, text: "📈 Évolution du stock" },
+                    legend: { position: "bottom" }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+                    y: { beginAtZero: true }
                 }
             }
         });
 
-        // 📊 Graphique flux entrées / sorties
-        new Chart(ctxBar, {
-            type: "bar",
-            data: {
-                labels: moisLabels,
-                datasets: [
-                    {
-                        label: "Entrées",
-                        data: mois.map(m => entreesParMois[m] || 0),
-                        backgroundColor: "#27ae60"
-                    },
-                    {
-                        label: "Sorties",
-                        data: mois.map(m => sortiesParMois[m] || 0),
-                        backgroundColor: "#c0392b"
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: "📊 Flux de stock par mois"
-                    }
-                },
-                scales: {
-                    x: { stacked: true },
-                    y: { stacked: true }
-                }
-            }
-        });
+        chartContainer.appendChild(bloc);
+    };
 
-        // 📍 Graphique de corrélation
-        const points = mois.map(m => ({
-            x: sortiesParMois[m] || 0,
-            y: entreesParMois[m] || 0
-        }));
+    // 🧠 Affichage initial des 6 premiers
+    produitIds.slice(0, maxAffichage).forEach(id => afficherProduit(id));
 
-        const totalEntrees = points.reduce((sum, p) => sum + p.y, 0);
-        const totalSorties = points.reduce((sum, p) => sum + p.x, 0);
+    // 🔄 Sélection manuelle
+    produitSelector.addEventListener("change", e => {
+        const selectedId = e.target.value;
+        if (selectedId) afficherProduit(selectedId);
+    });
 
-        const tendance =
-            totalEntrees > totalSorties ? "📈 Stock en hausse" :
-                totalSorties > totalEntrees ? "📉 Stock en baisse" :
-                    "🔁 Stock stable";
-
-        console.log("🧠 Tendance :", tendance);
-
-        new Chart(ctxScatter, {
-            type: "scatter",
-            data: {
-                datasets: [{
-                    label: "Corrélation des flux",
-                    data: points,
-                    borderColor: "#8e44ad",
-                    backgroundColor: "rgba(155, 89, 182, 0.2)",
-                    showLine: true,
-                    pointRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: "📍 Corrélation Entrées vs Sorties"
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => `Sorties: ${ctx.parsed.x}, Entrées: ${ctx.parsed.y}`
-                        }
-                    }
-                },
-                scales: {
-                    x: { title: { display: true, text: "Sorties (unités)" }, min: 0 },
-                    y: { title: { display: true, text: "Entrées (unités)" }, min: 0 }
-                }
-            }
-        });
-
-    } catch (error) {
-        console.error("❌ Erreur API :", error);
-    }
+    console.log("✅ Graphiques générés avec filtre produit.");
 }
+//Bouton pour imprimer le rapport journalier
+document.getElementById("print-btn").addEventListener("click", () => {
+    const rapport = document.getElementById("rapport-container");
+    const originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = rapport.innerHTML;
+    window.print();
+    document.body.innerHTML = originalContent;
+});
+
+
+
+//chargement des rapports journaliers
+async function chargerListeProduits() {
+    const res = await fetch("http://localhost/entrepot/Info/php/produits_actifs.php");
+    const data = await res.json();
+    if (!data.success) return;
+
+    const select = document.getElementById("produit-select");
+    data.data.forEach(p => {
+        const option = document.createElement("option");
+        option.value = p.id;
+        option.textContent = p.nom;
+        select.appendChild(option);
+    });
+}
+
+async function chargerRapport() {
+    const id = document.getElementById("produit-select").value;
+    const date = document.getElementById("date-select").value;
+    if (!id || !date) return;
+
+    const res = await fetch(`http://localhost/entrepot/Info/php/journalier.php?id=${id}&date=${date}`);
+    const data = await res.json();
+    if (!data.success) return;
+
+    const container = document.getElementById("rapport-container");
+    container.innerHTML = `
+    <header>
+     
+      <p>Date : ${data.date}</p>
+      <p>Produit : ${data.produit.nom} (ID: ${data.produit.id})</p>
+    </header>
+    <section>
+      <h2><i class="fas fa-chart-pie text-info"></i>  Synthèse</h2>
+      <table>
+        <tr><th>Type</th><th>Quantité</th><th>Heures</th><th>Utilisateurs</th></tr>
+        <tr>
+          <td>Entrées</td>
+          <td>${data.stats.entrees}</td>
+          <td>${data.stats.heures_entrees.join(', ')}</td>
+          <td>${data.stats.users_entrees.join(', ')}</td>
+        </tr>
+        <tr>
+          <td>Sorties</td>
+          <td>${data.stats.sorties}</td>
+          <td>${data.stats.heures_sorties.join(', ')}</td>
+          <td>${data.stats.users_sorties.join(', ')}</td>
+        </tr>
+      </table>
+    </section>
+    <section>
+      <h2><i class="fas fa-list-check text-secondary"></i>  Détail des mouvements</h2>
+      <table>
+        <tr><th>Heure</th><th>Type</th><th>Quantité</th><th>Motif</th><th>Utilisateur</th><th>Réf.</th></tr>
+        ${data.mouvements.map(m => `
+          <tr>
+            <td>${m.date_mouvement.slice(11, 16)}</td>
+            <td>${m.type}</td>
+            <td>${m.quantite} ${m.unit}</td>
+            <td>${m.raison}</td>
+            <td>${m.utilisateur}</td>
+            <td>${m.valeur} FC</td>
+          </tr>
+        `).join('')}
+      </table>
+    </section>
+    <section>
+      <h2><i class="fas fa-box text-warning"></i>  Stock en fin de journée</h2>
+      <p>Théorique : ${data.stock.theorique} unités</p>
+      <p>Réel : ${data.stock.reel} unités</p>
+      <p>Écart : ${data.stock.ecart} unités</p>
+    </section>
+    <footer>
+      <p class="badge-stock"><i class="fas fa-circle-check text-success"></i> Stock conforme</p>
+    </footer>
+  `;
+}
+
+// 🔄 Initialisation
+chargerListeProduits();
+
+document.getElementById("produit-select").addEventListener("change", () => chargerRapport());
+document.getElementById("date-select").addEventListener("change", () => chargerRapport());
+
+

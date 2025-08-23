@@ -1,236 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestion d'Entrepôt</title>
-  <link rel="stylesheet" href="../css/Entreosage.css?v=<?= time(); ?>">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion d'Entrepôt</title>
+    <link rel="stylesheet" href="../css/Entreosage.css?v=<?= time(); ?>">
+    <link rel="stylesheet" href="../vendor/css/all.min.css">
 
+    <script src="../node_modules/chart.js/dist/chart.min.js"></script>
+  </head>
 
-  <script src="../node_modules/chart.js/dist/chart.min.js"></script>
-</head>
+  <body>
+    <div id="role-label" class="role-badge"></div>
+    <div id="sidebar-container"></div>
+    <input type="text" class="field-entreposage editable-field">
 
-<body>
-  <div id="role-label" class="role-badge"></div>
-  <div id="sidebar-container"></div>
-  <input type="text" class="field-entreposage editable-field">
+    <div id="dashboard" style="display: inline-block;">
+      <header>
+        <h1>Tableau de Bord</h1>
+        <select id="sort-options">
+          <option value="nom">Nom</option>
+          <option value="quantite">Quantité</option>
+          <option value="categorie">Catégorie</option>
+          <option value="date_peremption">Date de péremption</option>
+        </select>
+        <a href="http://localhost/entrepot/Info/php/generate_stock_repport.php"
+          target="_blank">
+          <button>Télécharger le rapport Excel</button>
+        </a>
 
-  <div id="dashboard" style="display: inline-block;">
-    <header>
-      <h1>Tableau de Bord</h1>
-      <select id="sort-options">
-        <option value="nom">Nom</option>
-        <option value="quantite">Quantité</option>
-        <option value="categorie">Catégorie</option>
-        <option value="date_peremption">Date de péremption</option>
-      </select>
-      <a href="http://localhost/entrepot/Info/php/generate_stock_repport.php" target="_blank">
-        <button>Télécharger le rapport Excel</button>
-      </a>
+        <button onclick="window.print()" class="print-btn">🖨️ Imprimer</button>
+      </header>
+      <main>
+        <section id="product-management">
+          <div class="contenus">
+            <form id="product-form" enctype="multipart/form-data">
+              <h2>Gestion des Produits</h2>
 
-      <button onclick="window.print()" class="print-btn">🖨️ Imprimer</button>
-    </header>
-    <main>
-      <section id="product-management">
-        <div class="contenus">
-          <form id="product-form" enctype="multipart/form-data">
-            <h2>Gestion des Produits</h2>
+              <div class="form-row">
+                <input type="text" id="product-name"
+                  placeholder="Nom du produit" required>
+                <input type="number" id="quantity" placeholder="Quantité"
+                  required>
+              </div>
+
+              <div class="form-row">
+                <label for="unit">Unité :</label>
+                <select id="unit" required>
+                  <option value="kg">Kilogrammes (kg)</option>
+                  <option value="L">Litres (L)</option>
+                  <option value="pcs">Pièces (pcs)</option>
+                  <option value="box">Cartons (box)</option>
+                </select>
+
+                <label for="category">Catégorie :</label>
+                <select id="category" required>
+                  <option value="frais">Frais</option>
+                  <option value="surgelé">Surgelé</option>
+                  <option value="sec">Sec</option>
+                  <option value="liquide">Liquide</option>
+                  <option value="Granules">Cereales</option>
+                  <option value="Fruit">Fruits</option>
+                  <option value="legumes">Legumes</option>
+                </select>
+                <input type="number" name="prixunitaie" id="prix-unitaire"
+                  placeholder="Prix unitaire" step="0.01"
+                  required>
+              </div>
+              <div class="form-row">
+                <label>Photo du produit :</label>
+                <input type="file" id="edit-photo" accept="image/*">
+                <img id="preview-photo" src
+                  style="display: none; width: 150px; border-radius: 8px; margin-top: 8px;">
+              </div>
+
+              <div class="form-row">
+                <input type="date" id="expiry-date"
+                  placeholder="Date de péremption" required>
+
+                <label for="product-position">Position :</label>
+                <select id="product-position" required>
+                  <option value="Cellule A1">Cellule A1</option>
+                  <option value="Cellule A2">Cellule A2</option>
+                  <option value="Rayon 1">Rayon 1</option>
+                  <option value="Rayon 2">Rayon 2</option>
+                  <option value="Rayon 3">Rayon 3</option>
+                  <option value="Réserve">Réserve</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <span class="badge badge-warning">Lot: YA-0725-8F</span>
+                <span class="badge badge-dark">Code-barres: YA07258F</span>
+                <select id="edit-status">
+                  <option value="actif">Actif</option>
+                  <option value="inactif">Inactif</option>
+                </select>
+
+              </div>
+              <button type="submit" id="add-product-btn">Ajouter</button>
+            </form>
+
+          </div>
+
+          <div class="contenus">
+            <div id="stocking-positions" class="stocking-panel">
+              <h3>Emplacements disponibles</h3>
+              <ul id="available-spots">
+                <!-- Liste dynamique des cellules -->
+              </ul>
+            </div>
+            <div class="organe">
+              <button id="history-btn">Voir Historique</button>
+            </div>
+          </div>
+          <div id="barcode-preview">
+            <svg id="generated-barcode"></svg>
+          </div>
+
+          <input type="text" id="search-bar"
+            placeholder="Rechercher un produit...">
+          <div id="product-grid" class="product-grid">
+
+            <div class="product-card">
+              <!-- Produit 1 -->
+            </div>
+            <div class="product-card">
+              <!-- Produit 2 -->
+            </div>
+            <!-- etc. -->
+          </div>
+        </section>
+
+        <div id="edit-modal" class="modal">
+          <div class="modal-content">
+            <span class="close1">&times;</span>
+            <h2>Modifier le produit</h2>
 
             <div class="form-row">
-              <input type="text" id="product-name" placeholder="Nom du produit" required>
-              <input type="number" id="quantity" placeholder="Quantité" required>
+              <label>Nom du produit :</label>
+              <input type="text" class="product-name" required>
+
+              <label>Quantité :</label>
+              <input type="number" class="quantity" required>
             </div>
 
             <div class="form-row">
-              <label for="unit">Unité :</label>
-              <select id="unit" required>
-                <option value="kg">Kilogrammes (kg)</option>
-                <option value="L">Litres (L)</option>
-                <option value="pcs">Pièces (pcs)</option>
-                <option value="box">Cartons (box)</option>
+              <label>Unité :</label>
+              <select id="edit-unit" required>
+                <option value="kg">kg</option>
+                <option value="L">L</option>
+                <option value="pcs">pcs</option>
+                <option value="box">box</option>
               </select>
 
-              <label for="category">Catégorie :</label>
-              <select id="category" required>
-                <option value="frais">Frais</option>
-                <option value="surgelé">Surgelé</option>
-                <option value="sec">Sec</option>
-                <option value="liquide">Liquide</option>
-                <option value="Granules">Cereales</option>
-                <option value="Fruit">Fruits</option>
-                <option value="legumes">Legumes</option>
-              </select>
-              <input type="number" name="prixunitaie" id="prix-unitaire" placeholder="Prix unitaire" step="0.01"
-                required>
-            </div>
-            <div class="form-row">
-              <label>Photo du produit :</label>
-              <input type="file" id="edit-photo" accept="image/*">
-              <img id="preview-photo" src="" style="display: none; width: 150px; border-radius: 8px; margin-top: 8px;">
+              <label>Catégorie :</label>
+              <input type="text" class="category" required>
             </div>
 
+            <div class="form-row">
+              <label>Date de péremption :</label>
+              <input type="date" class="expiry-date" required>
+
+              <label>Prix unitaire :</label>
+              <input type="number" id="edit-price" placeholder="Prix unitaire"
+                step="0.01" required>
+            </div>
 
             <div class="form-row">
-              <input type="date" id="expiry-date" placeholder="Date de péremption" required>
-
-              <label for="product-position">Position :</label>
+              <label>Position :</label>
               <select id="product-position" required>
                 <option value="Cellule A1">Cellule A1</option>
                 <option value="Cellule A2">Cellule A2</option>
-                <option value="Rayon 1">Rayon 1</option>
-                <option value="Rayon 2">Rayon 2</option>
                 <option value="Rayon 3">Rayon 3</option>
+                <option value="Rayon 2">Rayon 2</option>
+                <option value="Rayon 1">Rayon 1</option>
                 <option value="Réserve">Réserve</option>
               </select>
             </div>
 
+            <div class="form-row">
+              <span class="badge badge-warning"
+                data-tooltip="Identifiant du lot">Lot: BA-0725-M3</span>
+
+              <span class="badge badge-dark">
+                Code-barres: <span class="code-barre">BA0725M3</span>
+                <button class="copy-btn" onclick="copyCode()">📋</button>
+              </span>
+            </div>
 
             <div class="form-row">
-              <span class="badge badge-warning">Lot: YA-0725-8F</span>
-              <span class="badge badge-dark">Code-barres: YA07258F</span>
+              <label>Statut :</label>
               <select id="edit-status">
                 <option value="actif">Actif</option>
                 <option value="inactif">Inactif</option>
               </select>
 
+              <label>Photo du produit :</label>
+              <input type="file" id="edit-photo" accept="image/*">
             </div>
-            <button type="submit" id="add-product-btn">Ajouter</button>
-          </form>
 
-        </div>
+            <img id="preview-photo" src
+              style="display: none; width: 150px; border-radius: 8px; margin-top: 8px;">
 
-
-        <div class="contenus">
-          <div id="stocking-positions" class="stocking-panel">
-            <h3>Emplacements disponibles</h3>
-            <ul id="available-spots">
-              <!-- Liste dynamique des cellules -->
-            </ul>
-          </div>
-          <div class="organe">
-            <button id="history-btn">Voir Historique</button>
+            <button type="button" id="update-product-btn">Mettre à jour</button>
           </div>
         </div>
-        <div id="barcode-preview">
-          <svg id="generated-barcode"></svg>
+        <div id="history-modal" class="modal">
+          <div class="modal-content">
+            <span class="close-history">&times;</span>
+            <h2>Historique des opérations</h2>
+            <table id="history-table">
+              <thead>
+                <tr>
+                  <th>Date/Heure</th>
+                  <th>Action</th>
+                  <th>Produit</th>
+                  <th>Utilisateur</th>
+                  <th>Détails</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Les lignes seront ajoutées dynamiquement -->
+              </tbody>
+            </table>
+            <button id="clear-history">Vider l'historique</button>
+          </div>
         </div>
 
-
-
-        <input type="text" id="search-bar" placeholder="Rechercher un produit...">
-        <div id="product-grid" class="product-grid">
-          
-          <div class="product-card">
-            <!-- Produit 1 -->
-          </div>
-          <div class="product-card">
-            <!-- Produit 2 -->
-          </div>
-          <!-- etc. -->
-        </div>
-      </section>
-
-      <div id="edit-modal" class="modal">
-        <div class="modal-content">
-          <span class="close1">&times;</span>
-          <h2>Modifier le produit</h2>
-
-          <div class="form-row">
-            <label>Nom du produit :</label>
-            <input type="text" class="product-name" required>
-
-            <label>Quantité :</label>
-            <input type="number" class="quantity" required>
-          </div>
-
-          <div class="form-row">
-            <label>Unité :</label>
-            <select id="edit-unit" required>
-              <option value="kg">kg</option>
-              <option value="L">L</option>
-              <option value="pcs">pcs</option>
-              <option value="box">box</option>
-            </select>
-
-            <label>Catégorie :</label>
-            <input type="text" class="category" required>
-          </div>
-
-          <div class="form-row">
-            <label>Date de péremption :</label>
-            <input type="date" class="expiry-date" required>
-
-            <label>Prix unitaire :</label>
-            <input type="number" id="edit-price" placeholder="Prix unitaire" step="0.01" required>
-          </div>
-
-          <div class="form-row">
-            <label>Position :</label>
-            <select id="product-position" required>
-              <option value="Cellule A1">Cellule A1</option>
-              <option value="Cellule A2">Cellule A2</option>
-              <option value="Rayon 3">Rayon 3</option>
-              <option value="Rayon 2">Rayon 2</option>
-              <option value="Rayon 1">Rayon 1</option>
-              <option value="Réserve">Réserve</option>
-            </select>
-          </div>
-
-          <div class="form-row">
-            <span class="badge badge-warning" data-tooltip="Identifiant du lot">Lot: BA-0725-M3</span>
-
-            <span class="badge badge-dark">
-              Code-barres: <span class="code-barre">BA0725M3</span>
-              <button class="copy-btn" onclick="copyCode()">📋</button>
-            </span>
-          </div>
-
-          <div class="form-row">
-            <label>Statut :</label>
-            <select id="edit-status">
-              <option value="actif">Actif</option>
-              <option value="inactif">Inactif</option>
-            </select>
-
-            <label>Photo du produit :</label>
-            <input type="file" id="edit-photo" accept="image/*">
-          </div>
-
-          <img id="preview-photo" src="" style="display: none; width: 150px; border-radius: 8px; margin-top: 8px;">
-
-          <button type="button" id="update-product-btn">Mettre à jour</button>
-        </div>
-      </div>
-      <div id="history-modal" class="modal">
-        <div class="modal-content">
-          <span class="close-history">&times;</span>
-          <h2>Historique des opérations</h2>
-          <table id="history-table">
-            <thead>
-              <tr>
-                <th>Date/Heure</th>
-                <th>Action</th>
-                <th>Produit</th>
-                <th>Utilisateur</th>
-                <th>Détails</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Les lignes seront ajoutées dynamiquement -->
-            </tbody>
-          </table>
-          <button id="clear-history">Vider l'historique</button>
-        </div>
-      </div>
-
-    </main>
-  </div>
-  <script src="../js/sessionStorage.js"></script>
-  <script src="../js/Historique.sortie.js"></script>
-  <script src="../js/Emplacements.js"></script>
-  <script src="../js/script.js"></script>
-  <script>
+      </main>
+    </div>
+    <script src="../js/sessionStorage.js"></script>
+    <script src="../js/Historique.sortie.js"></script>
+    <script src="../js/Emplacements.js"></script>
+    <script src="../js/script.js"></script>
+    <script>
     // Place ce code juste après l'injection du sidebar
     fetch("../html/sidebard.html")
       .then(r => r.text())
@@ -260,6 +265,6 @@
     }
 
   </script>
-</body>
+  </body>
 
 </html>

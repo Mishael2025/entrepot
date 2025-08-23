@@ -1,14 +1,8 @@
 
 // Historique des actions de sortie
-const clearBtn = document.getElementById("clear-history");
-clearBtn.addEventListener("click", (e) => {
-  e.preventDefault(); // ← évite tout comportement par défaut
-  if (confirm("Voulez-vous vraiment effacer l'historique ?")) {
-    localStorage.removeItem("history");
-    window.updateHistoryDisplay();
-    console.log(" Historique vidé !");
-  }
-});
+
+
+
 
 window.updateHistoryDisplay = function () {
   const tbody = document.querySelector("#history-table tbody");

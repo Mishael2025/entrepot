@@ -13,18 +13,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
             res.data.forEach(pos => {
                 const li = document.createElement("li");
-                li.textContent = `${pos.position_stock} — ${pos.nb_produits} produit(s)`;
+                li.classList.add("spot-item");
+
+                const badge = document.createElement("span");
+                badge.classList.add("badge");
 
                 if (pos.etat === "saturé") {
+                    badge.classList.add("badge-danger");
+                    badge.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Saturé`;
                     li.classList.add("sature");
-                    li.innerHTML += " 🔴 (saturé)";
                 } else {
+                    badge.classList.add("badge-success");
+                    badge.innerHTML = `<i class="fas fa-check-circle"></i> Libre`;
                     li.classList.add("libre");
-                    li.innerHTML += " 🟢 (libre)";
                 }
 
+                li.innerHTML = `<strong>${pos.position_stock}</strong> — ${pos.nb_produits} produit(s) `;
+                li.appendChild(badge);
                 ul.appendChild(li);
             });
         })
         .catch(err => console.error("Erreur chargement emplacements :", err));
 });
+

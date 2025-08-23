@@ -1,78 +1,98 @@
 <!DOCTYPE html>
 <html lang="fr">
 
-<head>
-  <meta charset="UTF-8">
-  <title>Sortie de Stock</title>
-  <link rel="stylesheet" href="../css/sortie.css"> <!--  Ajoute un fichier CSS si nécessaire -->
-</head>
-<script src="../libs/chart.umd.js"></script> <!-- 📌 Version locale si installée -->
+  <head>
+    <meta charset="UTF-8">
+    <title>Sortie de Stock</title>
+    <link rel="stylesheet" href="../css/sortie.css">
+    <!--  Ajoute un fichier CSS si nécessaire -->
+    <link rel="stylesheet" href="../vendor/css/all.min.css">
+  </head>
+  <script src="../libs/chart.umd.js"></script>
+  <!-- 📌 Version locale si installée -->
 
-<body>
-  <textarea class="field-sortie editable-field"></textarea>
-  <div class="role-label"></div>
-  <div id="sidebar-container"></div>
-  <div class="main">
-    <h1>Gestion des Sorties de Stock</h1>
-    <div class="flex-zone">
-      <form id="stock-out-form">
-        <input type="text" id="product-name-out" placeholder="Nom du produit" required>
-        <input type="number" id="quantity-out" placeholder="Quantité à retirer" required>
+  <body>
+    <textarea class="field-sortie editable-field"></textarea>
+    <div class="role-label"></div>
+    <div id="sidebar-container"></div>
+    <div class="main">
+      <h1>Gestion des Sorties de Stock</h1>
+      <div class="flex-zone">
+        <form id="stock-out-form">
+          <input type="text" id="product-name-out" placeholder="Nom du produit"
+            required>
+          <input type="number" id="quantity-out"
+            placeholder="Quantité à retirer" required>
 
-        <label for="unit">Unité :</label>
-        <select id="unit" required>
-          <option value="kg">Kilos (kg)</option>
-          <option value="L">Litres (L)</option>
-          <option value="pcs">Pièces (pcs)</option>
-          <option value="box">Cartons (box)</option>
-        </select>
+          <label for="unit">Unité :</label>
+          <select id="unit" required>
+            <option value="kg">Kilos (kg)</option>
+            <option value="L">Litres (L)</option>
+            <option value="pcs">Pièces (pcs)</option>
+            <option value="box">Cartons (box)</option>
+          </select>
 
-        <label for="reason-out">Motif :</label>
-        <select id="reason-out" required>
-          <option value="vente">Vente</option>
-          <option value="perte">Perte</option>
-          <option value="donation">Donation</option>
-          <option value="transfert">Transfert</option>
-        </select>
+          <label for="reason-out">Motif :</label>
+          <select id="reason-out" required>
+            <option value="vente">Vente</option>
+            <option value="perte">Perte</option>
+            <option value="donation">Donation</option>
+            <option value="transfert">Transfert</option>
+          </select>
 
+          <input type="date" id="date-mouvement"> <!-- facultatif -->
 
+          <input type="hidden" id="type-mouvement" value="sortie"> <!-- fixe -->
 
-        <input type="date" id="date-mouvement"> <!-- facultatif -->
+          <button id="remove-product-btn">Retirer Produit</button>
+        </form>
 
-        <input type="hidden" id="type-mouvement" value="sortie"> <!-- fixe -->
+        <div id="stock-sidebar">
+          <input type="text" id="search-product"
+            placeholder="Rechercher un produit..." />
 
-        <button id="remove-product-btn">Retirer Produit</button>
-      </form>
-
-      <div id="stock-sidebar">
-        <input type="text" id="search-product" placeholder="Rechercher un produit..." />
-
-        <div id="liste-produits" class="grille-produits">
-          <h3>Produits en stock</h3>
-          <div id="produits-stock-grid" class="grid-container"></div>
-          <div id="no-results" style="display: none; margin-top: 10px; color: #888;">
-            Aucun produit correspondant.
+          <div id="liste-produits" class="grille-produits">
+            <h3>Produits en stock</h3>
+            <div id="produits-stock-grid" class="grid-container"></div>
+            <div id="no-results"
+              style="display: none; margin-top: 10px; color: #888;">
+              Aucun produit correspondant.
+            </div>
           </div>
         </div>
+
       </div>
 
-    </div>
+      <h2>Évaluation des Sorties</h2>
 
+      <div id="badges-container"></div>
 
-    <h2>Évaluation des Sorties</h2>
+      <canvas id="motif-chart"></canvas>
+      <div class="selection">
+        <select id="produit-selector" aria-placeholder="select"></select>
+      </div>
+      <div id="chart-section">
+        <h2>Statistiques</h2>
 
-    <div id="badges-container"></div>
+        <button id="refresh-btn">🔄</button>
+      </div>
+      <h2 id="jr"><i class="fas fa-file-lines text-primary"></i> Rapports
+        journaliers</h2>
+      <input type="date" id="date-select" />
 
-    <canvas id="motif-chart"></canvas>
-    <div id="chart-section">
-      <h2>Statistiques</h2>
-      <canvas id="line-chart" width="400" height="200"></canvas>
-      <canvas id="bar-chart" width="400" height="200"></canvas>
-      <canvas id="scatter-chart" width="400" height="200"></canvas>
-      <button id="refresh-btn">🔄</button>
-    </div>
+      <select id="produit-select">
+        <option value>-- Sélectionner un produit --</option>
+      </select>
 
-    <script>
+      <div id="rapport-container">
+        <i class="fas fa-truck-loading"></i> Livraison
+
+      </div>
+      <button id="print-btn">
+        <i class="fas fa-print"></i> Imprimer le rapport
+      </button>
+
+      <script>
       // Place ce code juste après l'injection du sidebar
       fetch("../html/sidebard.html")
         .then(r => r.text())
@@ -97,9 +117,10 @@
 
 
     </script>
-    <script src="../js/sessionStorage.js"></script>
-    <script src="../js/Historique.sortie.js"></script>
-    <script src="../js/sortie.js"></script> <!-- ✅ Lien vers ton fichier JS -->
-</body>
+      <script src="../js/sessionStorage.js"></script>
+      <script src="../js/Historique.sortie.js"></script>
+      <script src="../js/sortie.js"></script>
+      <!-- ✅ Lien vers ton fichier JS -->
+    </body>
 
-</html>
+  </html>

@@ -130,6 +130,35 @@ header h1 {
     margin-bottom: 0px;
 }
 
+.spot-item {
+    padding: 8px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: blue;
+}
+
+.badge-success {
+    background-color: #bef5cb;
+    color: green;
+}
+
+.badge-danger {
+    background-color: #f8d7da;
+    color: red;
+}
+
 .contenus {
     float: left;
     border: 1px dashed red;

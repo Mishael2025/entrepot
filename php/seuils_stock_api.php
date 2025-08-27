@@ -12,7 +12,7 @@ $action = $_GET['action'] ?? null;
 
 switch ($action) {
     case "get":
-        $result = $conn->query("SELECT categorie, seuil FROM seuils_stock ORDER BY categorie ASC");
+        $result = $conn->query("SELECT categorie, produit_id, seuil FROM seuils_stock ORDER BY categorie ASC");
         $data = [];
         while ($row = $result->fetch_assoc()) {
             $data[] = $row;

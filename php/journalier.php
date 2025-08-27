@@ -23,7 +23,24 @@ if (!$produit) {
     exit;
 }
 
+// définir les seuils du stock
 
+$seuil_min = 5; // valeur par défaut
+
+// 🔍 Priorité au seuil produit
+$sqlSeuilProduit = "SELECT seuil FROM seuils_stock WHERE produit_id = $id";
+$resultSeuilProduit = mysqli_query($conn, $sqlSeuilProduit);
+if ($row = mysqli_fetch_assoc($resultSeuilProduit)) {
+    $seuil_min = intval($row['seuil']);
+} else {
+    //  Sinon, seuil par catégorie
+    $categorie = mysqli_real_escape_string($conn, $produit['categorie']);
+    $sqlSeuilCategorie = "SELECT seuil FROM seuils_stock WHERE categorie = '$categorie' AND produit_id IS NULL";
+    $resultSeuilCategorie = mysqli_query($conn, $sqlSeuilCategorie);
+    if ($rowCat = mysqli_fetch_assoc($resultSeuilCategorie)) {
+        $seuil_min = intval($rowCat['seuil']);
+    }
+}
 
 // 📦 Mouvements du jour
 $sqlMouvements = "
@@ -59,7 +76,7 @@ while ($row = mysqli_fetch_assoc($resultMouvements)) {
     }
 }
 
-// 📊 Stock calculé
+//  Stock calculé
 $stock_theorique = intval($produit['quantite']);
 $stock_reel = $stock_theorique + $stats['entrees'] - $stats['sorties'];
 $ecart = $stock_reel - $stock_theorique;
@@ -70,7 +87,7 @@ $stock = [
     "ecart" => $ecart
 ];
 
-// 🏷️ Badge métier
+//  Badge métier
 if ($ecart === 0) {
     $badge = "✅ Stock conforme";
 } elseif ($stock_reel <= 0) {

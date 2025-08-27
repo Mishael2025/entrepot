@@ -1,170 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
 
-    <link rel="stylesheet" href="../css/Dashboard.css">
-</head>
+        <link rel="stylesheet" href="../css/Dashboard.css">
+    </head>
 
-<body>
-    <div id="sidebar-container"></div>
-    <div id="admin-panel" style="display: online-block;">
-        <button id="refresh-btn">🔄refresh</button>
-        <h2>Gestion des Utilisateurs</h2>
-        <form id="user-form" name="user-form" autocomplete="off">
-            <div class="form-group">
-                <input type="text" id="user-name" placeholder="Nom complet" required>
-                <input type="email" id="user-email" placeholder="Adresse email" required>
-                <input type="password" id="user-password" placeholder="Mot de passe" required>
-            </div>
+    <body>
+        <div id="sidebar-container"></div>
+        <div id="admin-panel" style="display: online-block;">
+            <button id="refresh-btn">🔄refresh</button>
+            <h2>Gestion des Utilisateurs</h2>
+            <form id="user-form" name="user-form" autocomplete="off">
+                <div class="form-group">
+                    <input type="text" id="user-name" placeholder="Nom complet"
+                        required>
+                    <input type="email" id="user-email"
+                        placeholder="Adresse email" required>
+                    <input type="password" id="user-password"
+                        placeholder="Mot de passe" required>
+                </div>
 
-            <div class="form-group">
-                <label for="user-role">Rôles :</label>
-                <select id="user-role" multiple>
-                    <option value="admin">Admin</option>
-                    <option value="manager">Manager</option>
-                    <option value="employé">Employé</option>
-                    <option value="auditeur">Auditeur</option>
-                    <option value="invité">Invité</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="user-permissions">Permissions (JSON ou CSV) :</label>
-                <textarea id="user-permissions" placeholder='{"inventaire":["view","edit"]}' rows="3"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="user-active">Compte actif :</label>
-                <input type="checkbox" id="user-active" checked>
-            </div>
-
-            <div class="form-actions">
-                <button type="button" id="add-user-btn">➕ Ajouter</button>
-                <button type="button" id="res-user-btn">🗑️ Supprimer</button>
-            </div>
-        </form>
-        <h3>Liste des utilisateurs</h3>
-        <table id="user-table">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th>Rôle</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
-
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-        <div id="notifications">
-
-        </div>
-        <h4>🔧 Gestion des seuils de stock par catégorie</h4>
-
-        <button id="edit-btn">🛠️ Éditer Seuil</button>
-
-        <div style="max-height: 70vh; overflow-y: auto;" id="modal-seuil" class="modal">
-            <div class="modal-content">
-                <span class="close-btn" title="Fermer">❌</span>
-                <h2>🔧 Gestion des seuils de stock</h2>
-
-                <table id="seuils-table">
-                    <thead>
-                        <tr>
-                            <th>Catégorie</th>
-                            <th>Seuil</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-
-                <form id="add-form">
-                    <input type="text" id="categorie" placeholder="Nom de la catégorie" required>
-                    <input type="number" id="seuil" placeholder="Seuil critique" required>
-                    <button type="submit">Ajouter</button>
-                </form>
-            </div>
-        </div>
-        <h2 id="vue">📦 Produits en stock critique</h2>
-        <input type="text" id="search" placeholder="👁‍🗨Recheche un produit">
-
-        <div style="margin-bottom:10px;">
-            <strong>Légende :</strong>
-            <span class="pastille alert">❌ Périmé</span>
-            <span class="pastille warn">⏰ Bientôt (≤ 7j)</span>
-            <span class="pastille ok">✅ OK</span>
-        </div>
-        <table id="rapport_stock">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Catégorie</th>
-                    <th>Quantité</th>
-                    <th>Seuil</th>
-                    <th>Péremption</th>
-                </tr>
-            </thead>
-            <tbody id="rapport-body"></tbody>
-        </table>
-        <h3>📦 Suggestions de réapprovisionnement</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Produit</th>
-                    <th>Raison</th>
-                    <th>Quantité / Date</th>
-                    <th>Suggestion</th>
-                    <th>Fournisseurs</th>
-                </tr>
-            </thead>
-            <tbody id="suggestion-body"></tbody>
-        </table>
-
-        <h2>📦 Fournisseurs</h2>
-
-        <div class="fournisseur-section">
-            <div class="fourniseur-cadre">
-                <form id="fournisseur-form">
-                    <!-- champs ici -->
-
-                    <input type="text" id="nom" placeholder="Nom du fournisseur" required>
-                    <input type="text" id="contact" placeholder="Contact">
-                    <input type="email" id="email" placeholder="Email">
-                    <textarea id="adresse" placeholder="Adresse"></textarea>
-
-                    <select id="categorie-select" required>
-                        <option value="">-- Choisir une catégorie --</option>
-                        <option value="Produits laitiers">Produits laitiers</option>
-                        <option value="Céréales">Céréales</option>
-                        <option value="Boissons">Boissons</option>
-                        <option value="Équipements">Équipements</option>
+                <div class="form-group">
+                    <label for="user-role">Rôles :</label>
+                    <select id="user-role" multiple>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="employé">Employé</option>
+                        <option value="auditeur">Auditeur</option>
+                        <option value="invité">Invité</option>
                     </select>
+                </div>
 
-                    <button type="submit">Ajouter</button>
-                </form>
+                <div class="form-group">
+                    <label for="user-permissions">Permissions (JSON ou CSV)
+                        :</label>
+                    <textarea id="user-permissions"
+                        placeholder='{"inventaire":["view","edit"]}'
+                        rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="user-active">Compte actif :</label>
+                    <input type="checkbox" id="user-active" checked>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="add-user-btn">➕ Ajouter</button>
+                    <button type="button" id="res-user-btn">🗑️
+                        Supprimer</button>
+                </div>
+            </form>
+            <h3>Liste des utilisateurs</h3>
+            <table id="user-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div id="notifications">
 
             </div>
+            <h4>🔧 Gestion des seuils de stock par catégorie</h4>
 
-            <div class="fournisseur-cadre">
-                <div class="cards-container">
-                    <div class="fournisseur-card">Fournisseur 1</div>
+            <button id="edit-btn">🛠️ Éditer Seuil</button>
+
+            <div style="max-height: 70vh; overflow-y: auto;" id="modal-seuil"
+                class="modal">
+                <div class="modal-content">
+                    <span class="close-btn" title="Fermer">❌</span>
+                    <h2>🔧 Gestion des seuils de stock</h2>
+
+                    <table id="seuils-table">
+                        <thead>
+                            <tr>
+                                <th>Catégorie</th>
+                                <th>Seuil</th>
+                                <th>Actions</th>
+                                <th>ID Produit</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+
+                        <form id="add-form">
+                            <input type="text" id="categorie"
+                                placeholder="Catégorie">
+                            <input type="number" id="seuil" placeholder="Seuil">
+                            <input type="number" id="produit-id"
+                                placeholder="ID produit (optionnel)">
+                            <button type="submit">Ajouter</button>
+                        </form>
+
+                    </table>
                 </div>
             </div>
+            <h2 id="vue"> Produits en stock critique</h2>
+            <input type="text" id="search"
+                placeholder="Recheche un produit">
+
+            <div style="margin-bottom:10px;">
+                <strong>Légende :</strong>
+                <span class="pastille alert">❌ Périmé</span>
+                <span class="pastille warn">⏰ Bientôt (≤ 7j)</span>
+                <span class="pastille ok">✅ OK</span>
+            </div>
+            <table id="rapport_stock">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Catégorie</th>
+                        <th>Quantité</th>
+                        <th>Seuil</th>
+                        <th>Péremption</th>
+                    </tr>
+                </thead>
+                <tbody id="rapport-body"></tbody>
+            </table>
+            <h3>📦 Suggestions de réapprovisionnement</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Raison</th>
+                        <th>Quantité / Date</th>
+                        <th>Suggestion</th>
+                        <th>Fournisseurs</th>
+                    </tr>
+                </thead>
+                <tbody id="suggestion-body"></tbody>
+            </table>
+
+            <h2>📦 Fournisseurs</h2>
+
+            <div class="fournisseur-section">
+                <div class="fourniseur-cadre">
+                    <form id="fournisseur-form">
+                        <!-- champs ici -->
+
+                        <input type="text" id="nom"
+                            placeholder="Nom du fournisseur" required>
+                        <input type="text" id="contact" placeholder="Contact">
+                        <input type="email" id="email" placeholder="Email">
+                        <textarea id="adresse" placeholder="Adresse"></textarea>
+
+                        <select id="categorie-select" required>
+                            <option value>-- Choisir une catégorie --</option>
+                            <option value="Produits laitiers">Produits
+                                laitiers</option>
+                            <option value="Céréales">Céréales</option>
+                            <option value="Boissons">Boissons</option>
+                            <option value="Équipements">Équipements</option>
+                        </select>
+
+                        <button type="submit">Ajouter</button>
+                    </form>
+
+                </div>
+
+                <div class="fournisseur-cadre">
+                    <div class="cards-container">
+                        <div class="fournisseur-card">Fournisseur 1</div>
+                    </div>
+                </div>
+            </div>
+
         </div>
-
-
-    </div>
-    <script src="../js/sessionStorage.js"></script>
-    <script src="../js/notifications.js"></script>
-    <script src="../js/utilisateurs.js"></script>
-    <script>
+        <script src="../js/sessionStorage.js"></script>
+        <script src="../js/notifications.js"></script>
+        <script src="../js/utilisateurs.js"></script>
+        <script>
         // Place ce code juste après l'injection du sidebar
         fetch("../html/sidebard.html")
             .then(r => r.text())
@@ -189,6 +204,6 @@
 
     </script>
 
-</body>
+    </body>
 
 </html>

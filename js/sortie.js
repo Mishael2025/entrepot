@@ -493,11 +493,13 @@ async function chargerRapport() {
     const res = await fetch(`http://localhost/entrepot/Info/php/journalier.php?id=${id}&date=${date}`);
     const data = await res.json();
     if (!data.success) return;
+    const badgeHTML = genererBadge(data.badge);
 
     const container = document.getElementById("rapport-container");
     container.innerHTML = `
     <header>
-     
+      <h1>Rapport journalier</h1>
+      ${badgeHTML}
       <p>Date : ${data.date}</p>
       <p>Produit : ${data.produit.nom} (ID: ${data.produit.id})</p>
     </header>
@@ -536,20 +538,36 @@ async function chargerRapport() {
       </table>
     </section>
     <section>
-      <h2><i class="fas fa-box text-warning"></i>  Stock en fin de journée</h2>
-      <p>Théorique : ${data.stock.theorique} unités</p>
-      <p>Réel : ${data.stock.reel} unités</p>
-      <p>Écart : ${data.stock.ecart} unités</p>
-    </section>
-    <footer>
-      <p class="badge-stock"><i class="fas fa-circle-check text-success"></i> Stock conforme</p>
-    </footer>
+    <h2><i class="fas fa-box text-warning"></i>  Stock en fin de journée</h2>
+    <p>Théorique : ${data.stock.theorique} unités</p>
+    <p>Réel : ${data.stock.reel} unités</p>
+    <p>Écart : ${data.stock.ecart} unités</p>
+  </section>
+  <footer>
+    ${badgeHTML}
+  </footer>
   `;
+}
+function genererBadge(status) {
+    switch (status) {
+        case "conforme":
+            return `<span class="badge badge-success"><i class="fas fa-circle-check"></i> Stock conforme</span>`;
+        case "ecart":
+            return `<span class="badge badge-warning"><i class="fas fa-triangle-exclamation"></i> Écart détecté</span>`;
+        case "bloqué":
+            return `<span class="badge badge-danger"><i class="fas fa-ban"></i> Produit bloqué</span>`;
+        case "périmé":
+            return `<span class="badge badge-danger"><i class="fas fa-clock"></i> Produit périmé</span>`;
+        case "rupture":
+            return `<span class="badge badge-danger"><i class="fas fa-box-open"></i> Produit en rupture</span>`;
+        default:
+            return `<span class="badge badge-info"><i class="fas fa-question-circle"></i> Statut inconnu</span>`;
+    }
 }
 
 // 🔄 Initialisation
 chargerListeProduits();
-
+genererBadge();
 document.getElementById("produit-select").addEventListener("change", () => chargerRapport());
 document.getElementById("date-select").addEventListener("change", () => chargerRapport());
 

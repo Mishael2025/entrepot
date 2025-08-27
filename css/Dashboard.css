@@ -82,7 +82,7 @@ h4 {
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-/* 🌐 Structure générale */
+/*  Structure générale */
 #user-form {
     max-width: 600px;
     margin: 40px auto;
@@ -93,14 +93,14 @@ h4 {
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* 🧩 Groupes de champs */
+/*  Groupes de champs */
 .form-group {
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
 }
 
-/* 📝 Champs de saisie */
+/*  Champs de saisie */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -113,6 +113,16 @@ select {
     font-size: 15px;
     transition: border-color 0.3s ease;
 }
+input[type="number"]{
+    width: 50px;
+    padding: 10px 12px;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.3s ease;
+}
+
 
 input:focus,
 textarea:focus,
@@ -121,32 +131,32 @@ select:focus {
     outline: none;
 }
 
-/* 🧠 Labels */
+/*  Labels */
 label {
     font-weight: 600;
     margin-bottom: 5px;
     color: #333;
 }
 
-/* ✅ Checkbox */
+/*  Checkbox */
 input[type="checkbox"] {
     transform: scale(1.2);
     margin-top: 8px;
 }
 
-/* 🎛️ Select multiple */
+/*  Select multiple */
 select[multiple] {
     height: 100px;
     resize: vertical;
 }
 
-/* 🎯 Zone permissions */
+/*  Zone permissions */
 #user-permissions {
     font-family: monospace;
     background-color: #f0f0f5;
 }
 
-/* 🎬 Boutons */
+/*  Boutons */
 .form-actions {
     display: flex;
     justify-content: space-between;
@@ -331,7 +341,7 @@ input[type="number"] {
     z-index: 100;
     left: 0;
     top: 0;
-    width: 100vw;
+    width: 200vh;
     height: 100vh;
     background: rgba(0, 0, 0, 0.25);
     align-items: center;
@@ -348,10 +358,10 @@ input[type="number"] {
     border-radius: 12px;
     padding: 2rem 1.5rem;
     max-width: 500px;
-    width: 95vw;
+    width: 150vh;
     box-shadow: 0 8px 32px rgba(60, 60, 120, 0.18);
     position: relative;
-    max-height: 80vh;
+    max-height: 70vh;
     overflow-y: scroll;
     overflow-x: auto;
 }

@@ -167,6 +167,7 @@ h1 {
   margin: 40px auto;
   max-width: 1000px;
   padding: 0 20px;
+  margin-left: 300px;
 }
 
 .table-controls {
@@ -175,9 +176,17 @@ h1 {
   justify-content: flex-end;
   gap: 12px;
   align-items: center;
-  margin-left: 340px;
+  
 }
-
+#table-planifications {
+  max-width: 1000px;
+  border-collapse: collapse;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  margin-left: 300px;
+}
 .table-controls select {
   padding: 8px 12px;
   border-radius: 6px;
@@ -187,7 +196,7 @@ h1 {
 
 /* 📱 Media Queries */
 @media screen and (max-width: 768px) {
-
+#calendrier-planifications,
   .table-planification,
   .table-planification thead,
   .table-planification tbody,
@@ -229,12 +238,13 @@ h1 {
     border-bottom: none;
   }
 
-  form,
+  form,#table-planifications,
   .table-wrapper {
     padding: 0.8rem;
   }
 
-  #table-planification {
+  #table-planification,
+  #table-planifications {
     width: auto;
     align-items: center;
     margin: auto;

@@ -283,7 +283,7 @@ async function afficherPlanifications() {
     const data = await res.json();
 
     const container = document.getElementById("calendrier-planifications");
-    container.innerHTML = "<h3>📅 Livraisons prévues</h3>";
+    container.innerHTML = "<h3> Livraisons prévues</h3>";
 
     const table = document.createElement("table");
     table.innerHTML = `
@@ -291,7 +291,7 @@ async function afficherPlanifications() {
             <th>Produit</th><th>Type</th><th>Quantité</th><th>Date</th><th>Commentaire</th><th>Fournisseur</th>
         </tr>
     `;
-
+    table.id = "table-planifications";
     data.forEach(p => {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -310,7 +310,7 @@ async function afficherPlanifications() {
 // Afficher les planifications
 let planifications = []; // Stock global pour filtrage et tri
 
-async function afficherPlanifications() {
+async function afficherPlanification() {
     const res = await fetch("/entrepot/Info/php/planification.php?upcoming=true");
     const data = await res.json();
     planifications = data; // Stocker pour filtrage
@@ -331,7 +331,7 @@ async function afficherPlanifications() {
     });
 }
 document.querySelectorAll("#table-planification tbody tr").forEach(row => {
-    const labels = ["📅 Date", "🔁 Type", "📦 Produit", "⚖️ Quantité", "🧾 Statut"];
+    const labels = [" Date", " Type", " Produit", " Quantité", " Statut"];
     row.querySelectorAll("td").forEach((td, i) => {
         td.setAttribute("data-label", labels[i]);
     });
@@ -342,7 +342,7 @@ window.addEventListener("DOMContentLoaded", () => {
     chargerFournisseurs();
     afficherPlanifications();
 
-    afficherPlanifications();
+    afficherPlanification();
     // 🚀 Initialisation
     chargerProduits1();
 });

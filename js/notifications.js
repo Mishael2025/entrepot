@@ -130,27 +130,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// 🔄 Charger la liste depuis l'API
+//  Charger la liste depuis l'API
 function loadSeuils() {
     fetch("http://localhost/entrepot/Info/php/seuils_stock_api.php?action=get")
         .then(r => r.json())
         .then(data => {
             const tbody = document.querySelector("#seuils-table tbody");
-            tbody.innerHTML = ""; // On vide la table avant d’ajouter
+            tbody.innerHTML = "";
 
-            // Si le backend renvoie un tableau, on le parcourt
             if (Array.isArray(data)) {
                 data.forEach(item => {
+                    const produitLabel = item.produit_id
+                        ? `Produit #${item.produit_id}`
+                        : `<em>Catégorie</em>`;
+
                     tbody.innerHTML += `
             <tr>
-              <td>${item.categorie}</td>
-              <td><input type="number" value="${item.seuil}" onchange="updateSeuil('${item.categorie}', this.value)"></td>
-              <td><button onclick="deleteSeuil('${item.categorie}')">🗑️ Delete</button></td>
+              <td>${produitLabel} – ${item.categorie}</td>
+              <td>
+                <input type="number" value="${item.seuil}" 
+                  onchange="updateSeuil(${item.produit_id ?? 'null'}, '${item.categorie}', this.value)">
+              </td>
+              <td>
+                <button onclick="deleteSeuil('${item.categorie}', ${item.produit_id ?? 'null'}, ${item.seuil})">
+                  🗑️ Supprimer
+                </button>
+              </td>
             </tr>
           `;
                 });
             } else {
-                console.warn("⚠️ Réponse inattendue :", data);
+                console.warn("Réponse inattendue :", data);
             }
         })
         .catch(error => {
@@ -158,43 +168,46 @@ function loadSeuils() {
         });
 }
 
-// ✅ Ajouter une nouvelle catégorie
+
+//  Ajouter une nouvelle catégorie
 document.getElementById("add-form").addEventListener("submit", function (e) {
     e.preventDefault();
+
+    const categorie = document.getElementById("categorie").value;
+    const seuil = parseInt(document.getElementById("seuil").value);
+    const produit_id = document.getElementById("produit-id").value || null;
+
     fetch("http://localhost/entrepot/Info/php/seuils_stock_api.php?action=add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            categorie: document.getElementById("categorie").value,
-            seuil: document.getElementById("seuil").value
-        })
+        body: JSON.stringify({ categorie, seuil, produit_id })
     }).then(() => {
-        loadSeuils(); // recharge après ajout
+        loadSeuils();
         this.reset();
     });
 });
-
-// ✏️ Modifier un seuil
-function updateSeuil(categorie, newSeuil) {
+//  Mettre à jour un seuil
+function updateSeuil(produit_id, categorie, newSeuil) {
     fetch("http://localhost/entrepot/Info/php/seuils_stock_api.php?action=update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ categorie, seuil: newSeuil })
+        body: JSON.stringify({ produit_id, categorie, seuil: newSeuil })
     });
 }
 
-// 🗑️ Supprimer une catégorie
-function deleteSeuil(categorie) {
+
+//  Supprimer une catégorie
+function deleteSeuil(categorie, produit_id, newSeuil) {
     if (confirm("Supprimer cette catégorie ?")) {
         fetch("seuils_stock_api.php?action=delete", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ categorie })
+            body: JSON.stringify({ categorie, produit_id, seuil: newSeuil })
         }).then(() => loadSeuils());
     }
 }
 
-loadSeuils(); // 🚀 Initialiser
+loadSeuils(); //  Initialiser
 
 document.getElementById("edit-btn").addEventListener("click", () => {
     const modal = document.getElementById("modal-seuil");

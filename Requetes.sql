@@ -1,106 +1,117 @@
-CREATE TABLE utilisateurs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    mot_de_passe VARCHAR(255) NOT NULL,
-    -- Haché avec bcrypt !
-    role ENUM('admin', 'manager', 'employé'),
-    date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE notifications (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    message TEXT NOT NULL,
-    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    statut ENUM('lu', 'non_lu') DEFAULT 'non_lu'
-);
-
-CREATE TABLE produits (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(100) NOT NULL,
-    quantite VARCHAR(50) NOT NULL,
-    
-    categorie VARCHAR(50) NOT NULL,
-    date_peremption DATE,
-    position ENUM('Cellule A1', 'Cellule A2', 'Rayon 3', 'Réserve') NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    prix_unitaire INT NULL.lot VARCHAR(50) NOT NULL,
-    code_barre VARCHAR(50) UNIQUE,
-    statut ENUM('actif', 'inactif') DEFAULT 'actif';
-
-);
+CREATE DATABASE IF NOT EXISTS entrepotalimentaire;
+USE entrepotalimentaire;
 
 CREATE TABLE fournisseur (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(255) NOT NULL,
-    contact VARCHAR(100),
-    email VARCHAR(255),
-    adresse TEXT,
-    categorie VARCHAR(100),
-    -- ✅ Ajout du champ catégorie
-    date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE notifications (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT DEFAULT NULL,
-    -- Liée à un utilisateur spécifique
-    product_id INT DEFAULT NULL,
-    -- Liée à un produit (si applicable)
-    message TEXT NOT NULL,
-    -- Contenu de la notification
-    type ENUM('info', 'warning', 'error') DEFAULT 'info',
-    -- Type de notification
-    is_read BOOLEAN DEFAULT FALSE,
-    -- Notification lue ou non
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    -- Date de création
-    FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES produits(id) ON DELETE CASCADE
-);
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  nom VARCHAR(255) NOT NULL,
+  adresse TEXT,
+  categorie VARCHAR(100),
+  contact VARCHAR(100),
+  email VARCHAR(255),
+  date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+CREATE TABLE produits (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  nom VARCHAR(255) NOT NULL,
+  lot VARCHAR(100),
+  categorie VARCHAR(100),
+  code_barre VARCHAR(100) UNIQUE,
+  photo VARCHAR(255),
+  position ENUM('stock', 'rayon', 'sortie'),
+  statut ENUM('actif', 'inactif') DEFAULT 'actif',
+  quantite VARCHAR(50),
+  prix_unitaire DECIMAL(10,2),
+  date_peremption DATE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+CREATE TABLE inventaire_physique (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  produit_id INT,
+  utilisateur_id INT,
+  date_inventaire DATETIME DEFAULT CURRENT_TIMESTAMP,
+  quantite_theorique DECIMAL(10,2),
+  quantite_reelle DECIMAL(10,2),
+  ecart DECIMAL(10,2),
+  justification TEXT,
+  FOREIGN KEY (produit_id) REFERENCES produits(id),
+  FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+) ENGINE=InnoDB;
+CREATE TABLE utilisateurs (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  nom VARCHAR(100) NOT NULL,
+  prenom VARCHAR(100) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  mot_de_passe VARCHAR(255) NOT NULL,
+  role ENUM('admin', 'employe', 'gestionnaire') DEFAULT 'employe',
+  date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
 
 CREATE TABLE mouvements_stock (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    produit_id INT NOT NULL,
-    type ENUM('entrée', 'sortie') NOT NULL,
-    quantite INT NOT NULL,
-    unit VARCHAR(50) NOT NULL,
-    -- ✅ Ajout de l'unité (kg, L, pcs, etc.)
-    raison VARCHAR(255),
-    date_mouvement TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (produit_id) REFERENCES produits(id)
-);
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  produit_id INT,
+  produit_nom VARCHAR(255),
+  quantite INT,
+  valeur DECIMAL(10,2) DEFAULT 0.00,
+  raison VARCHAR(255),
+  type ENUM('entrée', 'sortie', 'ajustement'),
+  unit VARCHAR(50),
+  utilisateur VARCHAR(255),
+  date_mouvement TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (produit_id) REFERENCES produits(id)
+) ENGINE=InnoDB;
+CREATE TABLE notifications (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT,
+  product_id INT,
+  category VARCHAR(100),
+  context LONGTEXT,
+  message TEXT NOT NULL,
+  severity ENUM('faible', 'moyenne', 'critique'),
+  type ENUM('info', 'alerte', 'erreur') DEFAULT 'info',
+  is_read TINYINT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES utilisateurs(id),
+  FOREIGN KEY (product_id) REFERENCES produits(id)
+) ENGINE=InnoDB;
+CREATE TABLE planifications (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  produit_id INT,
+  fournisseur_id INT,
+  utilisateur_id INT,
+  date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  date_prevue DATETIME,
+  quantite DECIMAL(10,2),
+  commentaire TEXT,
+  notifie TINYINT DEFAULT 0,
+  statut ENUM('attente', 'confirmée', 'annulée'),
+  type ENUM('livraison', 'réception', 'autre'),
+  FOREIGN KEY (produit_id) REFERENCES produits(id),
+  FOREIGN KEY (fournisseur_id) REFERENCES fournisseur(id),
+  FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+) ENGINE=InnoDB;
+CREATE TABLE seuils_stock (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  produit_id INT,
+  categorie VARCHAR(100),
+  seuil INT DEFAULT 5,
+  FOREIGN KEY (produit_id) REFERENCES produits(id)
+) ENGINE=InnoDB;
+CREATE TABLE logs_acces (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  utilisateur_id INT,
+  action VARCHAR(255),
+  details TEXT,
+  date_action TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+) ENGINE=InnoDB;
 
-ALTER TABLE
-    mouvements_stock
-ADD
-    COLUMN produit_nom VARCHAR(255)
-AFTER
-    produit_id;
-
-ALTER TABLE
-    mouvements_stock
-ADD
-    COLUMN opérateur VARCHAR(100)
-AFTER
-    raison;
-
-ALTER TABLE
-    mouvements_stock
-ADD
-    COLUMN valeur DECIMAL(10, 2)
-AFTER
-    opérateur;
-
-ALTER TABLE
-    mouvements_stock
-MODIFY
-    COLUMN quantite DECIMAL(10, 2) NOT NULL;
-
-ALTER TABLE
-    mouvements_stock DROP FOREIGN KEY mouvements_stock_ibfk_1;
-
-ALTER TABLE
-    mouvements_stock
-ADD
-    CONSTRAINT mouvements_stock_ibfk_1 FOREIGN KEY (produit_id) REFERENCES produits(id) ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE TABLE utilisateurs (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  nom VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE,
+  mot_de_passe VARCHAR(255) NOT NULL,
+  role SET('admin', 'gestionnaire', 'auditeur', 'invité'),
+  permissions TEXT,
+  actif TINYINT DEFAULT 1,
+  date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;

@@ -8,7 +8,7 @@ header("Access-Control-Allow-Origin: *");
 $host = "localhost";
 $user = "root"; // Modifier si nécessaire
 $password = ""; // Modifier si nécessaire
-$dbname = "entrepotalimentaire"; // Modifier avec le nom correct
+$dbname = "entrepot_alimentaire"; // Modifier avec le nom correct
 
 $conn = mysqli_connect($host, $user, $password, $dbname);
 

@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 $host = "localhost";
 $user = "root"; 
 $password = ""; 
-$dbname = "entrepotalimentaire"; 
+$dbname = "entrepot_alimentaire"; 
 
 $conn = mysqli_connect($host, $user, $password, $dbname);
 

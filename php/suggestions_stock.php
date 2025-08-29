@@ -2,7 +2,7 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
-$conn = mysqli_connect("localhost", "root", "", "entrepotalimentaire");
+$conn = mysqli_connect("localhost", "root", "", "entrepot_alimentaire");
 if (!$conn) {
     echo json_encode(["success" => false, "message" => "Connexion échouée"]);
     exit;

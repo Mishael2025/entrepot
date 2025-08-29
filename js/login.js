@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 🚪 Déconnexion
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
-            SessionManager.clear();
+            SessionManager.clear("username");
             alert("👋 Vous avez été déconnecté.");
             window.location.href = "/entrepot/Info/html/PageConnexion.html";
         });

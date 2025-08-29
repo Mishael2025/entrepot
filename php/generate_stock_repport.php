@@ -5,7 +5,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 // 🔄 Connexion à la base
-$conn = new mysqli("localhost", "root", "", "entrepotalimentaire");
+$conn = new mysqli("localhost", "root", "", "entrepot_alimentaire");
 if ($conn->connect_error) {
     die("❌ Connexion échouée : " . $conn->connect_error);
 }

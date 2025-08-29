@@ -7,7 +7,7 @@ console.log("Rôle utilisateur :", userRole);
 // Vérifier si l'utilisateur est admin et rediriger si nécessaire
 document.addEventListener("DOMContentLoaded", function () {
     const userRole = sessionStorage.getItem("userRole");
-    if (userRole !== "admin" && userRole !== "manager") {
+    if (userRole == "admin" && userRole !== "manager") {
         alert("⛔ Accès réservé à l'administrateur ou au manager !");
         window.location.href = "../html/acceuil.html"; // Redirige vers l'accueil
     }

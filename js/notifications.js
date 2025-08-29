@@ -120,15 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 📥 Charger les notifications automatiquement
     getNotifications();
 });
-//le BOUTON DE RAFFRAICHISSEMENT
-document.addEventListener("DOMContentLoaded", () => {
-    const refreshButton = document.getElementById("refresh-btn");
-    if (refreshButton) {
-        refreshButton.addEventListener("click", () => {
-            location.reload(); // 🔄 Recharge toute la page
-        });
-    }
-});
+
 
 //  Charger la liste depuis l'API
 function loadSeuils() {

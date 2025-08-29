@@ -11,7 +11,7 @@ header("Access-Control-Max-Age: 86400");
 $host = "localhost";
 $user = "root";
 $password = "";
-$dbname = "entrepotalimentaire";
+$dbname = "entrepot_alimentaire";
 
 $conn = mysqli_connect($host, $user, $password, $dbname);
 
@@ -54,6 +54,7 @@ if ($result->num_rows === 1) {
             "username" => $user['nom'],
             "role" => $user['role']
         ]);
+        echo password_hash("tonMotDePasse", PASSWORD_DEFAULT);echo password_hash("tonMotDePasse", PASSWORD_DEFAULT);
     } else {
         echo json_encode(["success" => false, "message" => "❌ Mot de passe incorrect"]);
     }

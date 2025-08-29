@@ -14,7 +14,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 $host = "localhost";
 $user = "root";
 $password = "";
-$dbname = "entrepotalimentaire";
+$dbname = "entrepot_alimentaire";
 
 $conn = mysqli_connect($host, $user, $password, $dbname);
 if (!$conn) {
@@ -43,7 +43,7 @@ if ($request === 'POST') {
         $filename = pathinfo($_FILES['photo']['name'], PATHINFO_FILENAME);
         $uniqueName = $filename . "_" . time() . "." . $ext;
         $targetPath = "../Images/" . $uniqueName;
-        
+
         $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
         if (!in_array(strtolower($ext), $allowedExtensions)) {
             echo json_encode(["success" => false, "error" => "Extension de fichier non autorisée."]);
@@ -109,6 +109,22 @@ if ($request === 'POST') {
             echo json_encode(["success" => false, "error" => "❌ Exception : " . $e->getMessage()]);
         }
     } else {
+        // 🔎 Vérification stricte avant ajout
+        $nom = trim(strtolower($_POST["nom"] ?? ""));
+        $categorie = trim(strtolower($_POST["categorie"] ?? ""));
+        $position = trim(strtolower($_POST["position"] ?? ""));
+
+        $checkStmt = $conn->prepare("SELECT id FROM produits WHERE LOWER(TRIM(nom)) = ? AND LOWER(TRIM(categorie)) = ? AND LOWER(TRIM(position)) = ?");
+
+        $checkStmt->bind_param("sss", $nom, $categorie, $position);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
+
+        if ($checkResult->num_rows > 0) {
+            echo json_encode(["success" => false, "error" => "❌ Produit déjà existant dans cette catégorie et position"]);
+            exit;
+        }
+
         // ➕ AJOUT
         $initiales = strtoupper(substr($nom, 0, 2));
         $mois = date("m");
@@ -139,6 +155,7 @@ if ($request === 'POST') {
             "code_barre" => $code_barre
         ]);
     }
+
 } elseif ($request === 'GET') {
     try {
         if (isset($_GET['id']) && is_numeric($_GET['id']) && intval($_GET['id']) > 0) {

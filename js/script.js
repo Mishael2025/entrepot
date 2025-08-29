@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
- 
+
 
     // export en fichier excel
     document.addEventListener("DOMContentLoaded", () => {
@@ -129,20 +129,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // ✅ Chercher le produit dans `inventoryData`
         const product = inventoryData.find(item => item.id == id);
-
+        const nomProduit = product.name;
         if (!product) {
             console.error(`❌ Produit avec ID ${id} introuvable avant suppression !`);
             alert("Le produit n'existe pas.");
             return;
         }
 
-        const productName = product.name;
+
         const expiryDate = product.expiryDate;
 
-        console.log("🔎 Produit trouvé :", productName, "| Expiry Date :", expiryDate);
+        console.log("🔎 Produit trouvé :", product.name, "| Expiry Date :", expiryDate);
 
         // ✅ Envoi de la requête DELETE à l’API
-        fetch(`http://localhost/entrepot/Info/Php/produits_api.php?id=${parseInt(id, 10)}`, {
+        fetch(`http://localhost/entrepot/Info/php/produits_api.php?id=${parseInt(id, 10)}`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" }
         })
@@ -160,7 +160,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.log("✅ Tableau mis à jour !");
 
                     // ✅ Ajout à l'historique APRES confirmation API
-                    addToHistory("Suppression", productName, new Date().toLocaleString(), expiryDate);
+                    addToHistory("Suppression", nomProduit, new Date().toLocaleString(), product.expiryDate);
+
                 } else {
                     console.error("❌ Erreur API :", data.error);
                     alert(`Erreur : ${data.error}`);
@@ -210,8 +211,18 @@ document.addEventListener("DOMContentLoaded", () => {
             if (file) {
                 formData.append("photo", file);
             }
+            const alreadyExists = inventoryData.some(p =>
+                p.nom?.toLowerCase().trim() === product.name.toLowerCase().trim() &&
+                p.categorie?.toLowerCase().trim() === product.category.toLowerCase().trim() &&
+                p.position?.toLowerCase().trim() === product.position.toLowerCase().trim()
+            );
 
-            fetch("http://localhost/entrepot/Info/Php/produits_api.php", {
+            if (alreadyExists) {
+                alert("❌ Ce produit existe déjà dans cette catégorie et position.");
+                return;
+            }
+
+            fetch("http://localhost/entrepot/Info/php/produits_api.php", {
                 method: "POST",
                 body: formData
             })
@@ -290,7 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // ✅ Envoi de la requête de modification
             console.log("🔎 Envoi des données de modification :", Array.from(formData.entries()));
 
-            fetch("http://localhost/entrepot/Info/Php/produits_api.php", {
+            fetch("http://localhost/entrepot/Info/php/produits_api.php", {
                 method: "POST",
                 body: formData
             })
@@ -411,7 +422,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // 📡 Envoi AJAX
-            fetch("http://localhost/entrepot/Info/Php/produits_api.php", {
+            fetch("http://localhost/entrepot/Info/php/produits_api.php", {
                 method: "POST",
                 body: formData
             })
@@ -441,7 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Fonction corrigée pour pré-remplir les champs du formulaire
     function populateFormForEdit(productId) {
-        fetch(`http://localhost/entrepot/Info/Php/produits_api.php?id=${productId}`)
+        fetch(`http://localhost/entrepot/Info/php/produits_api.php?id=${productId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -495,7 +506,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("✅ InventoryData chargé depuis localStorage :", inventoryData);
             updateTable(); // ✅ Rafraîchir l'affichage avec les données récupérées
         }
-        fetch("http://localhost/entrepot/Info/Php/produits_api.php")
+        fetch("http://localhost/entrepot/Info/php/produits_api.php")
             .then(response => response.json())
             .then(data => {
                 console.log("🔎 Réponse API :", data); // ✅ Vérification
@@ -538,7 +549,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("✅ InventoryData chargé depuis localStorage :", inventoryData);
         }
 
-        fetch("http://localhost/entrepot/Info/Php/produits_api.php")
+        fetch("http://localhost/entrepot/Info/php/produits_api.php")
             .then(response => response.json())
             .then(data => {
                 if (!data.success) {
@@ -572,7 +583,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     if (parseInt(quantite) < 5) {
                         badge += `<span class="badge warning">⚠️ Stock faible</span>`;
-                        fetch("http://localhost/entrepot/Info/Php/add_notifications.php", {
+                        fetch("http://localhost/entrepot/Info/php/add_notifications.php", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ product_id: product.id, message: "⚠️ Stock faible pour " + product.nom, type: "warning" })
@@ -586,14 +597,15 @@ document.addEventListener("DOMContentLoaded", () => {
                         badge += `<span class="badge expired">⛔ Expiré</span>`;
                     } else if (oneDayBefore.toDateString() === today.toDateString()) {
                         badge += `<span class="badge warning">⏳ Expire demain</span>`;
-                        fetch("http://localhost/entrepot/Info/Php/add_notifications.php", {
+                        fetch("http://localhost/entrepot/Info/php/add_notifications.php", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ product_id: product.id, message: "⏳ Le produit " + product.nom + " expire demain !", type: "warning" })
                         });
                     }
                     const imageFile = product.photo?.trim() || "Food2.jpg";
-                    const imageSrc = `../Images/${imageFile}`;;
+                    const imageSrc = `../Images/${imageFile}`;
+                    card.setAttribute("data-nom", product.nom.toLowerCase());
                     card.innerHTML = `
                         <h3>${product.nom}</h3>
                         <p><strong>Quantité :</strong> ${quantite} ${unit}</p>
@@ -618,6 +630,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     img.className = "product-img";
                     card.prepend(img); // ou card.insertBefore(img, card.firstChild);
                     productGrid.appendChild(card);
+                    //Filtrage des produits dans les cartes
+                    document.getElementById("search-bar").addEventListener("input", function () {
+                        const query = this.value.toLowerCase().trim();
+                        const cards = document.querySelectorAll(".product-card");
+
+                        cards.forEach(card => {
+                            const nom = card.dataset.nom || "";
+                            card.style.display = nom.includes(query) ? "block" : "none";
+                        });
+                    });
 
 
                 });
@@ -681,9 +703,9 @@ document.addEventListener("DOMContentLoaded", () => {
     attachDeleteEvents(); // ✅ Fixe les événements `click` sur les boutons de suppression
 
     // ✅ Fonction pour afficher l'historique sauvegardé
-  
+
     // Ajouter à l'historique
-    
+
 
 
     // ✅ Fonction pour afficher l'historique au démarrage

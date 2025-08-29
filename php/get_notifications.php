@@ -6,7 +6,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 $host = "localhost";
 $user = "root";
 $password = "";
-$dbname = "entrepotalimentaire";
+$dbname = "entrepot_alimentaire";
 
 $conn = mysqli_connect($host, $user, $password, $dbname);
 if (!$conn) {

@@ -1,7 +1,7 @@
 <?php
 header("Content-Type: application/json");
 
-$conn = new mysqli("localhost", "root", "", "entrepotalimentaire");
+$conn = new mysqli("localhost", "root", "", "entrepot_alimentaire");
 if ($conn->connect_error) {
     echo json_encode(["success" => false, "error" => "Connexion BDD échouée"]);
     exit;

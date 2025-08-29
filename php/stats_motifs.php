@@ -1,5 +1,5 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "entrepotalimentaire");
+$conn = new mysqli("localhost", "root", "", "entrepot_alimentaire");
 header("Content-Type: application/json");
 
 if ($conn->connect_error) {

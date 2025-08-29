@@ -8,7 +8,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // 🔒 Connexion à MySQL
-$conn = mysqli_connect("localhost", "root", "", "entrepotalimentaire");
+$conn = mysqli_connect("localhost", "root", "", "entrepot_alimentaire");
 if (!$conn) {
     http_response_code(500);
     echo json_encode(["success" => false, "message" => "Connexion échouée"]);

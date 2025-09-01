@@ -1,19 +1,17 @@
 console.log("✅ Script utilisateurs.js chargé !");
-const userRole = sessionStorage.getItem("userRole") || "guest";
+const userRole = SessionManager.get("userRole") || "guest";
 console.log("Rôle utilisateur :", userRole);
 
 
 
 // Vérifier si l'utilisateur est admin et rediriger si nécessaire
 document.addEventListener("DOMContentLoaded", function () {
-    const userRole = sessionStorage.getItem("userRole");
-    if (userRole == "admin" && userRole !== "manager") {
+    const userRole = SessionManager.get("userRole");
+    if (userRole != "admin" ) {
         alert("⛔ Accès réservé à l'administrateur ou au manager !");
         window.location.href = "../html/acceuil.html"; // Redirige vers l'accueil
     }
-
-
-    chargerUtilisateurs(); // Charge les utilisateurs depuis la base de données
+ chargerUtilisateurs(); // Charge les utilisateurs depuis la base de données
 });
 
 let utilisateurs = [];

@@ -16,6 +16,11 @@
   margin-right: 8px;
 }
 
+.role-badge {
+  background-color: blue;
+  border-radius: 5px;
+}
+
 h1 {
   text-align: center;
   color: #333;
@@ -71,10 +76,7 @@ h1 {
   margin-left: 340px;
 
 }
-.role-badge {
-  background-color: blue;
-  border-radius: 5px;
-}
+
 
 
 /*style pour le formulaire de planifications de livraisons*/
@@ -176,8 +178,9 @@ h1 {
   justify-content: flex-end;
   gap: 12px;
   align-items: center;
-  
+
 }
+
 #table-planifications {
   max-width: 1000px;
   border-collapse: collapse;
@@ -187,6 +190,7 @@ h1 {
   font-family: 'Inter', sans-serif;
   margin-left: 300px;
 }
+
 .table-controls select {
   padding: 8px 12px;
   border-radius: 6px;
@@ -196,7 +200,8 @@ h1 {
 
 /* 📱 Media Queries */
 @media screen and (max-width: 768px) {
-#calendrier-planifications,
+
+  #calendrier-planifications,
   .table-planification,
   .table-planification thead,
   .table-planification tbody,
@@ -238,7 +243,8 @@ h1 {
     border-bottom: none;
   }
 
-  form,#table-planifications,
+  form,
+  #table-planifications,
   .table-wrapper {
     padding: 0.8rem;
   }

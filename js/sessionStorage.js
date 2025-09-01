@@ -1,3 +1,6 @@
+window.currentUserRole = "employé"; // à adapter dynamiquement selon l'utilisateur
+
+
 window.applyRoleRestrictionsByPage = function (role) {
     const permissions = window.rolePermissions[role];
     if (!permissions) return;
@@ -60,7 +63,7 @@ window.rolePermissions = {
         canEdit: true,
         canView: true
     },
-    operateur: {
+    employé: {
         canDelete: false,
         canEdit: true,
         canView: true
@@ -70,10 +73,10 @@ window.rolePermissions = {
         canEdit: false,
         canView: true
     },
-    invite: {
+    manager: {
         canDelete: false,
         canEdit: false,
-        canView: false
+        canView: true
     }
 };
 window.SessionManager = {

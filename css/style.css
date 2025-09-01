@@ -12,7 +12,16 @@ body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #f6f9fc;
 }
+#role-label {
+  float: right;
+  font-weight: bold;
+  margin-right: 8px;
+}
 
+.role-badge {
+  background-color: blue;
+  border-radius: 5px;
+}
 h1, h2, h3 {
   margin-top: 0;
 }

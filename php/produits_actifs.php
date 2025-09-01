@@ -1,5 +1,5 @@
 <?php
-$conn = mysqli_connect("localhost", "root", "", "entrepotalimentaire");
+$conn = mysqli_connect("localhost", "root", "", "entrepot_alimentaire");
 mysqli_set_charset($conn, "utf8");
 
 $sql = "SELECT id, nom FROM produits WHERE statut = 'actif' ORDER BY nom ASC";

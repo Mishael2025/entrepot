@@ -191,10 +191,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 function fetchSorties(mysqli $conn): array
 {
     $result = $conn->query("
-        SELECT produit_id, SUM(quantite) AS total_sorties
-        FROM mouvements_stock
-        WHERE type = 'sortie'
-        GROUP BY produit_id
+      SELECT m.type, m.quantite, m.date_mouvement, p.id AS produit_id, p.nom
+        FROM mouvements_stock m
+        JOIN produits p ON m.produit_id = p.id
+        WHERE m.type = 'sortie'
+        ORDER BY m.date_mouvement ASC
+        GROUP BY m.produit_id
     ");
     $sorties = [];
     while ($row = $result->fetch_assoc()) {
@@ -210,20 +212,26 @@ function fetchSorties(mysqli $conn): array
 function fetchTimeline(mysqli $conn): array
 {
     $result = $conn->query("
-        SELECT type, quantite, date_mouvement
-        FROM mouvements_stock
-        ORDER BY date_mouvement ASC
+        SELECT m.type, m.quantite, m.date_mouvement, p.id AS produit_id, p.nom
+        FROM mouvements_stock m
+        JOIN produits p ON m.produit_id = p.id
+        WHERE m.type = 'sortie'
+        ORDER BY m.date_mouvement ASC
     ");
+
     $mouvements = [];
     while ($row = $result->fetch_assoc()) {
         $mouvements[] = [
             "type" => $row["type"],
             "quantite" => floatval($row["quantite"]),
-            "date_mouvement" => $row["date_mouvement"]
+            "date_mouvement" => $row["date_mouvement"],
+            "produit_id" => intval($row["produit_id"]),
+            "nom" => $row["nom"]
         ];
     }
     return $mouvements;
 }
+
 // 🔍 Requête GET : résumés ou historique
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // 🧠 Journalisation

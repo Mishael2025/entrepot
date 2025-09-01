@@ -11,6 +11,8 @@
 
     <body>
         <div id="sidebar-container"></div>
+        <div id="role-label" class="role-badge"></div>
+
         <div id="admin-panel" style="display: online-block;">
             <button id="refresh-btn">🔄refresh</button>
             <h2>Gestion des Utilisateurs</h2>
@@ -62,6 +64,7 @@
                         <th>Email</th>
                         <th>Rôle</th>
                         <th>Statut</th>
+                        <th>Permissions</th>
                         <th>Actions</th>
 
                     </tr>
@@ -176,10 +179,34 @@
             </div>
 
         </div>
-        <script></script>
+        <script src="../js/sessionStorage.js"></script>
         <script src="../js/notifications.js"></script>
         <script src="../js/utilisateurs.js"></script>
         <script>
+
+            // les roles permissions
+            function generatePermissions(role, format = "json") {
+               const perms = window.rolePermissions[role];
+               if (!perms) return "";
+
+               const actions = [];
+               if (perms.canView) actions.push("view");
+               if (perms.canEdit) actions.push("edit");
+               if (perms.canDelete) actions.push("delete");
+
+               if (format === "json") {
+                 return JSON.stringify({ inventaire: actions }, null, 2);
+               } else if (format === "csv") {
+                 return `inventaire:${actions.join(",")}`;
+               }
+               return "";
+             }
+        document.getElementById("user-role").addEventListener("change", function () {
+          const role = this.value;
+          const permissions = generatePermissions(role, "json"); // ou "csv"
+          document.getElementById("user-permissions").value = permissions;
+        });
+
         // Place ce code juste après l'injection du sidebar
         fetch("../html/sidebard.html")
             .then(r => r.text())

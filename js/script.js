@@ -2,8 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const productTableBody = document.querySelector("#product-table tbody");
-    const historyList = document.getElementById("history-list");
+
     const addProductBtn = document.getElementById("add-product-btn");
     let updateProductBtn = document.getElementById("update-product-btn");
 
@@ -82,8 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Chargement du DOM terminé.");
         loadFromLocalStorage();
         console.log(localStorage.getItem("inventoryData")); // Devrait afficher les données sauvegardées.
-
-
     });
     document.addEventListener("DOMContentLoaded", function () {
         updateTable(); // ✅ Exécuter après le chargement complet de la page

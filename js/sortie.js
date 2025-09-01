@@ -283,8 +283,9 @@ async function renderCharts() {
 
     const chartContainer = document.getElementById("chart-section");
     const produitSelector = document.getElementById("produit-selector");
+    const periodeSelector = document.getElementById("periode-selector");
 
-    if (!chartContainer || !produitSelector) {
+    if (!chartContainer || !produitSelector || !periodeSelector) {
         console.error("❌ Conteneurs introuvables !");
         return;
     }
@@ -304,142 +305,95 @@ async function renderCharts() {
         }
     };
 
-    const entriesRaw = await getJsonData("http://localhost/entrepot/Info/php/produits_api.php");
+   
     const movementsRaw = await getJsonData("http://localhost/entrepot/Info/php/sortie_api.php?mode=timeline");
 
-    const formatToMonthKey = (dateStr) => dateStr.split("-").slice(0, 2).join("-");
-    const formatMonthLabel = (monthKey) => {
-        const [year, month] = monthKey.split("-");
-        const moisNoms = ["Janv", "Févr", "Mars", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc"];
-        return `${moisNoms[parseInt(month) - 1]} ${year}`;
+    const formatToDayKey = (dateStr) => dateStr?.split(" ")[0]; // "2025-08-30"
+    const formatDayLabel = (dayKey) => {
+        const [year, month, day] = dayKey.split("-");
+        return `${day}/${month}/${year}`;
     };
 
     const produitsMap = {};
 
-    entriesRaw.forEach(p => {
-        const date = p.created_at?.split(" ")[0];
-        const moisKey = formatToMonthKey(date);
-        const qte = parseFloat(p.quantite) || 0;
-        const id = p.id;
-        const nom = p.nom;
+   
 
-        if (!produitsMap[id]) produitsMap[id] = { nom, entrees: {}, sorties: {} };
-        produitsMap[id].entrees[moisKey] = (produitsMap[id].entrees[moisKey] || 0) + qte;
-    });
-
+    // 🔹 Sorties
     movementsRaw.forEach(mvt => {
-        const date = mvt.date_mouvement?.split(" ")[0];
-        const moisKey = formatToMonthKey(date);
-        const qte = parseFloat(mvt.quantite) || 0;
-        const id = mvt.produit_id;
+        const produitId = mvt.produit_id;
         const nom = mvt.nom;
+        const date = mvt.date_mouvement?.split(" ")[0];
+        const jourKey = formatToDayKey(date);
+        const qte = parseFloat(mvt.quantite) || 0;
 
-        if (!produitsMap[id]) produitsMap[id] = { nom, entrees: {}, sorties: {} };
-        if (mvt.type === "entrée") {
-            produitsMap[id].entrees[moisKey] = (produitsMap[id].entrees[moisKey] || 0) + qte;
-        } else if (mvt.type === "sortie") {
-            produitsMap[id].sorties[moisKey] = (produitsMap[id].sorties[moisKey] || 0) + qte;
+        if (!produitId || !nom || !jourKey || qte <= 0 || mvt.type !== "sortie") return;
+
+        if (!produitsMap[produitId]) {
+            produitsMap[produitId] = { nom, entrees: {}, sorties: {} };
         }
+
+        produitsMap[produitId].sorties[jourKey] = (produitsMap[produitId].sorties[jourKey] || 0) + qte;
     });
+    console.log("✅ Données agrégées :", produitsMap);
 
-    const produitIds = Object.keys(produitsMap);
-    const maxAffichage = 6;
-
-    produitIds.forEach(id => {
+    // 🔹 Sélecteur
+    Object.entries(produitsMap).forEach(([id, produit]) => {
         const option = document.createElement("option");
         option.value = id;
-        option.textContent = produitsMap[id].nom;
+        option.textContent = produit.nom;
         produitSelector.appendChild(option);
     });
 
-    const afficherProduit = (id) => {
-        chartContainer.innerHTML = "";
+    const getFilteredDays = (jours, periode) => {
+        const today = new Date();
+        return jours.filter(j => {
+            const d = new Date(j);
+            const diff = (today - d) / (1000 * 60 * 60 * 24);
+            return diff <= periode;
+        }).sort();
+    };
 
-        const produit = produitsMap[id];
-        const mois = Array.from(new Set([
-            ...Object.keys(produit.entrees),
-            ...Object.keys(produit.sorties)
-        ])).sort();
-
-        const moisLabels = mois.map(formatMonthLabel);
-        const entrees = mois.map(m => produit.entrees[m] || 0);
-        const sorties = mois.map(m => produit.sorties[m] || 0);
-
-        const totalEntrees = entrees.reduce((a, b) => a + b, 0);
-        const totalSorties = sorties.reduce((a, b) => a + b, 0);
-        const tendance = totalEntrees > totalSorties ? "📈 Stock en hausse"
-            : totalSorties > totalEntrees ? "📉 Stock en baisse"
-                : "🔁 Stock stable";
-
-        // 📦 Bloc produit
+    const afficherGraphique = (label, data, color, titreTexte) => {
         const bloc = document.createElement("div");
         bloc.style.marginBottom = "40px";
 
         const titre = document.createElement("h3");
-        titre.textContent = `🧺 ${produit.nom} — ${tendance}`;
+        titre.textContent = titreTexte;
         bloc.appendChild(titre);
 
-        // 📊 Graphique bar
-        const canvasBar = document.createElement("canvas");
-        canvasBar.height = 300;
-        bloc.appendChild(canvasBar);
+        const canvas = document.createElement("canvas");
+        canvas.height = 300;
+        bloc.appendChild(canvas);
 
-        new Chart(canvasBar.getContext("2d"), {
+        new Chart(canvas.getContext("2d"), {
             type: "bar",
             data: {
-                labels: moisLabels,
-                datasets: [
-                    { label: "Entrées", data: entrees, backgroundColor: "#27ae60" },
-                    { label: "Sorties", data: sorties, backgroundColor: "#c0392b" }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: { display: true, text: "📊 Flux mensuel" },
-                    legend: { position: "bottom" }
-                },
-                scales: {
-                    x: { stacked: true },
-                    y: { stacked: true, beginAtZero: true }
-                }
-            }
-        });
-
-        // 📈 Graphique dent de scie (stock net)
-        const canvasLine = document.createElement("canvas");
-        canvasLine.height = 300;
-        bloc.appendChild(canvasLine);
-
-        const stockLevels = [];
-        let cumul = 0;
-        mois.forEach(m => {
-            cumul += (produit.entrees[m] || 0) - (produit.sorties[m] || 0);
-            cumul = Math.max(cumul, 0);
-            stockLevels.push(cumul);
-        });
-
-        new Chart(canvasLine.getContext("2d"), {
-            type: "line",
-            data: {
-                labels: moisLabels,
+                labels: data.labels,
                 datasets: [{
-                    label: "📦 Stock net",
-                    data: stockLevels,
-                    borderColor: "#2980b9",
-                    backgroundColor: "rgba(52, 152, 219, 0.2)",
-                    fill: true,
-                    tension: 0.3
+                    label,
+                    data: data.values,
+                    backgroundColor: color.bg,
+                    borderColor: color.border,
+                    borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    title: { display: true, text: "📈 Évolution du stock" },
-                    legend: { position: "bottom" }
+                    title: {
+                        display: true,
+                        text: titreTexte
+                    },
+                    legend: { display: false }
                 },
                 scales: {
-                    y: { beginAtZero: true }
+                    x: {
+                        ticks: { autoSkip: true, maxTicksLimit: 15 }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: Math.max(...data.values, 10) + 10
+                    }
                 }
             }
         });
@@ -447,17 +401,56 @@ async function renderCharts() {
         chartContainer.appendChild(bloc);
     };
 
-    // 🧠 Affichage initial des 6 premiers
-    produitIds.slice(0, maxAffichage).forEach(id => afficherProduit(id));
+    const afficherSortiesProduit = (id, periode = 30) => {
+        chartContainer.innerHTML = "";
 
-    // 🔄 Sélection manuelle
-    produitSelector.addEventListener("change", e => {
-        const selectedId = e.target.value;
-        if (selectedId) afficherProduit(selectedId);
+        const produit = produitsMap[id];
+        if (!produit) return;
+
+        const joursSortie = Object.keys(produit.sorties || {});
+
+
+
+        const sorties = joursSortie.map(j => produit.sorties[j] || 0);
+
+
+        const labelsSortie = joursSortie.map(formatDayLabel);
+
+        console.log("✅ Sorties agrégées :", produitsMap);
+
+
+
+        if (sorties.length > 0 && sorties.some(qte => qte > 0)) {
+            afficherGraphique("Quantité sortie", { labels: labelsSortie, values: sorties }, {
+                bg: "#e74c3c", border: "#c0392b"
+            }, `📤 Sorties — ${produit.nom}`);
+        } else {
+            chartContainer.innerHTML = `<p style="color:gray;">Aucune sortie enregistrée pour ce produit sur ${periode} jours.</p>`;
+        }
+
+
+
+        if (sorties.length === 0) {
+            chartContainer.innerHTML = `<p style="color:gray;">Aucun mouvement enregistré pour ce produit sur ${periode} jours.</p>`;
+        }
+    };
+
+    produitSelector.addEventListener("change", () => {
+        const selectedId = produitSelector.value;
+        const periode = parseInt(periodeSelector.value) || 30;
+        if (selectedId) afficherSortiesProduit(selectedId, periode);
     });
 
-    console.log("✅ Graphiques générés avec filtre produit.");
+    periodeSelector.addEventListener("change", () => {
+        const selectedId = produitSelector.value;
+        const periode = parseInt(periodeSelector.value) || 30;
+        if (selectedId) afficherSortiesProduit(selectedId, periode);
+    });
+
+    console.log("✅ Graphiques prêts à être affichés sur sélection.");
 }
+
+
 //Bouton pour imprimer le rapport journalier
 document.getElementById("print-btn").addEventListener("click", () => {
     const rapport = document.getElementById("rapport-container");

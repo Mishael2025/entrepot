@@ -4,71 +4,68 @@ ini_set('display_errors', 1);
 header('Content-Type: application/json');
 header("Access-Control-Allow-Origin: *");
 
-// Connexion à la base de données
+// Connexion à la base
 $host = "localhost";
-$user = "root"; // Modifier si nécessaire
-$password = ""; // Modifier si nécessaire
-$dbname = "entrepot_alimentaire"; // Modifier avec le nom correct
+$user = "root";
+$password = "";
+$dbname = "entrepot_alimentaire";
 
 $conn = mysqli_connect($host, $user, $password, $dbname);
-
-// Vérifier la connexion
 if (!$conn) {
-    die(json_encode(["success" => false, "error" => "Échec de connexion à la base de données : " . mysqli_connect_error()]));
+    echo json_encode(["success" => false, "error" => "Connexion échouée : " . mysqli_connect_error()]);
+    exit;
 }
 
-// Vérifier que la requête est bien en POST
+// Vérification méthode
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     http_response_code(405);
     echo json_encode(["success" => false, "error" => "Méthode non autorisée"]);
     exit;
 }
 
-// Récupération des données envoyées
-$nom = $_POST['nom'] ?? null;
-$email = $_POST['email'] ?? null;
-$mot_de_passe = $_POST['mot_de_passe'] ?? null;
-$role = $_POST['role'] ?? "employé"; // Assure un rôle par défaut
-if (!$nom || !$mot_de_passe || !$email || !$role) {
+// Lecture des données JSON
+$data = json_decode(file_get_contents("php://input"), true);
+
+$nom = trim($data['nom'] ?? "");
+$email = trim($data['email'] ?? "");
+$mot_de_passe = trim($data['mot_de_passe'] ?? "");
+$role = trim($data['role'] ?? "invite");
+$permissions = trim($data['permissions'] ?? "");
+$actif = isset($data['actif']) ? intval($data['actif']) : 0;
+
+// Validation
+if ($nom === "" || $email === "" || $mot_de_passe === "" || $role === "" || $permissions === "") {
     echo json_encode(["success" => false, "error" => "Tous les champs sont requis"]);
     exit;
 }
 
-// Vérifier si l'utilisateur existe déjà
-$stmt = $conn->prepare("SELECT COUNT(*) FROM utilisateurs WHERE email = ?");
-$stmt->bind_param("s", $email);
-$stmt->execute();
-$stmt->bind_result($count);
-$stmt->fetch();
+// Vérification doublon email
+$checkStmt = $conn->prepare("SELECT COUNT(*) FROM utilisateurs WHERE email = ?");
+$checkStmt->bind_param("s", $email);
+$checkStmt->execute();
+$checkStmt->bind_result($count);
+$checkStmt->fetch();
+$checkStmt->close();
+
 if ($count > 0) {
-    echo json_encode(["success" => false, "message" => "Email déjà utilisé"]);
+    echo json_encode(["success" => false, "message" => "❌ Email déjà utilisé"]);
     exit;
 }
 
-// Ajouter l'utilisateur à la table `utilisateurs`
-$sql = "INSERT INTO utilisateurs (nom, email, mot_de_passe, role) VALUES (?, ?, ?, ?)";
-$stmt = mysqli_prepare($conn, $sql);
+// Hachage du mot de passe
+$mot_de_passe_hache = password_hash($mot_de_passe, PASSWORD_DEFAULT);
 
-if ($stmt) {
-    // Hasher le mot de passe AVANT de l'insérer
-    $hashedPassword = password_hash($mot_de_passe, PASSWORD_DEFAULT);
+// Insertion
+$stmt = $conn->prepare("INSERT INTO utilisateurs (nom, email, mot_de_passe, role, permissions, actif) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("sssssi", $nom, $email, $mot_de_passe_hache, $role, $permissions, $actif);
+$success = $stmt->execute();
+$stmt->close();
 
-    // Liaison des paramètres
-    mysqli_stmt_bind_param($stmt, "ssss", $nom, $email, $hashedPassword, $role);
+// Réponse finale
+echo json_encode([
+    "success" => $success,
+    "message" => $success ? "✅ Utilisateur ajouté avec succès" : "❌ Échec de l'ajout"
+]);
 
-    // Exécuter la requête
-    if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Utilisateur ajouté avec succès"]);
-    } else {
-        echo json_encode(["success" => false, "error" => mysqli_error($conn)]);
-    }
-
-    // Fermer la requête
-    mysqli_stmt_close($stmt);
-} else {
-    echo json_encode(["success" => false, "error" => "Erreur de préparation de la requête SQL"]);
-}
-
-// Fermer la connexion
 mysqli_close($conn);
 ?>

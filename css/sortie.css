@@ -5,7 +5,16 @@
     --fond-carte: linear-gradient(135deg, #1e2a42, #2c3e50);
     --ombre-carte: rgba(0, 0, 0, 0.3);
 }
+#role-label {
+  float: right;
+  font-weight: bold;
+  margin-right: 8px;
+}
 
+.role-badge {
+  background-color: blue;
+  border-radius: 5px;
+}
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;

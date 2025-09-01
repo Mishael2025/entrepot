@@ -18,15 +18,33 @@ body {
     box-shadow: 2px 0 10px rgba(78, 84, 200, 0.08);
     z-index: 10;
 }
-.text-primary   { color: #0078D7; }
-.text-info      { color: #17a2b8; }
-.text-success   { color: #28a745; }
-.text-warning   { color: #ffc107; }
-.text-danger    { color: #dc3545; }
-.text-secondary { color: #6c757d; }
+
+.text-primary {
+    color: #0078D7;
+}
+
+.text-info {
+    color: #17a2b8;
+}
+
+.text-success {
+    color: #28a745;
+}
+
+.text-warning {
+    color: #ffc107;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+.text-secondary {
+    color: #6c757d;
+}
 
 .sidebar i {
-  margin-right: 8px;
+    margin-right: 8px;
 }
 
 .sidebar h2 {
@@ -60,6 +78,17 @@ body {
     margin-left: 240px;
     padding: 2.5rem 2rem 2rem 2rem;
     max-width: 1200px;
+}
+
+#role-label {
+    float: right;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.role-badge {
+    background-color: blue;
+    border-radius: 5px;
 }
 
 h2,
@@ -113,7 +142,8 @@ select {
     font-size: 15px;
     transition: border-color 0.3s ease;
 }
-input[type="number"]{
+
+input[type="number"] {
     width: 50px;
     padding: 10px 12px;
     margin-top: 6px;

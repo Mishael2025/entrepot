@@ -1,5 +1,5 @@
 <?php
-$conn = mysqli_connect("localhost", "root", "", "entrepotalimentaire");
+$conn = mysqli_connect("localhost", "root", "", "entrepot_alimentaire");
 mysqli_set_charset($conn, "utf8");
 
 $date = $_GET['date']; // ex: 2025-08-22

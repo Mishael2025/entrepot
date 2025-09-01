@@ -5,7 +5,16 @@ body {
     background-color: #f4f6f9;
     color: #333;
 }
+#role-label {
+  float: right;
+  font-weight: bold;
+  margin-right: 8px;
+}
 
+.role-badge {
+  background-color: blue;
+  border-radius: 5px;
+}
 h1,
 h2 {
     color: #0d6efd;

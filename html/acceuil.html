@@ -1,72 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="../css/acceuil.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <link rel="stylesheet" href="../css/acceuil.css">
+    </head>
 
-<body>
-    <div id="sidebar-container"></div>
-    <div class="main">
-        <div class="app-container">
+    <body>
+        <div id="sidebar-container"></div>
+        <div id="role-label" class="role-badge"></div>
 
-            <main class="main-content">
-                <h1>Bienvenue dans votre entrepôt</h1>
-                <div class="carousel">
-                    <div class="slide active">
-                        <img src="../Images/Feuille de manioc.jpeg" alt="Feuille de manioc">
-                        <div class="caption">Feuille de Manioc — Source locale</div>
+        <div class="main">
+            <div class="app-container">
+
+                <main class="main-content">
+                    <h1>Bienvenue dans votre entrepôt</h1>
+                    <div class="carousel">
+                        <div class="slide active">
+                            <img src="../Images/Feuille de manioc.jpeg"
+                                alt="Feuille de manioc">
+                            <div class="caption">Feuille de Manioc — Source
+                                locale</div>
+                        </div>
+                        <div class="slide">
+                            <img src="../Images/huile-de-palme_1753192586.jpg"
+                                alt="Huile de palme">
+                            <div class="caption">Huile de Palme — Pure et
+                                naturelle</div>
+                        </div>
+                        <div class="slide">
+                            <img src="../Images/legumes.jpg" alt="Légumes">
+                            <div class="caption">Légumes frais — Livraison
+                                quotidienne</div>
+                        </div>
                     </div>
-                    <div class="slide">
-                        <img src="../Images/huile-de-palme_1753192586.jpg" alt="Huile de palme">
-                        <div class="caption">Huile de Palme — Pure et naturelle</div>
-                    </div>
-                    <div class="slide">
-                        <img src="../Images/legumes.jpg" alt="Légumes">
-                        <div class="caption">Légumes frais — Livraison quotidienne</div>
+
+                </main>
+            </div>
+
+            <section class="annonces">
+                <h2>🛍️ Produits en Stock</h2>
+
+                <div class="annonce">
+                    <img src="../Images/Food2.jpg" alt="Produit 1">
+                    <div class="texte-annonce">
+                        <h3>Riz parfumé</h3>
+                        <p>🌾 Stock élevé — prêt pour distribution. Disponible
+                            en sacs de 25kg.</p>
                     </div>
                 </div>
 
-            </main>
+                <div class="annonce">
+                    <img src="../Images/huile-de-palme_1753192586.jpg"
+                        alt="Produit 2">
+                    <div class="texte-annonce">
+                        <h3>Huile végétale</h3>
+                        <p>🛢️ Livraison fraîche — bidons de 5L disponibles
+                            immédiatement.</p>
+                    </div>
+                </div>
+
+                <div class="annonce">
+                    <img src="../Images/Riz.jpeg" alt="Produit 3">
+                    <div class="texte-annonce">
+                        <h3>Riz en Grande quantite</h3>
+                        <p>🍝 Stock renforcé — prix préférentiel pour commandes
+                            groupées.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="annonces-produits" class="annonces-dynamiques">
+                <h2>🟢 Produits disponibles</h2>
+                <div class="annonces-slider"></div>
+            </section>
         </div>
-
-
-        <section class="annonces">
-            <h2>🛍️ Produits en Stock</h2>
-
-            <div class="annonce">
-                <img src="../Images/Food2.jpg" alt="Produit 1">
-                <div class="texte-annonce">
-                    <h3>Riz parfumé</h3>
-                    <p>🌾 Stock élevé — prêt pour distribution. Disponible en sacs de 25kg.</p>
-                </div>
-            </div>
-
-            <div class="annonce">
-                <img src="../Images/huile-de-palme_1753192586.jpg" alt="Produit 2">
-                <div class="texte-annonce">
-                    <h3>Huile végétale</h3>
-                    <p>🛢️ Livraison fraîche — bidons de 5L disponibles immédiatement.</p>
-                </div>
-            </div>
-
-            <div class="annonce">
-                <img src="../Images/Riz.jpeg" alt="Produit 3">
-                <div class="texte-annonce">
-                    <h3>Riz en Grande quantite</h3>
-                    <p>🍝 Stock renforcé — prix préférentiel pour commandes groupées.</p>
-                </div>
-            </div>
-        </section>
-        <section id="annonces-produits" class="annonces-dynamiques">
-            <h2>🟢 Produits disponibles</h2>
-            <div class="annonces-slider"></div>
-        </section>
-    </div>
-    <script>
+        <script src="../js/sessionStorage.js"></script>
+        <script>
 
         // Place ce code juste après l'injection du sidebar
         fetch("../html/sidebard.html")
@@ -110,6 +121,6 @@
 
 
     </script>
-</body>
+    </body>
 
 </html>

@@ -2,6 +2,8 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -54,10 +56,10 @@ if ($result->num_rows === 1) {
             "username" => $user['nom'],
             "role" => $user['role']
         ]);
-        echo password_hash("tonMotDePasse", PASSWORD_DEFAULT);echo password_hash("tonMotDePasse", PASSWORD_DEFAULT);
     } else {
         echo json_encode(["success" => false, "message" => "❌ Mot de passe incorrect"]);
     }
+
 } else {
     echo json_encode(["success" => false, "message" => "❌ Utilisateur introuvable"]);
 }

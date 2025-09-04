@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: application/json");
-$conn = mysqli_connect("localhost", "root", "", "entrepotalimentaire");
+$conn = mysqli_connect("localhost", "root", "", "entrepot_alimentaire");
 mysqli_set_charset($conn, "utf8mb4");
 
 $sql = "SELECT id, nom, quantite FROM produits ORDER BY nom ASC";

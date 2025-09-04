@@ -1,35 +1,4 @@
 window.currentUserRole = "employé"; // à adapter dynamiquement selon l'utilisateur
-
-
-window.applyRoleRestrictionsByPage = function (role) {
-    const permissions = window.rolePermissions[role];
-    if (!permissions) return;
-
-    const pageKey = getPageKey();
-
-    // 🔒 Masquer les boutons de suppression
-    if (!permissions.canDelete) {
-        document.querySelectorAll(".btn-delete").forEach(btn => btn.style.display = "none");
-    }
-
-    // ✏️ Désactiver les champs d’édition spécifiques à la page
-    if (!permissions.canEdit) {
-        document.querySelectorAll(`.field-${pageKey}`).forEach(el => el.disabled = true);
-    }
-
-    // 👁️ Masquer les modules non accessibles
-    if (!permissions.canView) {
-        document.querySelectorAll(".module-protected").forEach(el => el.style.display = "none");
-    }
-
-    // ➕ Masquer les boutons d’ajout
-    if (!permissions.canAdd) {
-        document.querySelectorAll(".btn-add").forEach(btn => btn.style.display = "none");
-    }
-
-    console.log(`🔐 Restrictions appliquées pour le rôle "${role}" sur la page "${pageKey}"`);
-}
-
 function getPageKey() {
     const path = window.location.pathname;
     const filename = path.split("/").pop().replace(".html", "").toLowerCase();
@@ -44,16 +13,46 @@ function getPageKey() {
 
     return mapping[filename] || "unknown";
 }
-document.addEventListener("DOMContentLoaded", function () {
-    const role = SessionManager.get("userRole") || "invité";
-    applyRoleRestrictionsByPage(role);
 
+function getRoleBadge(role) {
+    const badges = {
+        admin: '<span class="role-badge admin"><i class="fas fa-user-shield"></i> Admin</span>',
+        employé: '<span class="role-badge employe"><i class="fas fa-user-cog"></i> Employé</span>',
+        auditeur: '<span class="role-badge auditeur"><i class="fas fa-user-secret"></i> Auditeur</span>',
+        manager: '<span class="role-badge manager"><i class="fas fa-user-tie"></i> Manager</span>',
+        invité: '<span class="role-badge invite"><i class="fas fa-user"></i> Invité</span>'
+    };
+    return badges[role] || `<span class="role-badge inconnu"><i class="fas fa-user-slash"></i> Inconnu</span>`;
+}
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const username = SessionManager.get("username");
+    const role = SessionManager.get("userRole") || "invité";
+    const permissions = window.rolePermissions?.[role];
+
+    if (username) {
+        console.log(`👤 Utilisateur connecté : ${username}`);
+    } else {
+        console.log("👤 Aucun utilisateur connecté");
+    }
+
+    if (!permissions) {
+        console.warn(`⚠️ Rôle inconnu ou non défini : ${role}`);
+        return;
+    }
+
+    ;
+
+    // 🎖️ Affichage du badge rôle
     const roleLabel = document.getElementById("role-label");
     if (roleLabel) {
-        roleLabel.textContent = `Rôle : ${role}`;
+        roleLabel.innerHTML = getRoleBadge(role);
+        roleLabel.title = `Rôle : ${role}`;
     }
-    //roleLabel.style.display = "block"; // S'assurer que le label est visible
 });
+
 
 
 
@@ -73,7 +72,7 @@ window.rolePermissions = {
         canEdit: false,
         canView: true
     },
-    manager: {
+    gestionnaire: {
         canDelete: false,
         canEdit: false,
         canView: true
@@ -124,8 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
         roleLabel.textContent = `Rôle : ${role}`;
     }
 
-    // 🔐 Appliquer les restrictions spécifiques à la page
-    applyRoleRestrictionsByPage(role);
+
 });
 
 

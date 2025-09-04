@@ -12,70 +12,59 @@
         <div id="sidebar-container"></div>
         <div id="role-label" class="role-badge"></div>
 
-        <div class="main">
-            <div class="app-container">
+        <header>
+            <div class="logo">🍽️ Entrepôt Alimentaire</div>
+            <div id="role-label" class="role-badge"></div>
+            <div id="clock"></div>
+        </header>
 
-                <main class="main-content">
-                    <h1>Bienvenue dans votre entrepôt</h1>
-                    <div class="carousel">
-                        <div class="slide active">
-                            <img src="../Images/Feuille de manioc.jpeg"
-                                alt="Feuille de manioc">
-                            <div class="caption">Feuille de Manioc — Source
-                                locale</div>
-                        </div>
-                        <div class="slide">
-                            <img src="../Images/huile-de-palme_1753192586.jpg"
-                                alt="Huile de palme">
-                            <div class="caption">Huile de Palme — Pure et
-                                naturelle</div>
-                        </div>
-                        <div class="slide">
-                            <img src="../Images/legumes.jpg" alt="Légumes">
-                            <div class="caption">Légumes frais — Livraison
-                                quotidienne</div>
-                        </div>
-                    </div>
-
-                </main>
-            </div>
-
-            <section class="annonces">
-                <h2>🛍️ Produits en Stock</h2>
-
-                <div class="annonce">
-                    <img src="../Images/Food2.jpg" alt="Produit 1">
-                    <div class="texte-annonce">
-                        <h3>Riz parfumé</h3>
-                        <p>🌾 Stock élevé — prêt pour distribution. Disponible
-                            en sacs de 25kg.</p>
-                    </div>
-                </div>
-
-                <div class="annonce">
-                    <img src="../Images/huile-de-palme_1753192586.jpg"
-                        alt="Produit 2">
-                    <div class="texte-annonce">
-                        <h3>Huile végétale</h3>
-                        <p>🛢️ Livraison fraîche — bidons de 5L disponibles
-                            immédiatement.</p>
-                    </div>
-                </div>
-
-                <div class="annonce">
-                    <img src="../Images/Riz.jpeg" alt="Produit 3">
-                    <div class="texte-annonce">
-                        <h3>Riz en Grande quantite</h3>
-                        <p>🍝 Stock renforcé — prix préférentiel pour commandes
-                            groupées.</p>
-                    </div>
+        <main>
+            <section class="stats">
+                <h2><i class="fas fa-warehouse"></i> Vue synthétique du
+                    stock</h2>
+                <div class="stat-grid">
+                    <div class="stat-card"><i class="fas fa-boxes"></i>
+                        <span id="total-produits">--</span> Produits</div>
+                    <div class="stat-card"><i class="fas fa-weight"></i>
+                        <span id="volume-stock">--</span> kg/L</div>
+                    <div class="stat-card alert"><i
+                            class="fas fa-exclamation-triangle"></i> <span
+                            id="stock-critique">--</span> Critiques</div>
+                    <div class="stat-card warn"><i class="fas fa-clock"></i>
+                        <span id="peremption">--</span>
+                        Périmés/Bientôt</div>
                 </div>
             </section>
-            <section id="annonces-produits" class="annonces-dynamiques">
-                <h2>🟢 Produits disponibles</h2>
-                <div class="annonces-slider"></div>
+
+            <section class="notifications">
+                <h2><i class="fas fa-bell"></i> Notifications</h2>
+                <ul id="notif-list"></ul>
             </section>
-        </div>
+
+            <section class="navigation">
+                <h2><i class="fas fa-compass"></i> Navigation</h2>
+                <div class="nav-grid">
+                    <a href="dashboard.php"><i
+                            class="fas fa-chart-line"></i> Tableau de
+                        bord</a>
+                    <a href="produits.php"><i class="fas fa-box"></i>
+                        Produits</a>
+                    <a href="fournisseurs.php"><i class="fas fa-truck"></i>
+                        Fournisseurs</a>
+                    <a href="mouvements.php"><i
+                            class="fas fa-exchange-alt"></i> Mouvements</a>
+                    
+                </div>
+            </section>
+
+            <section class="cockpit">
+                <h2><i class="fas fa-lightbulb"></i> Cockpit analytique</h2>
+                <canvas id="sparkline"></canvas>
+            </section>
+        </main>
+
+        <script src="..//js/acceuil.js"></script>
+
         <script src="../js/sessionStorage.js"></script>
         <script>
 
@@ -96,31 +85,7 @@
                 }
             });
 
-
-        let current = 0;
-        const slides = document.querySelectorAll(".slide");
-
-        // Ajoute ce log pour voir combien de slides sont détectées
-        console.log("🔍 Nombre de slides détectées :", slides.length);
-
-        function showSlide(index) {
-            slides.forEach((slide, i) => {
-                slide.classList.remove("active");
-                slide.style.display = "none";
-            });
-            slides[index].classList.add("active");
-            slides[index].style.display = "block";
-        }
-
-        showSlide(current);
-
-        setInterval(() => {
-            current = (current + 1) % slides.length;
-            showSlide(current);
-        }, 3000);
-
-
-    </script>
+</script>
     </body>
 
 </html>

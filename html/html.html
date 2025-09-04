@@ -18,7 +18,8 @@
 
     <div id="dashboard" style="display: inline-block;">
       <header>
-        <h1>Tableau de Bord</h1>
+        <h1><i class="fas fa-chart-line"></i> Tableau de Bord</h1>
+
         <select id="sort-options">
           <option value="nom">Nom</option>
           <option value="quantite">Quantité</option>
@@ -27,10 +28,9 @@
         </select>
         <a href="http://localhost/entrepot/Info/php/generate_stock_repport.php"
           target="_blank">
-          <button>Télécharger le rapport Excel</button>
+          <button><i class="fas fa-file-excel"></i> Télécharger rapport</button>
         </a>
 
-        <button onclick="window.print()" class="print-btn">🖨️ Imprimer</button>
       </header>
       <main>
         <section id="product-management">
@@ -69,7 +69,9 @@
                   required>
               </div>
               <div class="form-row">
-                <label>Photo du produit :</label>
+                <label for="edit-photo"><i class="fas fa-camera"></i> Photo du
+                  produit :</label>
+
                 <input type="file" id="edit-photo" accept="image/*">
                 <img id="preview-photo" src
                   style="display: none; width: 150px; border-radius: 8px; margin-top: 8px;">
@@ -79,7 +81,9 @@
                 <input type="date" id="expiry-date"
                   placeholder="Date de péremption" required>
 
-                <label for="product-position">Position :</label>
+                <label for="product-position"><i
+                    class="fas fa-map-marker-alt"></i> Position :</label>
+
                 <select id="product-position" required>
                   <option value="Cellule A1">Cellule A1</option>
                   <option value="Cellule A2">Cellule A2</option>
@@ -99,7 +103,8 @@
                 </select>
 
               </div>
-              <button type="submit" id="add-product-btn">Ajouter</button>
+              <button type="submit" id="add-product-btn"><i
+                  class="fas fa-plus-circle"></i>Ajouter</button>
             </form>
 
           </div>
@@ -157,7 +162,9 @@
             </div>
 
             <div class="form-row">
-              <label>Date de péremption :</label>
+              <label for="expiry-date"><i class="fas fa-calendar-alt"></i> Date
+                de péremption :</label>
+
               <input type="date" class="expiry-date" required>
 
               <label>Prix unitaire :</label>
@@ -201,13 +208,14 @@
             <img id="preview-photo" src
               style="display: none; width: 150px; border-radius: 8px; margin-top: 8px;">
 
-            <button type="button" id="update-product-btn">Mettre à jour</button>
+            <button type="button" id="update-product-btn"><i
+                class="fas fa-edit"></i>Mettre à jour</button>
           </div>
         </div>
         <div id="history-modal" class="modal">
           <div class="modal-content">
             <span class="close-history">&times;</span>
-            <h2>Historique des opérations</h2>
+            <h2><i class="fas fa-history"></i> Historique des opérations</h2>
             <table id="history-table">
               <thead>
                 <tr>
@@ -222,7 +230,8 @@
                 <!-- Les lignes seront ajoutées dynamiquement -->
               </tbody>
             </table>
-            <button id="clear-history">Vider l'historique</button>
+            <button id="clear-history"><i class="fas fa-trash-alt"></i> Vider
+              l'historique</button>
           </div>
         </div>
 
@@ -233,7 +242,57 @@
     <script src="../js/Emplacements.js"></script>
     <script src="../js/script.js"></script>
     <script>
-   
+   function appliquerRestrictionsPage() {
+    const role = SessionManager.get("userRole") || "invité";
+    const permissions = window.rolePermissions?.[role];
+
+    if (!permissions) {
+        console.warn(`⚠️ Rôle inconnu : ${role}`);
+        return;
+    }
+
+
+    // 🔒 Accès interdit
+    if (!permissions.canView) {
+        document.body.innerHTML = "<h2 style='color:red;'>⛔ Accès refusé</h2>";
+        return;
+    }
+
+    //  Désactivation des champs éditables
+    if (!permissions.canEdit) {
+        document.querySelectorAll("input, select, textarea").forEach(el => {
+            el.disabled = true;
+            el.classList.add("readonly");
+        });
+         document.querySelectorAll(".edit-btn").forEach(btn => {
+            btn.disabled = true;
+            btn.title = "⛔ Édition non autorisée";
+            btn.classList.add("btn-disabled");
+        });
+        document.getElementById("add-product-btn")?.remove();
+        document.getElementById("update-product-btn")?.remove();
+        document.getElementById("edit-photo")?.remove();
+        document.getElementById("clear-history")?.remove();
+        
+    }
+
+    //  Masquage des boutons sensibles
+    if (!permissions.canDelete) {
+        document.querySelectorAll(".btn-delete, .copy-btn").forEach(btn => btn.remove());
+        document.getElementById("clear-history")?.remove();
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+            btn.remove(); // ou btn.style.display = "none";
+        });
+    }
+
+    //  Export et impression (optionnel)
+    if (!permissions.canExport) {
+        document.querySelector(".print-btn")?.remove();
+        document.querySelector("a[href*='generate_stock_repport.php']")?.remove();
+    }
+}
+document.addEventListener("DOMContentLoaded", appliquerRestrictionsPage);
+
     // Place ce code juste après l'injection du sidebar
     fetch("../html/sidebard.html")
       .then(r => r.text())

@@ -100,6 +100,65 @@
       </button>
 
       <script>
+function appliquerRestrictionsPage() {
+    const role = SessionManager.get("userRole") || "invité";
+    const permissions = window.rolePermissions?.[role];
+
+    if (!permissions) {
+        console.warn(`⛔ Rôle inconnu ou non défini : ${role}`);
+        return;
+    }
+
+    // 🎖️ Badge visuel du rôle
+    const roleLabel = document.getElementById("role-label");
+    if (roleLabel) {
+        roleLabel.innerHTML = getRoleBadge(role);
+        roleLabel.title = `Rôle : ${role}`;
+        roleLabel.classList.add("role-badge", role);
+    }
+
+    // 🔒 Accès interdit
+    if (!permissions.canView) {
+        document.body.innerHTML = "<h2 style='color:red;'>⛔ Accès refusé</h2>";
+        return;
+    }
+
+    // 🛠️ Désactivation du formulaire de sortie
+    if (!permissions.canEdit) {
+        document.querySelectorAll("#stock-out-form input, #stock-out-form select, #stock-out-form textarea").forEach(el => {
+            el.disabled = true;
+            el.classList.add("readonly");
+        });
+        document.getElementById("remove-product-btn")?.remove();
+    }
+
+    // 🗑️ Masquage des boutons de suppression dans les cartes produits
+    document.querySelectorAll(".product-card").forEach(card => {
+        const deleteBtn = card.querySelector(".delete-btn");
+        const editBtn = card.querySelector(".edit-btn");
+
+        if (editBtn && !permissions.canEdit) {
+            editBtn.disabled = true;
+            editBtn.title = "⛔ Édition non autorisée";
+            editBtn.classList.add("btn-disabled");
+        }
+
+        if (deleteBtn && !permissions.canDelete) {
+            deleteBtn.remove();
+        }
+    });
+
+    // 📊 Restrictions sur les graphiques et rapports
+    if (!permissions.canExport) {
+        document.getElementById("print-btn")?.remove();
+        //document.querySelector("canvas#motif-chart")?.style.display = "none";
+        document.getElementById("refresh-btn")?.remove();
+    }
+}
+document.addEventListener("DOMContentLoaded", appliquerRestrictionsPage);
+
+
+
       // Place ce code juste après l'injection du sidebar
       fetch("../html/sidebard.html")
         .then(r => r.text())

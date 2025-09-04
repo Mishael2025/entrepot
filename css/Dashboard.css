@@ -87,9 +87,18 @@ body {
 }
 
 .role-badge {
-    background-color: blue;
-    border-radius: 5px;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background-color: #f0f0f0;
+    display: inline-block;
 }
+.role-badge.admin { color: #c0392b; }
+.role-badge.employé { color: #2980b9; }
+.role-badge.auditeur { color: #8e44ad; }
+.role-badge.manager { color: #16a085; }
+.role-badge.invité { color: #7f8c8d; }
+
 
 h2,
 h3,

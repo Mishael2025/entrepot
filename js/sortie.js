@@ -534,7 +534,7 @@ async function chargerRapport() {
     <h2><i class="fas fa-box text-warning"></i>  Stock en fin de journée</h2>
     <p>Théorique : ${data.stock.theorique} unités</p>
     <p>Réel : ${data.stock.reel} unités</p>
-    <p>Écart : ${data.stock.ecart} unités</p>
+    <p>Rétrait : ${data.stock.ecart} unités</p>
   </section>
   <footer>
     ${badgeHTML}

@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Document</title>
+        <link rel="stylesheet" href="../vendor/css/all.min.css">
 
         <link rel="stylesheet" href="../css/Dashboard.css">
     </head>
@@ -30,7 +31,7 @@
                     <label for="user-role">Rôles :</label>
                     <select id="user-role" multiple>
                         <option value="admin">Admin</option>
-                        <option value="manager">Manager</option>
+                        <option value="manager">Gestionnaire</option>
                         <option value="employé">Employé</option>
                         <option value="auditeur">Auditeur</option>
                         <option value="invité">Invité</option>
@@ -183,6 +184,44 @@
         <script src="../js/notifications.js"></script>
         <script src="../js/utilisateurs.js"></script>
         <script>
+
+        //Roles restrictions
+function appliquerRestrictionsPage() {
+    const role = window.currentUserRole;
+    const permissions = window.rolePermissions?.[role];
+
+    if (!permissions) {
+        console.warn("⛔ Rôle inconnu :", role);
+        return;
+    }
+
+    //  Accès interdit
+    if (!permissions.canView) {
+        document.body.innerHTML = "<h2 style='color:red;'>⛔ Accès refusé</h2>";
+        return;
+    }
+
+    //  Désactiver les champs du formulaire utilisateur
+    if (!permissions.canEdit) {
+        document.querySelectorAll("#user-form input, #user-form textarea, #user-form select").forEach(el => {
+            el.disabled = true;
+            el.classList.add("readonly");
+        });
+        document.getElementById("add-user-btn")?.remove();
+        document.getElementById("edit-btn")?.remove();
+        document.querySelector("#fournisseur-form button[type='submit']")?.remove();
+    }
+
+    //  Masquer les boutons de suppression
+    if (!permissions.canDelete) {
+        document.getElementById("res-user-btn")?.remove();
+        document.querySelectorAll(".btn-delete").forEach(btn => btn.remove());
+    }
+
+    
+}
+
+window.addEventListener("DOMContentLoaded", appliquerRestrictionsPage);
 
             // les roles permissions
             function generatePermissions(role, format = "json") {

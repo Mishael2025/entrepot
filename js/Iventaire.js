@@ -1,14 +1,4 @@
-// 🔐 Afficher le rôle de l'utilisateur
-document.addEventListener("DOMContentLoaded", function () {
-    const role = SessionManager.get("userRole") || "invité";
-    applyRoleRestrictionsByPage(role);
 
-    const roleLabel = document.getElementById("role-label");
-    if (roleLabel) {
-        roleLabel.textContent = `Rôle : ${role}`;
-    }
-    roleLabel.style.display = "block"; // S'assurer que le label est visible
-});
 
 let produits = []; // Liste des produits récupérés depuis la base
 

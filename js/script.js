@@ -321,6 +321,37 @@ document.addEventListener("DOMContentLoaded", () => {
             resetButtons();
         });
     }
+
+    //Appliquer les restrictions de la page
+    function appliquerRestrictionsSurBoutons() {
+        const role = SessionManager.get("userRole") || "invité";
+        const permissions = window.rolePermissions?.[role];
+
+        if (!permissions) {
+            console.warn("⛔ Aucun droit défini pour le rôle :", role);
+            return;
+        }
+
+        // 🔍 Parcours chaque carte produit
+        document.querySelectorAll(".product-card").forEach(card => {
+            const editBtn = card.querySelector(".edit-btn");
+            const deleteBtn = card.querySelector(".delete-btn");
+
+            // 🔧 Édition désactivée
+            if (editBtn && !permissions.canEdit) {
+                editBtn.disabled = true;
+                editBtn.title = "⛔ Édition non autorisée";
+                editBtn.classList.add("btn-disabled");
+            }
+
+            // 🗑️ Suppression interdite
+            if (deleteBtn && !permissions.canDelete) {
+                deleteBtn.remove(); // ou deleteBtn.style.display = "none";
+            }
+        });
+    }
+
+
     // Fonction pour basculer en mode modification
     window.editProduct = function (id) {
         if (!id || isNaN(parseInt(id, 10))) {
@@ -389,62 +420,74 @@ document.addEventListener("DOMContentLoaded", () => {
         // 🪟 Affiche le modal d'édition
         document.getElementById("edit-modal").style.display = "flex";
 
-        // 🔁 Rafraîchit le bouton de mise à jour
-        const updateBtn = document.getElementById("update-product-btn");
-        updateBtn.replaceWith(updateBtn.cloneNode(true));
-        const freshBtn = document.getElementById("update-product-btn");
+        // ⏳ Attendre que le DOM du modal soit injecté
+        setTimeout(() => {
+            const updateBtn = document.getElementById("update-product-btn");
 
-        freshBtn.addEventListener("click", () => {
-            const file = fileInput.files[0];
-            const formData = new FormData();
-
-            formData.append("id", id);
-            formData.append("nom", document.querySelector(".product-name").value.trim());
-            formData.append("quantite", document.querySelector(".quantity").value.trim());
-            formData.append("unit", document.getElementById("edit-unit").value.trim());
-            formData.append("categorie", document.querySelector(".category").value.trim());
-            formData.append("date_peremption", document.querySelector(".expiry-date").value.trim());
-            formData.append("position", document.getElementById("product-position").value.trim());
-            formData.append("prix_unitaire", document.getElementById("edit-price").value.trim());
-
-            formData.append("statut", document.getElementById("edit-status").value.trim());
-
-            if (file) {
-                formData.append("photo", file);
-            } else {
-                const currentPhotoUrl = document.getElementById("preview-photo").getAttribute("src");
-                const imageName = currentPhotoUrl.split("/").pop(); // Extrait le nom du fichier
-                formData.append("photo_existante", imageName);
-
+            if (!updateBtn) {
+                console.warn("⛔ Bouton de mise à jour introuvable");
+                return;
             }
 
-            // 📡 Envoi AJAX
-            fetch("http://localhost/entrepot/Info/php/produits_api.php", {
-                method: "POST",
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert("✅ Produit modifié !");
-                        updateTable();
-                        //document.querySelector("#codeBarreAffiche").textContent = data.code_barre;
-                        document.getElementById("edit-modal").style.display = "none";
-                        addToHistory("Modification", formData.get("nom"), new Date().toLocaleString(), formData.get("date_peremption"));
-                        resetButtons();
-                        preview.src = "../Images/" + (data.photo || "Food2.jpg") + "?" + Date.now();
-                        if (data.photo) {
-                            const preview = document.getElementById("preview-photo");
-                            preview.src = `../Images/${data.photo}?${Date.now()}`; // 🧽 bust cache
-                            preview.style.display = "block";
-                        }
+            // 🔁 Rafraîchit le bouton pour éviter les doublons de listeners
+            updateBtn.replaceWith(updateBtn.cloneNode(true));
+            const freshBtn = document.getElementById("update-product-btn");
 
-                    } else {
-                        alert(`❌ Erreur : ${data.error}`);
-                    }
+            // 📎 Attache le listener de mise à jour
+            freshBtn.addEventListener("click", () => {
+                const fileInput = document.getElementById("edit-photo");
+                const file = fileInput?.files[0];
+                const formData = new FormData();
+
+                // 📦 Données produit
+                formData.append("id", id);
+                formData.append("nom", document.querySelector(".product-name").value.trim());
+                formData.append("quantite", document.querySelector(".quantity").value.trim());
+                formData.append("unit", document.getElementById("edit-unit").value.trim());
+                formData.append("categorie", document.querySelector(".category").value.trim());
+                formData.append("date_peremption", document.querySelector(".expiry-date").value.trim());
+                formData.append("position", document.getElementById("product-position").value.trim());
+                formData.append("prix_unitaire", document.getElementById("edit-price").value.trim());
+                formData.append("statut", document.getElementById("edit-status").value.trim());
+
+                // 📷 Gestion de la photo
+                if (file) {
+                    formData.append("photo", file);
+                } else {
+                    const currentPhotoUrl = document.getElementById("preview-photo").getAttribute("src");
+                    const imageName = currentPhotoUrl.split("/").pop();
+                    formData.append("photo_existante", imageName);
+                }
+
+                // 📡 Envoi AJAX
+                fetch("http://localhost/entrepot/Info/php/produits_api.php", {
+                    method: "POST",
+                    body: formData
                 })
-                .catch(error => console.error("❌ Erreur modification :", error));
-        });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("✅ Produit modifié !");
+                            updateTable(); // 🔄 Rafraîchit la table
+                            document.getElementById("edit-modal").style.display = "none";
+
+                            // 🕘 Historique
+                            addToHistory("Modification", formData.get("nom"), new Date().toLocaleString(), formData.get("date_peremption"));
+
+                            // 🔄 Reset des boutons
+                            resetButtons();
+
+                            // 🖼️ Mise à jour de l’image
+                            const preview = document.getElementById("preview-photo");
+                            preview.src = `../Images/${data.photo || "Food2.jpg"}?${Date.now()}`;
+                            preview.style.display = "block";
+                        } else {
+                            alert(`❌ Erreur : ${data.error}`);
+                        }
+                    })
+                    .catch(error => console.error("❌ Erreur modification :", error));
+            });
+        }, 100);
     };
 
     // Fonction corrigée pour pré-remplir les champs du formulaire
@@ -619,8 +662,8 @@ document.addEventListener("DOMContentLoaded", () => {
                            <button class="edit-btn" data-id="${product.id}">✏️</button>
                            <button class="delete-btn" data-id="${product.id}">🗑️</button>
                         </div>` : ""}
-                 `;
-
+                        `;
+                   
                     const img = document.createElement("img");
                     img.src = `../Images/${product.photo}?${Date.now()}`;
                     img.alt = product.nom;
@@ -656,6 +699,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 });
 
+                appliquerRestrictionsSurBoutons();
 
                 //setTimeout(getProductInput, 300);
             })
@@ -663,7 +707,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error("❌ Erreur lors de la récupération des produits :", error);
             });
     };
-
 
     // ✅ Charger les données AVANT que l’utilisateur puisse supprimer
     document.addEventListener("DOMContentLoaded", function () {

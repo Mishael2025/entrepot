@@ -5,6 +5,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Document</title>
+        <script src="../libs/chart.umd.js"></script>
+
         <link rel="stylesheet" href="../css/acceuil.css">
     </head>
 
@@ -13,26 +15,81 @@
         <div id="role-label" class="role-badge"></div>
 
         <header>
-            <div class="logo">🍽️ Entrepôt Alimentaire</div>
-            <div id="role-label" class="role-badge"></div>
+            <div class="logo"><img src="../Images/entrepot png.png" alt srcset>
+                Entrepôt Alimentaire</div>
             <div id="clock"></div>
         </header>
 
         <main>
-            <section class="stats">
-                <h2><i class="fas fa-warehouse"></i> Vue synthétique du
-                    stock</h2>
-                <div class="stat-grid">
-                    <div class="stat-card"><i class="fas fa-boxes"></i>
-                        <span id="total-produits">--</span> Produits</div>
-                    <div class="stat-card"><i class="fas fa-weight"></i>
-                        <span id="volume-stock">--</span> kg/L</div>
-                    <div class="stat-card alert"><i
-                            class="fas fa-exclamation-triangle"></i> <span
-                            id="stock-critique">--</span> Critiques</div>
-                    <div class="stat-card warn"><i class="fas fa-clock"></i>
-                        <span id="peremption">--</span>
-                        Périmés/Bientôt</div>
+            <section class="volumes-produits">
+                <h2><i class="fas fa-cubes"></i> Vue synthétique du stock</h2>
+
+                <div class="dashboard-grid">
+                    <!-- 🔢 Total produits -->
+                    <div class="stat-card">
+                        <i class="fas fa-boxes"></i>
+                        <span id="total-produits">--</span> Produits
+                    </div>
+
+                    <!-- ⚖️ Volume total -->
+                    <div class="stat-card">
+                        <i class="fas fa-balance-scale"></i>
+                        <span id="volume-stock">--</span> kg/L/...
+                    </div>
+
+                    <!-- 📦 Volumes par unité -->
+                    <div class="stat-card">
+                        <i class="fas fa-weight"></i>
+                        <span id="volume-kg">--</span> kg
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-tint"></i>
+                        <span id="volume-l">--</span> L
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-cube"></i>
+                        <span id="volume-pcs">--</span> pcs
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-box-open"></i>
+                        <span id="volume-box">--</span> box
+                    </div>
+
+                    <!-- ⚠️ Produits critiques -->
+                    <div class="stat-card alert">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="produits-critique">--</span> Critiques
+                    </div>
+
+                    <!-- ⏰ Produits périmés -->
+                    <div class="stat-card warn">
+                        <i class="fas fa-clock"></i>
+                        <span id="peremption">--</span> Périmés/Bientôt
+                    </div>
+
+                    <!-- 📦 Fournisseurs (si présent dans l'API) -->
+                    <div class="stat-card">
+                        <i class="fas fa-truck"></i>
+                        <span id="total-fournisseurs">--</span> Fournisseurs
+                    </div>
+
+                    <!-- 🔁 Sorties (si présent dans l'API) -->
+                    <div class="stat-card">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="total-sorties">--</span> Sorties
+                    </div>
+                </div>
+
+                <!-- 🔔 Notifications -->
+                <div class="notifications">
+                    <h3><i class="fas fa-bell"></i> Notifications</h3>
+                    <ul id="notif-list"></ul>
+                </div>
+
+                <!-- 📈 Sparkline -->
+                <div class="cockpit">
+                    <h3><i class="fas fa-chart-line"></i> Sorties récentes</h3>
+                    <canvas id="sparkline"></canvas>
                 </div>
             </section>
 
@@ -41,21 +98,7 @@
                 <ul id="notif-list"></ul>
             </section>
 
-            <section class="navigation">
-                <h2><i class="fas fa-compass"></i> Navigation</h2>
-                <div class="nav-grid">
-                    <a href="dashboard.php"><i
-                            class="fas fa-chart-line"></i> Tableau de
-                        bord</a>
-                    <a href="produits.php"><i class="fas fa-box"></i>
-                        Produits</a>
-                    <a href="fournisseurs.php"><i class="fas fa-truck"></i>
-                        Fournisseurs</a>
-                    <a href="mouvements.php"><i
-                            class="fas fa-exchange-alt"></i> Mouvements</a>
-                    
-                </div>
-            </section>
+          
 
             <section class="cockpit">
                 <h2><i class="fas fa-lightbulb"></i> Cockpit analytique</h2>

@@ -6,52 +6,82 @@ body {
 }
 
 header {
-    background: #2c3e50;
+    background-color: blue;
     color: white;
     padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-left:300px ;
+    margin-left: 300px;
 
 }
 
 .logo {
-    font-size: 1.5em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #2c3e50;
+    padding: 10px 20px;
 }
 
-.role-badge {
-    font-weight: bold;
-    padding: 6px 12px;
+.logo img {
+    height: 48px;
+    width: auto;
     border-radius: 6px;
-    background-color: #ecf0f1;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    object-fit: contain;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 0;
     color: #2c3e50;
 }
 
-main {
+section.volumes-produits {
     padding: 20px;
-    margin-left:300px ;
-    
 }
 
-.stat-grid,
-.nav-grid {
+section.volumes-produits h2 {
+    font-size: 1.6em;
+    margin-bottom: 15px;
+    color: #34495e;
+}
+.volumes-produits{
+    margin-left: 300px;
+}
+.dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 15px;
-    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
 .stat-card {
-    background: white;
-    padding: 15px;
+    background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    font-size: 1.1em;
+    padding: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    font-size: 1em;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: scale(1.02);
 }
 
 .stat-card i {
-    margin-right: 8px;
+    font-size: 1.3em;
+    margin-bottom: 8px;
+    color: #3498db;
 }
 
 .stat-card.alert {
@@ -64,27 +94,47 @@ main {
     color: #f39c12;
 }
 
-.nav-grid a {
-    background: #ecf0f1;
-    padding: 12px;
-    border-radius: 6px;
-    text-decoration: none;
+.stat-card strong {
+    font-size: 1.2em;
     color: #2c3e50;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
-.notifications ul {
+.notifications {
+    margin-top: 20px;
+}
+
+.notifications h3 {
+    font-size: 1.3em;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+#notif-list {
     list-style: none;
     padding-left: 0;
 }
 
-.notifications li {
-    background: #fff;
+#notif-list li {
+    background-color: #ecf0f1;
     margin-bottom: 8px;
     padding: 10px;
     border-left: 4px solid #3498db;
     border-radius: 4px;
+    font-size: 0.95em;
+}
+
+.cockpit {
+    margin-top: 30px;
+}
+
+.cockpit h3 {
+    font-size: 1.3em;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+#sparkline {
+    width: 100%;
+    max-width: 600px;
+    height: 200px;
 }

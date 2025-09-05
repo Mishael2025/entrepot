@@ -31,62 +31,43 @@
                         <span id="total-produits">--</span> Produits
                     </div>
 
-                    <!-- ⚖️ Volume total -->
-                    <div class="stat-card">
-                        <i class="fas fa-balance-scale"></i>
-                        <span id="volume-stock">--</span> kg/L/...
+                    <!--  Volumes par produit (dynamique) -->
+                    <div id="volume-par-unite" class="unite-container">
+                        <!-- Les blocs par unité seront injectés ici -->
                     </div>
 
-                    <!-- 📦 Volumes par unité -->
-                    <div class="stat-card">
-                        <i class="fas fa-weight"></i>
-                        <span id="volume-kg">--</span> kg
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-tint"></i>
-                        <span id="volume-l">--</span> L
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-cube"></i>
-                        <span id="volume-pcs">--</span> pcs
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-box-open"></i>
-                        <span id="volume-box">--</span> box
-                    </div>
-
-                    <!-- ⚠️ Produits critiques -->
+                    <!--  Produits critiques -->
                     <div class="stat-card alert">
                         <i class="fas fa-exclamation-triangle"></i>
                         <span id="produits-critique">--</span> Critiques
                     </div>
 
-                    <!-- ⏰ Produits périmés -->
+                    <!--  Produits périmés -->
                     <div class="stat-card warn">
                         <i class="fas fa-clock"></i>
                         <span id="peremption">--</span> Périmés/Bientôt
                     </div>
 
-                    <!-- 📦 Fournisseurs (si présent dans l'API) -->
+                    <!--  Fournisseurs (si présent dans l'API) -->
                     <div class="stat-card">
-                        <i class="fas fa-truck"></i>
-                        <span id="total-fournisseurs">--</span> Fournisseurs
+                        <i class="fas fa-truck"></i>Fournisseurs
+                        <span id="total-fournisseurs">--</span> 
                     </div>
 
-                    <!-- 🔁 Sorties (si présent dans l'API) -->
+                    <!--  Sorties (si présent dans l'API) -->
                     <div class="stat-card">
                         <i class="fas fa-arrow-up"></i>
                         <span id="total-sorties">--</span> Sorties
                     </div>
                 </div>
 
-                <!-- 🔔 Notifications -->
+                <!--  Notifications -->
                 <div class="notifications">
                     <h3><i class="fas fa-bell"></i> Notifications</h3>
                     <ul id="notif-list"></ul>
                 </div>
 
-                <!-- 📈 Sparkline -->
+                <!--  Sparkline -->
                 <div class="cockpit">
                     <h3><i class="fas fa-chart-line"></i> Sorties récentes</h3>
                     <canvas id="sparkline"></canvas>
@@ -97,8 +78,6 @@
                 <h2><i class="fas fa-bell"></i> Notifications</h2>
                 <ul id="notif-list"></ul>
             </section>
-
-          
 
             <section class="cockpit">
                 <h2><i class="fas fa-lightbulb"></i> Cockpit analytique</h2>

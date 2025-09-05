@@ -17,22 +17,78 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("http://localhost/entrepot/Info/php/acceuil_api.php")
         .then(res => res.json())
         .then(data => {
+            fetch("http://localhost/entrepot/Info/php/acceuil_api.php")
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("total-fournisseurs");
+                    list.innerHTML = "";
+
+                    if (data.fournisseurs && Array.isArray(data.fournisseurs)) {
+                        data.fournisseurs.forEach(f => {
+                            const li = document.createElement("li");
+                            li.textContent = `${f.nom} — ${f.contact} (${f.adresse})`;
+                            list.appendChild(li);
+                        });
+                    } else {
+                        list.innerHTML = "<li>Aucun fournisseur disponible.</li>";
+                    }
+                    const container = document.getElementById("volume-par-unite");
+                    container.innerHTML = "";
+
+                    const icones = {
+                        kg: "fas fa-weight",
+                        l: "fas fa-tint",
+                        pcs: "fas fa-cube",
+                        box: "fas fa-box-open"
+                    };
+
+                    // Regrouper les produits par unité
+                    const regroupement = {};
+                    Object.entries(data.volumesParProduit).forEach(([produit, info]) => {
+                        const unite = info.unite;
+                        if (!regroupement[unite]) regroupement[unite] = [];
+                        regroupement[unite].push({ produit, quantite: info.quantite });
+                    });
+
+                    // Injecter chaque groupe dans un bloc
+                    Object.entries(regroupement).forEach(([unite, produits]) => {
+                        const bloc = document.createElement("div");
+                        bloc.className = "unite-bloc";
+
+                        const titre = document.createElement("h3");
+                        titre.innerHTML = `<i class="${icones[unite] || 'fas fa-box'}"></i> ${unite.toUpperCase()}`;
+                        bloc.appendChild(titre);
+
+                        const grid = document.createElement("div");
+                        grid.className = "dashboard-grid";
+
+                        produits.forEach(({ produit, quantite }) => {
+                            const card = document.createElement("div");
+                            card.className = "stat-card";
+                            card.innerHTML = `
+                             <h4>${produit}</h4>
+                            <p><strong>${quantite} ${unite}</strong></p>
+        `;
+                            grid.appendChild(card);
+                        });
+
+                        bloc.appendChild(grid);
+                        container.appendChild(bloc);
+                    });
+                });
+
             // 🔢 Indicateurs globaux
             document.getElementById("total-produits").textContent = data.totalProduits ?? "--";
             document.getElementById("produits-critique").textContent = data.critique ?? "--";
             document.getElementById("total-fournisseurs").textContent = data.totalFournisseurs ?? "--";
             document.getElementById("total-sorties").textContent = data.totalSorties ?? "--";
 
-            // ⚖️ Volume total (si tu veux l'afficher)
+
             if (document.getElementById("volume-stock")) {
                 document.getElementById("volume-stock").textContent = data.volumeStock ?? "--";
             }
 
-            // 📦 Volumes par unité
-            document.getElementById("volume-kg").textContent = data.volumes.kg ?? "--";
-            document.getElementById("volume-l").textContent = data.volumes.l ?? "--";
-            document.getElementById("volume-pcs").textContent = data.volumes.pcs ?? "--";
-            document.getElementById("volume-box").textContent = data.volumes.box ?? "--";
+
 
             // 🔔 Notifications
             const notifList = document.getElementById("notif-list");
@@ -66,6 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         })
         .catch(err => console.error("❌ Erreur API :", err));
+
 
 
 

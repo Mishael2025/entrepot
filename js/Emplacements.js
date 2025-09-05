@@ -1,3 +1,10 @@
+//Telecharger le rapport
+document.getElementById("download-report").addEventListener("click", () => {
+    window.open("http://localhost/entrepot/Info/php/generate_stock_repport.php", "_blank");
+});
+
+
+
 // Entrepôt Info JS - Emplacements.js
 // This script fetches and displays available storage spots in the warehouse.
 document.addEventListener("DOMContentLoaded", () => {

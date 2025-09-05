@@ -26,10 +26,10 @@
           <option value="categorie">Catégorie</option>
           <option value="date_peremption">Date de péremption</option>
         </select>
-        <a href="http://localhost/entrepot/Info/php/generate_stock_repport.php"
-          target="_blank">
-          <button><i class="fas fa-file-excel"></i> Télécharger rapport</button>
-        </a>
+
+        <button id="download-report">
+          <i class="fas fa-file-excel"></i> Télécharger rapport
+        </button>
 
       </header>
       <main>
@@ -242,6 +242,8 @@
     <script src="../js/Emplacements.js"></script>
     <script src="../js/script.js"></script>
     <script>
+  
+
    function appliquerRestrictionsPage() {
     const role = SessionManager.get("userRole") || "invité";
     const permissions = window.rolePermissions?.[role];

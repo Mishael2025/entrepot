@@ -52,8 +52,143 @@ section.volumes-produits h2 {
     color: #34495e;
 }
 
-.volumes-produits {
+.volumes-produits,
+.cockpit-analytique {
     margin-left: 300px;
+
+}
+
+
+
+.cockpit-produit-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.produit-cockpit {
+    background-color: #fdfdfd;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px;
+    max-width: 100%;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.produit-cockpit:hover {
+    transform: scale(1.02);
+}
+
+/*produits les plus sortis pendant la semaine*/
+.evolution-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.barre-globale {
+  height: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  background-color: #eee;
+}
+
+.segment {
+  height: 100%;
+  display: block;
+}
+
+.legende-produits {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legende-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+}
+
+.pastille {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+
+.produit-header h4 {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #34495e;
+}
+
+.produit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.cell {
+    background-color: #f4f6f7;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    text-align: center;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.badge {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: white;
+}
+
+.badge-pression {
+    background-color: #e74c3c;
+    animation: pulse 1.5s infinite;
+
+}
+
+.badge-ok {
+    background-color: #2ecc71;
+    animation: pulse 1.5s infinite;
+
+}
+
+.badge-frequence {
+    background-color: #2980b9;
+    animation: pulse 1.5s infinite;
+
+}
+
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.6);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+    }
+}
+
+.cockpit-analytique {
+    padding: 20px;
 }
 
 .dashboard-grid {
@@ -61,6 +196,62 @@ section.volumes-produits h2 {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 15px;
     margin-top: 10px;
+    background-color: gainsboro;
+}
+
+.produits-surveillance {
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    font-size: 1em;
+    transition: transform 0.2s ease;
+}
+
+.produits-surveillance h3 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #c0392b;
+}
+
+#produits-a-surveiller-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+#produits-a-surveiller-list li {
+    background-color: #fceae9;
+    margin-bottom: 6px;
+    padding: 8px;
+    border-left: 4px solid #e74c3c;
+    border-radius: 4px;
+    font-size: 0.95em;
+}
+
+.unite-container {
+    grid-column: span 3;
+    /* ou span 3 selon la largeur souhaitée */
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.unite-container .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.unite-container {
+    grid-column: 1 / -1;
+    /* s'étend sur toute la ligne */
 }
 
 .stat-card {
@@ -79,8 +270,8 @@ section.volumes-produits h2 {
 .stat-card:hover {
     transform: scale(1.02);
 }
-.fa-file-excel
-.stat-card i {
+
+.fa-file-excel .stat-card i {
     font-size: 1.3em;
     margin-bottom: 8px;
     color: #3498db;
@@ -180,6 +371,28 @@ section.volumes-produits h2 {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+.badge {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: white;
+}
+
+.badge-critique {
+    background-color: #e74c3c;
+}
+
+.badge-bientot {
+    background-color: #f39c12;
+}
+
+.badge-double {
+    background-color: #c0392b;
 }
 
 .dashboard-grid {

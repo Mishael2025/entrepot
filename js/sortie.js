@@ -100,22 +100,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
     const boutonRetrait = document.getElementById("remove-product-btn");
+    const champDate = document.getElementById("date-mouvement");
+
+    // 🕒 Pré-remplir le champ date avec l'heure actuelle
+    if (champDate) {
+        const now = new Date();
+        const localISO = now.toISOString().slice(0, 16); // format "YYYY-MM-DDTHH:mm"
+        champDate.value = localISO;
+    }
 
     boutonRetrait?.addEventListener("click", () => {
-
-
         const quantiteRaw = document.getElementById("quantity-out").value.trim();
         if (!quantiteRaw) {
             alert("❌ Veuillez remplir le champ quantité");
             return;
         }
+
         const quantiteParsee = parseFloat(quantiteRaw);
         if (isNaN(quantiteParsee)) {
             alert("❌ Format de quantité invalide");
             return;
         }
 
-
+        // 🧠 Construction de l'objet produit
         const product = {
             nom: document.getElementById("product-name-out").value.trim(),
             quantite: quantiteParsee,
@@ -123,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
             raison: document.getElementById("reason-out").value.trim(),
             utilisateur: sessionStorage.getItem("username") || "inconnu",
             valeur: parseFloat(document.getElementById("valeur")?.value.trim()) || 0,
-            date: document.getElementById("date-mouvement")?.value.trim() || "",
+            date: champDate?.value.trim() || new Date().toISOString().slice(0, 19).replace("T", " "),
             type: document.getElementById("type-mouvement")?.value.trim() || "sortie"
         };
 
@@ -141,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.success) {
                     const utilisateur = SessionManager.get("username");
                     const nom = product.nom;
-                    const date = product.date || new Date().toLocaleString();
+                    const date = product.date;
                     console.log("utilisateur connecté :", utilisateur);
 
                     addToHistory("Sortie", nom, date, "—", product.quantite, utilisateur);
@@ -151,6 +158,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     updateTable?.();
                     renderCharts?.();
                     chargerHistoriqueSorties();
+
+                    // 🕒 Réinitialiser la date après soumission
+                    if (champDate) {
+                        const now = new Date();
+                        champDate.value = now.toISOString().slice(0, 16);
+                    }
                 } else {
                     alert(`❌ Erreur : ${data.error || "Retrait impossible"}`);
                 }
@@ -161,11 +174,13 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 });
+
 console.log(
-    sessionStorage.getItem("username") ?
-        `👤 Utilisateur connecté : ${sessionStorage.getItem("username")}` :
-        "👤 Aucun utilisateur connecté"
+    sessionStorage.getItem("username")
+        ? `👤 Utilisateur connecté : ${sessionStorage.getItem("username")}`
+        : "👤 Aucun utilisateur connecté"
 );
+
 
 
 setTimeout(() => {
@@ -305,7 +320,7 @@ async function renderCharts() {
         }
     };
 
-   
+
     const movementsRaw = await getJsonData("http://localhost/entrepot/Info/php/sortie_api.php?mode=timeline");
 
     const formatToDayKey = (dateStr) => dateStr?.split(" ")[0]; // "2025-08-30"
@@ -316,7 +331,7 @@ async function renderCharts() {
 
     const produitsMap = {};
 
-   
+
 
     // 🔹 Sorties
     movementsRaw.forEach(mvt => {
@@ -453,13 +468,16 @@ async function renderCharts() {
 
 //Bouton pour imprimer le rapport journalier
 document.getElementById("print-btn").addEventListener("click", () => {
-    const rapport = document.getElementById("rapport-container");
-    const originalContent = document.body.innerHTML;
+    const rapportHTML = document.getElementById("rapport-content").innerHTML;
 
-    document.body.innerHTML = rapport.innerHTML;
-    window.print();
-    document.body.innerHTML = originalContent;
+    const printWindow = window.open("", "_blank", "width=800,height=600");
+    printWindow.document.body.innerHTML = rapportHTML;
+    printWindow.document.title = "Rapport journalier";
+    printWindow.focus();
+    printWindow.print();
 });
+
+
 
 
 
@@ -488,58 +506,60 @@ async function chargerRapport() {
     if (!data.success) return;
     const badgeHTML = genererBadge(data.badge);
 
-    const container = document.getElementById("rapport-container");
-    container.innerHTML = `
-    <header>
-      <h1>Rapport journalier</h1>
-      ${badgeHTML}
-      <p>Date : ${data.date}</p>
-      <p>Produit : ${data.produit.nom} (ID: ${data.produit.id})</p>
-    </header>
-    <section>
-      <h2><i class="fas fa-chart-pie text-info"></i>  Synthèse</h2>
-      <table>
-        <tr><th>Type</th><th>Quantité</th><th>Heures</th><th>Utilisateurs</th></tr>
+    const content = document.getElementById("rapport-content");
+    content.innerHTML = `
+  <header>
+    <h1>Rapport journalier</h1>
+    ${badgeHTML}
+    <p>Date : ${data.date}</p>
+    <p>Produit : ${data.produit.nom} (ID: ${data.produit.id})</p>
+  </header>
+  <section>
+    <h2><i class="fas fa-chart-pie text-info"></i> Synthèse</h2>
+    <table>
+      <tr><th>Type</th><th>Quantité</th><th>Heures</th><th>Utilisateurs</th></tr>
+      <tr>
+        <td>Entrées</td>
+        <td>${data.stats.entrees}</td>
+        <td>${data.stats.heures_entrees.join(', ')}</td>
+        <td>${data.stats.users_entrees.join(', ')}</td>
+      </tr>
+      <tr>
+        <td>Sorties</td>
+        <td>${data.stats.sorties}</td>
+        <td>${data.stats.heures_sorties.join(', ')}</td>
+        <td>${data.stats.users_sorties.join(', ')}</td>
+      </tr>
+    </table>
+  </section>
+  <section>
+    <h2><i class="fas fa-list-check text-secondary"></i> Détail des mouvements</h2>
+    <table>
+      <tr><th>Heure</th><th>Type</th><th>Quantité</th><th>Motif</th><th>Utilisateur</th><th>Réf.</th></tr>
+      ${data.mouvements.map(m => `
         <tr>
-          <td>Entrées</td>
-          <td>${data.stats.entrees}</td>
-          <td>${data.stats.heures_entrees.join(', ')}</td>
-          <td>${data.stats.users_entrees.join(', ')}</td>
+          <td>${m.date_mouvement.slice(11, 16)}</td>
+          <td>${m.type}</td>
+          <td>${m.quantite} ${m.unit}</td>
+          <td>${m.raison}</td>
+          <td>${m.utilisateur}</td>
+          <td>${m.valeur} FC</td>
         </tr>
-        <tr>
-          <td>Sorties</td>
-          <td>${data.stats.sorties}</td>
-          <td>${data.stats.heures_sorties.join(', ')}</td>
-          <td>${data.stats.users_sorties.join(', ')}</td>
-        </tr>
-      </table>
-    </section>
-    <section>
-      <h2><i class="fas fa-list-check text-secondary"></i>  Détail des mouvements</h2>
-      <table>
-        <tr><th>Heure</th><th>Type</th><th>Quantité</th><th>Motif</th><th>Utilisateur</th><th>Réf.</th></tr>
-        ${data.mouvements.map(m => `
-          <tr>
-            <td>${m.date_mouvement.slice(11, 16)}</td>
-            <td>${m.type}</td>
-            <td>${m.quantite} ${m.unit}</td>
-            <td>${m.raison}</td>
-            <td>${m.utilisateur}</td>
-            <td>${m.valeur} FC</td>
-          </tr>
-        `).join('')}
-      </table>
-    </section>
-    <section>
-    <h2><i class="fas fa-box text-warning"></i>  Stock en fin de journée</h2>
+      `).join('')}
+    </table>
+  </section>
+  <section>
+    <h2><i class="fas fa-box text-warning"></i> Stock en fin de journée</h2>
     <p>Théorique : ${data.stock.theorique} unités</p>
     <p>Réel : ${data.stock.reel} unités</p>
     <p>Rétrait : ${data.stock.ecart} unités</p>
   </section>
   <footer>
-    ${badgeHTML}
+    <p>Généré le ${new Date().toLocaleString()}</p>
+    <p>Par le système de gestion d'entrepôt</p>
   </footer>
-  `;
+`;
+
 }
 function genererBadge(status) {
     switch (status) {

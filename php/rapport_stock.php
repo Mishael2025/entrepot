@@ -15,7 +15,7 @@ while ($row = $res->fetch_assoc()) {
     $seuils[$row['categorie']] = intval($row['seuil']);
 }
 
-// 📦 Sélection des produits
+//  Sélection des produits
 $data = [];
 $res = $conn->query("SELECT nom, quantite, categorie, date_peremption FROM produits");
 while ($row = $res->fetch_assoc()) {

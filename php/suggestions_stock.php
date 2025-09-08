@@ -24,7 +24,7 @@ function nettoyerCategorie($categorie)
 
 // 🔍 Chargement des seuils
 $seuils = [];
-$res = $conn->query("SELECT categorie, seuil FROM seuils_stock");
+$res = $conn->query("SELECT produit_id, seuil FROM seuils_stock");
 while ($row = $res->fetch_assoc()) {
     $key = nettoyerCategorie($row['categorie']);
     $seuils[$key] = intval($row['seuil']);

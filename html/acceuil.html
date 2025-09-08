@@ -21,6 +21,7 @@
         </header>
 
         <main>
+            <!-- 🔷 SECTION : Vue synthétique du stock -->
             <section class="volumes-produits">
                 <h2><i class="fas fa-cubes"></i> Vue synthétique du stock</h2>
 
@@ -31,47 +32,57 @@
                         <span id="total-produits">--</span> Produits
                     </div>
 
-                    <!--  Volumes par produit (dynamique) -->
-                    <div id="volume-par-unite" class="unite-container">
-                        <!-- Les blocs par unité seront injectés ici -->
-                    </div>
-
-                    <!--  Produits critiques -->
+                    <!-- 📦 Produits critiques -->
                     <div class="stat-card alert">
                         <i class="fas fa-exclamation-triangle"></i>
                         <span id="produits-critique">--</span> Critiques
                     </div>
 
-                    <!--  Produits périmés -->
+                    <!-- ⏰ Produits périmés -->
                     <div class="stat-card warn">
                         <i class="fas fa-clock"></i>
                         <span id="peremption">--</span> Périmés/Bientôt
                     </div>
 
-                    <!--  Fournisseurs (si présent dans l'API) -->
+                    <!-- 🚚 Fournisseurs -->
                     <div class="stat-card">
-                        <i class="fas fa-truck"></i>Fournisseurs
-                        <span id="total-fournisseurs">--</span> 
-                    </div>
-
-                    <!--  Sorties (si présent dans l'API) -->
-                    <div class="stat-card">
-                        <i class="fas fa-arrow-up"></i>
-                        <span id="total-sorties">--</span> Sorties
+                        <i class="fas fa-truck"></i>
+                        <span id="total-fournisseurs">--</span> Fournisseurs
                     </div>
                 </div>
 
-                <!--  Notifications -->
+                <!-- 📊 Volumes par produit (injecté dynamiquement) -->
+                <div id="volume-par-unite" class="unite-container">
+                    <!-- Les blocs par unité seront injectés ici -->
+                </div>
+
+                <!-- 🔍 Produits à surveiller -->
+                <div class="produits-surveillance">
+                    <h3><i class="fas fa-exclamation-circle"></i> Produits à
+                        surveiller</h3>
+                    <ul id="produits-a-surveiller-list"></ul>
+                </div>
+
+                <!-- 🔔 Notifications -->
                 <div class="notifications">
                     <h3><i class="fas fa-bell"></i> Notifications</h3>
                     <ul id="notif-list"></ul>
                 </div>
+            </section>
 
-                <!--  Sparkline -->
-                <div class="cockpit">
-                    <h3><i class="fas fa-chart-line"></i> Sorties récentes</h3>
-                    <canvas id="sparkline"></canvas>
+            <!-- 📈 SECTION : Cockpit analytique -->
+            <section class="cockpit-analytique">
+                <h2><i class="fas fa-chart-line"></i> Cockpit analytique</h2>
+
+                <div id="cockpit-par-produit" class="cockpit-produit-container">
+                    <!-- Les blocs par produit seront injectés ici -->
                 </div>
+
+                <!-- 🔝 Produits les plus sortis cette semaine -->
+                <div id="evolution-produits" class="evolution-wrapper">
+                    <!-- Barre globale + légende seront injectées ici -->
+                </div>
+
             </section>
 
             <section class="notifications">
@@ -79,10 +90,6 @@
                 <ul id="notif-list"></ul>
             </section>
 
-            <section class="cockpit">
-                <h2><i class="fas fa-lightbulb"></i> Cockpit analytique</h2>
-                <canvas id="sparkline"></canvas>
-            </section>
         </main>
 
         <script src="..//js/acceuil.js"></script>

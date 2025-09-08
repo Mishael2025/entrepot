@@ -1,0 +1,152 @@
+<!-- paramètres.html -->
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Paramètres du système</title>
+        <link rel="stylesheet" href="../css/paramtres.css" />
+    </head>
+    <body>
+        <div id="sidebar-container"></div>
+        <div id="role-label" class="role-badge"></div>
+        <main class="parametres-container">
+            <h1><i class="fas fa-cogs"></i> Paramètres du système</h1>
+
+            <form id="parametres-form">
+                <!-- Seuils par catégorie -->
+                <section>
+                    <h2><i class="fas fa-boxes"></i> Seuils critiques</h2>
+                    <div class="form-grid">
+                        <label>Céréales</label>
+                        <input type="number" name="seuil_cereales" min="0"
+                            required />
+
+                        <label>Liquides</label>
+                        <input type="number" name="seuil_liquides" min="0"
+                            required />
+
+                        <label>Fruits</label>
+                        <input type="number" name="seuil_fruits" min="0"
+                            required />
+                    </div>
+                </section>
+
+                <!-- Unités autorisées -->
+                <section>
+                    <h2><i class="fas fa-balance-scale"></i> Unités
+                        autorisées</h2>
+                    <div class="form-grid">
+                        <label><input type="checkbox" name="unit_kg" checked />
+                            kg</label>
+                        <label><input type="checkbox" name="unit_l" checked />
+                            L</label>
+                        <label><input type="checkbox" name="unit_pcs" />
+                            pcs</label>
+                        <label><input type="checkbox" name="unit_box" />
+                            box</label>
+                    </div>
+                </section>
+
+                <!-- Notifications -->
+                <section>
+                    <h2><i class="fas fa-bell"></i> Notifications</h2>
+                    <div class="form-grid">
+                        <label><input type="checkbox" name="notif_critique"
+                                checked /> Alerte stock critique</label>
+                        <label><input type="checkbox" name="notif_peremption"
+                                checked /> Alerte péremption</label>
+                    </div>
+                </section>
+
+                <button type="submit" id="save-btn"><i class="fas fa-save"></i>
+                    Enregistrer</button>
+            </form>
+
+            <div id="message"></div>
+        </main>
+        <script src="../js/sessionStorage.js"></script>
+        <script src="../js/parametres.js"></script>
+        <script>
+function appliquerRestrictionsPage() {
+    const role = SessionManager.get("userRole") || "invité";
+    const permissions = window.rolePermissions?.[role];
+
+    if (!permissions) {
+        console.warn(`⛔ Rôle inconnu ou non défini : ${role}`);
+        return;
+    }
+
+    // 🎖️ Badge visuel du rôle
+    const roleLabel = document.getElementById("role-label");
+    if (roleLabel) {
+        roleLabel.innerHTML = getRoleBadge(role);
+        roleLabel.title = `Rôle : ${role}`;
+        roleLabel.classList.add("role-badge", role);
+    }
+
+    // 🔒 Accès interdit
+    if (!permissions.canView) {
+        document.body.innerHTML = "<h2 style='color:red;'>⛔ Accès refusé</h2>";
+        return;
+    }
+
+    // 🛠️ Désactivation du formulaire de sortie
+    if (!permissions.canEdit) {
+        document.querySelectorAll("#stock-out-form input, #stock-out-form select, #stock-out-form textarea").forEach(el => {
+            el.disabled = true;
+            el.classList.add("readonly");
+        });
+        document.getElementById("remove-product-btn")?.remove();
+    }
+
+    // 🗑️ Masquage des boutons de suppression dans les cartes produits
+    document.querySelectorAll(".product-card").forEach(card => {
+        const deleteBtn = card.querySelector(".delete-btn");
+        const editBtn = card.querySelector(".edit-btn");
+
+        if (editBtn && !permissions.canEdit) {
+            editBtn.disabled = true;
+            editBtn.title = "⛔ Édition non autorisée";
+            editBtn.classList.add("btn-disabled");
+        }
+
+        if (deleteBtn && !permissions.canDelete) {
+            deleteBtn.remove();
+        }
+    });
+
+    // 📊 Restrictions sur les graphiques et rapports
+    if (!permissions.canExport) {
+        document.getElementById("print-btn")?.remove();
+        //document.querySelector("canvas#motif-chart")?.style.display = "none";
+        document.getElementById("refresh-btn")?.remove();
+    }
+}
+document.addEventListener("DOMContentLoaded", appliquerRestrictionsPage);
+
+
+
+      // Place ce code juste après l'injection du sidebar
+      fetch("../html/sidebard.html")
+        .then(r => r.text())
+        .then(html => {
+          const container = document.getElementById("sidebar-container");
+          container.innerHTML = html;
+
+          //  Attendre que le DOM injecté soit bien interprété
+          setTimeout(() => {
+            const logoutBtn = document.getElementById("logout-btn");
+            if (logoutBtn) {
+              logoutBtn.addEventListener("click", () => {
+                sessionStorage.clear();
+                localStorage.clear();
+                window.location.href = "../html/PageConnexion.html";
+              });
+            } else {
+              console.warn(" Bouton #logout-btn introuvable dans sidebard.html");
+            }
+          }, 50); // ← Ajustable selon la complexité du HTML injecté
+        });
+  </script>
+    </body>
+</html>

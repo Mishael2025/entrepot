@@ -55,10 +55,11 @@ foreach ($headers as $header) {
 // 🔄 Insertion des lignes
 $row = 7;
 while ($data = $result->fetch_assoc()) {
-    // ✅ Séparation quantité et unité
-    preg_match('/^([\d\.]+)([a-zA-Z]+)/', $data["quantite"], $parts);
-    $quantiteInitiale = isset($parts[1]) ? floatval($parts[1]) : 0;
-    $unit = isset($parts[2]) ? strtoupper($parts[2]) : "";
+    // ✅ Séparation fiable de la quantité et unité
+    $quantiteRaw = trim($data["quantite"]);
+    $quantiteParts = explode(" ", $quantiteRaw);
+    $quantiteInitiale = isset($quantiteParts[0]) ? floatval($quantiteParts[0]) : 0;
+    $unit = isset($quantiteParts[1]) ? strtoupper(trim($quantiteParts[1])) : "";
 
     $sorties = floatval($data["sorties"]);
     $stockRestant = max(0, $quantiteInitiale - $sorties);
@@ -81,6 +82,7 @@ while ($data = $result->fetch_assoc()) {
 
     $row++;
 }
+
 
 // 🎨 Mise en forme
 $sheet->getStyle("A1")->getFont()->setBold(true)->setSize(14);

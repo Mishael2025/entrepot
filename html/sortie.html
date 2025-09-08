@@ -41,7 +41,9 @@
             <option value="transfert">Transfert</option>
           </select>
 
-          <input type="date" id="date-mouvement"> <!-- facultatif -->
+          
+          <input type="datetime-local" id="date-mouvement" name="date-mouvement"
+            required>
 
           <input type="hidden" id="type-mouvement" value="sortie"> <!-- fixe -->
 
@@ -90,11 +92,16 @@
       <select id="produit-select">
         <option value>-- Sélectionner un produit --</option>
       </select>
-      <button id="print-btn">
-        <i class="fas fa-print"></i> Imprimer le rapport
-      </button>
-      <div id="rapport-container">
 
+      <div id="rapport-container">
+        <div id="rapport-content">
+          <!-- Ton rapport injecté ici -->
+        </div>
+        <div class="rapport-footer">
+          <button id="print-btn">
+            <i class="fas fa-print"></i> Imprimer le rapport
+          </button>
+        </div>
       </div>
 
       <script>

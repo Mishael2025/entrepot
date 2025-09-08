@@ -63,27 +63,39 @@ body {
 }
 
 /* Styles pour le bouton d'impression */
-@media print {
-    #print-btn {
-        display: none;
-    }
+
+
+#rapport-container {
+  position: relative;
+  max-height: 80vh;
+  
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding-bottom: 60px;
+ 
 }
 
-#print-btn {
-    margin-top: 20px;
-    padding: 10px 16px;
-    background-color: #0078D7;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-left: 300px;
+.rapport-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  background-color: #f9f9f9;
+  text-align: right;
+  box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
 }
 
-#print-btn:hover {
-    background-color: #005a9c;
+#rapport-container button {
+  background-color: var(--couleur-primaire);
+  color: var(--couleur-texte);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
+
 
 #stock-out-form button:hover {
     background-color: #2980b9;
@@ -323,7 +335,10 @@ body {
     margin: auto;
     margin-left: 300px;
 }
-
+#rapport-content{
+    border: solid 1px dashed red;
+    background-color:ghostwhite;
+}
 /* 🧾 Titres */
 #rapport-container h1,
 #rapport-container h2,

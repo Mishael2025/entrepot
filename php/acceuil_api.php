@@ -4,77 +4,99 @@ $mysqli = new mysqli("localhost", "root", "", "entrepot_alimentaire");
 
 $data = [
     "totalProduits" => 0,
-    "volumeStock" => 0,
-    "critique" => 0,
-    "peremption" => 0,
-    "notifications" => [],
+    "produits" => [],
     "volumes" => ["kg" => 0, "l" => 0, "pcs" => 0, "box" => 0],
-    "volumesParProduit" => [],
-    "sparkline" => ["labels" => [], "values" => []]
+    "fournisseurs" => [],
+    "notifications" => [],
+    "sparkline" => ["labels" => [], "values" => []],
+    "totalFournisseurs" => 0
 ];
 
 // 🔢 Total produits
 $res = $mysqli->query("SELECT COUNT(*) AS total FROM produits");
-$data["totalProduits"] = $res->fetch_assoc()["total"];
+$data["totalProduits"] = intval($res->fetch_assoc()["total"]);
 
-// 📦 Volumes par produit + par unité
-$res = $mysqli->query("SELECT id, nom, quantite FROM produits");
-$total = 0;
+// 📥 Seuils par catégorie
+$seuils = [];
+$res = $mysqli->query("SELECT categorie, seuil FROM seuils_stock");
 while ($row = $res->fetch_assoc()) {
+    $seuils[$row['categorie']] = intval($row['seuil']);
+}
+
+// 📦 Produits + sorties cumulées
+$res = $mysqli->query("SELECT p.id, p.nom, p.quantite, p.categorie, p.date_peremption FROM produits p");
+while ($row = $res->fetch_assoc()) {
+    $id = intval($row["id"]);
     $nom = $row["nom"];
-    $parts = explode(" ", $row["quantite"]);
-    $qte = floatval($parts[0]);
-    $unit = strtolower(trim($parts[1] ?? ""));
+    $cat = $row["categorie"];
+    $qteParts = explode(" ", $row["quantite"]);
+    $qte = floatval($qteParts[0]);
+    $unite = strtolower(trim($qteParts[1] ?? ""));
+    $seuil = $seuils[$cat] ?? 50;
+    $datePeremption = $row["date_peremption"];
 
-    $total += $qte;
+    // 📤 Sorties cumulées
+    $resSortie = $mysqli->query("
+        SELECT SUM(CAST(SUBSTRING_INDEX(quantite, ' ', 1) AS DECIMAL)) AS total
+        FROM mouvements_stock
+        WHERE produit_id = $id
+    ");
+    $sortie = floatval($resSortie->fetch_assoc()["total"] ?? 0);
 
-    // Volume global par unité
-    if (isset($data["volumes"][$unit])) {
-        $data["volumes"][$unit] += $qte;
+    // 📥 Entrée = stock actuel + sorties
+    $entree = $qte + $sortie;
+
+    // ⚠️ État critique
+    $critique = $qte <= $seuil;
+
+    // ⏰ Péremption proche
+    $bientotPerime = false;
+    if ($datePeremption) {
+        $now = new DateTime();
+        $peremption = new DateTime($datePeremption);
+        $interval = $now->diff($peremption);
+        $bientotPerime = $peremption >= $now && $interval->days <= 7;
     }
 
-    // Volume par produit
-    $data["volumesParProduit"][$nom] = [
+    // 📊 Volumes globaux
+    if (isset($data["volumes"][$unite])) {
+        $data["volumes"][$unite] += $qte;
+    }
+
+    // 🧠 Stock par produit
+    $data["produits"][$nom] = [
         "quantite" => $qte,
-        "unite" => $unit
+        "unite" => $unite,
+        "entree" => $entree,
+        "sortie" => $sortie,
+        "seuil" => $seuil,
+        "categorie" => $cat,
+        "date_peremption" => $datePeremption,
+        "critique" => $critique,
+        "bientot_perime" => $bientotPerime
     ];
 }
-$data["volumeStock"] = $total;
 
-// ⚠️ Produits en stock critique
-$res = $mysqli->query("
-    SELECT COUNT(*) AS critique
-    FROM produits p
-    JOIN seuils_stock s ON p.id = s.produit_id
-    WHERE CAST(SUBSTRING_INDEX(p.quantite, ' ', 1) AS DECIMAL) <= s.seuil
-");
-$data["critique"] = $res->fetch_assoc()["critique"];
+// 🔔 Notifications dynamiques
+$nbCritiques = count(array_filter($data["produits"], fn($p) => $p["critique"]));
+$nbPerimes = count(array_filter($data["produits"], fn($p) => $p["bientot_perime"]));
 
-// ⏰ Produits périmés ou bientôt périmés
-$res = $mysqli->query("
-    SELECT COUNT(*) AS peremption
-    FROM produits
-    WHERE date_peremption <= DATE_ADD(NOW(), INTERVAL 7 DAY)
-");
-$data["peremption"] = $res->fetch_assoc()["peremption"];
+$data["notifications"][] = "📦 $nbCritiques produits en stock critique";
+$data["notifications"][] = "⏰ $nbPerimes produits périmés ou bientôt périmés";
 
-// 🔔 Notifications
-$data["notifications"][] = "📦 " . $data["critique"] . " produits en stock critique";
-$data["notifications"][] = "⏰ " . $data["peremption"] . " produits périmés ou bientôt périmés";
-$data["fournisseurs"] = [];
-
-$res = $mysqli->query("SELECT  nom, contact, adresse FROM fournisseur");
+// 🧑‍🌾 Fournisseurs
+$res = $mysqli->query("SELECT categorie, nom, contact FROM fournisseur");
 while ($row = $res->fetch_assoc()) {
     $data["fournisseurs"][] = $row;
 }
+$data["totalFournisseurs"] = count($data["fournisseurs"]);
 
 // 📈 Sparkline (sorties sur 7 jours)
 $res = $mysqli->query("
     SELECT DATE(date_mouvement) AS jour,
            SUM(CAST(SUBSTRING_INDEX(quantite, ' ', 1) AS DECIMAL)) AS total
     FROM mouvements_stock
-    WHERE type = 'sortie'
-      AND date_mouvement >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+    WHERE date_mouvement >= DATE_SUB(NOW(), INTERVAL 7 DAY)
     GROUP BY jour
     ORDER BY jour ASC
 ");

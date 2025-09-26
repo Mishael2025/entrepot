@@ -44,17 +44,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $notifie = $input['notifie'] ?? 0;
 
     if ($type === 'entrée') {
-        if (empty($input['fournisseur_id'])) {
+        if (empty($input['fournisseur_nom'])) {
             http_response_code(400);
             echo json_encode(["success" => false, "message" => "fournisseur_id requis pour une entrée"]);
             exit;
         }
 
         $utilisateur_id = $input['utilisateur_id']; // ou récupéré depuis session
+        $fournisseur_nom = $input['fournisseur_nom'] ?? null;
 
-        $stmt = $conn->prepare("INSERT INTO planifications (produit_id, type, quantite, date_prevue, utilisateur_id, commentaire, fournisseur_id, notifie) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        
+        $stmt = $conn->prepare("INSERT INTO planifications (produit_id, type, quantite, date_prevue, utilisateur_id, commentaire, fournisseur_nom, notifie) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
-        $stmt->bind_param("isssissi", $produit_id, $type, $quantite, $date_prevue, $utilisateur_id, $commentaire, $fournisseur_id, $notifie);
+        $stmt->bind_param("isdssiii", $produit_id, $type, $quantite, $date_prevue, $utilisateur_id, $commentaire, $fournisseur_nom, $notifie);
+
 
     } else {
         // Sortie : pas de fournisseur
@@ -78,7 +81,8 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["upcoming"])) {
     $sql = "SELECT p.*, pr.nom AS produit_nom, f.nom AS fournisseur_nom
             FROM planifications p
             JOIN produits pr ON pr.id = p.produit_id
-            LEFT JOIN fournisseur f ON f.id = p.fournisseur_id
+            LEFT JOIN fournisseur f ON f.nom = p.fournisseur_nom
+
             WHERE p.date_prevue >= NOW()
             ORDER BY p.date_prevue ASC";
 

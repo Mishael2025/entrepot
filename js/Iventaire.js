@@ -1,3 +1,9 @@
+const headers = ["Date", "Type", "Produit", "Quantité", "Statut"];
+document.querySelectorAll("#table-planification tbody tr").forEach(row => {
+    row.querySelectorAll("td").forEach((cell, index) => {
+        cell.setAttribute("data-label", headers[index]);
+    });
+});
 
 
 let produits = []; // Liste des produits récupérés depuis la base
@@ -200,25 +206,27 @@ async function chargerFournisseurs() {
     const fournisseurs = await res.json();
     const select = document.getElementById("fournisseur-planifie");
     select.innerHTML = '<option value="">-- Sélectionner --</option>';
+
     fournisseurs.forEach(f => {
         const opt = document.createElement("option");
-        opt.value = f.id;
+        opt.value = f.nom; // ✅ on utilise le nom comme valeur
         opt.textContent = f.nom;
         select.appendChild(opt);
     });
 }
 
+
 //  Soumission du formulaire de planification
 document.getElementById("planification-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    let fournisseurId = null;
 
     const type = document.getElementById("type").value;
+    let fournisseurNom = null;
+
     if (type === "entrée") {
         const raw = document.getElementById("fournisseur-planifie").value;
-        fournisseurId = raw !== "" ? parseInt(raw) : null;
+        fournisseurNom = raw !== "" ? raw : null;
     }
-
 
     const payload = {
         produit_id: parseInt(document.getElementById("produit-planifie").value),
@@ -226,10 +234,11 @@ document.getElementById("planification-form").addEventListener("submit", async (
         quantite: parseFloat(document.getElementById("quantite-planifiee").value),
         date_prevue: document.getElementById("date-prevue").value,
         commentaire: document.getElementById("commentaire").value.trim(),
-        fournisseur_id: fournisseurId,
+        fournisseur_nom: fournisseurNom, // ✅ on envoie le nom ici
         utilisateur_id: SessionManager.getInt("user_id")
     };
-    if (type === "entrée" && fournisseurId === null) {
+
+    if (type === "entrée" && !fournisseurNom) {
         alert("❌ Fournisseur requis pour une entrée.");
         return;
     }
@@ -243,11 +252,20 @@ document.getElementById("planification-form").addEventListener("submit", async (
     const json = await res.json();
     if (json.success) {
         alert("✅ Planification enregistrée !");
-        console.log(" Données envoyées :", payload);
+        console.log("📦 Données envoyées :", payload);
         document.getElementById("planification-form").reset();
         afficherPlanifications();
     } else {
         alert("❌ Échec : " + (json.message || "Erreur inconnue"));
+    }
+});
+// 🔄 Affichage conditionnel du fournisseur
+document.getElementById("type").addEventListener("change", (e) => {
+    const fournisseurDiv = document.getElementById("fournisseur-div");
+    if (e.target.value === "entrée") {
+        fournisseurDiv.style.display = "block";
+    } else {
+        fournisseurDiv.style.display = "none";
     }
 });
 
@@ -298,28 +316,7 @@ async function afficherPlanifications() {
     container.appendChild(table);
 }
 // Afficher les planifications
-let planifications = []; // Stock global pour filtrage et tri
 
-async function afficherPlanification() {
-    const res = await fetch("/entrepot/Info/php/planification.php?upcoming=true");
-    const data = await res.json();
-    planifications = data; // Stocker pour filtrage
-
-    const tbody = document.querySelector("#table-planification tbody");
-    tbody.innerHTML = "";
-
-    data.forEach(p => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${new Date(p.date_prevue).toLocaleString()}</td>
-            <td>${p.type}</td>
-            <td>${p.produit_nom}</td>
-            <td>${p.quantite} kg</td>
-            <td>${p.statut}</td>
-        `;
-        tbody.appendChild(row);
-    });
-}
 document.querySelectorAll("#table-planification tbody tr").forEach(row => {
     const labels = [" Date", " Type", " Produit", " Quantité", " Statut"];
     row.querySelectorAll("td").forEach((td, i) => {
@@ -332,7 +329,6 @@ window.addEventListener("DOMContentLoaded", () => {
     chargerFournisseurs();
     afficherPlanifications();
 
-    afficherPlanification();
     // 🚀 Initialisation
     chargerProduits1();
 });

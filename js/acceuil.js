@@ -6,12 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
         clock.textContent = now.toLocaleString("fr-FR");
     }, 1000);
 
-    // 🎖️ Rôle connecté
-    const role = SessionManager.get("userRole") || "invité";
-    const roleLabel = document.getElementById("role-label");
-    if (roleLabel) {
-        roleLabel.innerHTML = getRoleBadge(role);
-    }
+    
 
     fetch("http://localhost/entrepot/Info/php/acceuil_api.php")
         .then(res => res.json())
@@ -130,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
             evolutionContainer.appendChild(legende);
     
 
-            // 🚚 Fournisseurs
+            //  Fournisseurs
             const fournisseurList = document.getElementById("total-fournisseurs");
             fournisseurList.innerHTML = "";
             if (Array.isArray(data.fournisseurs)) {
@@ -141,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
 
-            // 📦 Volumes par unité
+            //  Volumes par unité
             const container = document.getElementById("volume-par-unite");
             container.innerHTML = "";
             const icones = {
@@ -216,15 +211,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-    // 🎖️ Fonction badge rôle
-    function getRoleBadge(role) {
-        const badges = {
-            admin: '<i class="fas fa-user-shield"></i> Admin',
-            employé: '<i class="fas fa-user-cog"></i> Employé',
-            auditeur: '<i class="fas fa-user-secret"></i> Auditeur',
-            manager: '<i class="fas fa-user-tie"></i> Manager',
-            invité: '<i class="fas fa-user"></i> Invité'
-        };
-        return badges[role] || `<i class="fas fa-user-slash"></i> Inconnu`;
-    }
+  
 });

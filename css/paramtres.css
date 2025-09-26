@@ -54,3 +54,23 @@ button#save-btn {
     margin-top: 16px;
     font-weight: bold;
 }
+
+/* parametres.css */
+body.theme-clair {
+    background-color: #f4f6f8;
+    color: #2c3e50;
+}
+
+body.theme-sombre {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+}
+
+body.theme-bleu {
+    background-color: #0f1c2e;
+    color: #cce4ff;
+}
+
+.parametres-container {
+    transition: background-color 0.3s, color 0.3s;
+}

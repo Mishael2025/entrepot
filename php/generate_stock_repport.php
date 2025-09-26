@@ -4,13 +4,13 @@ require __DIR__ . '/../vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-// 🔄 Connexion à la base
+//  Connexion à la base
 $conn = new mysqli("localhost", "root", "", "entrepot_alimentaire");
 if ($conn->connect_error) {
     die("❌ Connexion échouée : " . $conn->connect_error);
 }
 
-// 🔍 Récupération des données
+//  Récupération des données
 $result = $conn->query("
     SELECT p.id, p.nom, p.quantite, p.categorie, p.date_peremption, p.created_at, p.position, p.prix_unitaire,
            COALESCE(SUM(ms.quantite), 0) AS sorties
@@ -20,18 +20,18 @@ $result = $conn->query("
     ORDER BY p.nom ASC
 ");
 
-// 📘 Création du document Excel
+//  Création du document Excel
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 $sheet->setTitle("Inventaire Stock");
 
-// 📋 Métadonnées
-$sheet->setCellValue("A1", "📦 Rapport d'Inventaire");
+//  Métadonnées
+$sheet->setCellValue("A1", " Rapport d'Inventaire");
 $sheet->setCellValue("A2", "Entrepôt : Central Stock");
 $sheet->setCellValue("A3", "Date : " . date("d/m/Y"));
 $sheet->setCellValue("A4", "Responsable : John Doe");
 
-// 🧾 En-têtes du tableau
+//  En-têtes du tableau
 $headers = [
     "Nom",
     "Catégorie",
@@ -52,10 +52,10 @@ foreach ($headers as $header) {
     $col++;
 }
 
-// 🔄 Insertion des lignes
+//  Insertion des lignes
 $row = 7;
 while ($data = $result->fetch_assoc()) {
-    // ✅ Séparation fiable de la quantité et unité
+    //  Séparation fiable de la quantité et unité
     $quantiteRaw = trim($data["quantite"]);
     $quantiteParts = explode(" ", $quantiteRaw);
     $quantiteInitiale = isset($quantiteParts[0]) ? floatval($quantiteParts[0]) : 0;
@@ -66,7 +66,7 @@ while ($data = $result->fetch_assoc()) {
     $valeurTotale = $stockRestant * floatval($data["prix_unitaire"]);
     $observation = ($stockRestant <= 50) ? "⚠️ Stock critique !" : "OK";
 
-    // 📥 Remplir les colonnes
+    //  Remplir les colonnes
     $sheet->setCellValue("A$row", $data["nom"]);
     $sheet->setCellValue("B$row", $data["categorie"]);
     $sheet->setCellValue("C$row", $unit);
@@ -84,7 +84,7 @@ while ($data = $result->fetch_assoc()) {
 }
 
 
-// 🎨 Mise en forme
+//  Mise en forme
 $sheet->getStyle("A1")->getFont()->setBold(true)->setSize(14);
 $sheet->getStyle("A2:A4")->getFont()->setBold(true);
 $sheet->getStyle("A6:L6")->getFont()->setBold(true);
@@ -92,7 +92,7 @@ $sheet->getStyle("A6:L6")->getFill()
     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
     ->getStartColor()->setARGB("FFFFCC");
 
-// 📤 Export du fichier Excel
+//  Export du fichier Excel
 $writer = new Xlsx($spreadsheet);
 $filename = "Inventaire_Stock_" . date("d-m-Y") . ".xlsx";
 

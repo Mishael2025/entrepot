@@ -14,7 +14,10 @@ if ($conn->connect_error) {
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['id'])) {
         $id = intval($_GET['id']);
-        $res = $conn->query("SELECT * FROM fournisseur WHERE id = $id");
+        $res = $conn->query("SELECT p.*, f.nom AS fournisseur_nom
+FROM planifications p
+LEFT JOIN fournisseurs f ON f.id = p.fournisseur_id
+");
         echo json_encode($res->fetch_assoc());
     } else {
         $res = $conn->query("SELECT * FROM fournisseur ORDER BY nom ASC");

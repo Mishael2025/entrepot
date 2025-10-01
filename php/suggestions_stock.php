@@ -8,27 +8,14 @@ if (!$conn) {
     exit;
 }
 
-// 🔧 Fonctions utilitaires
-function extraireQuantite($valeur)
-{
-    preg_match('/(\d+)/', $valeur, $matches);
-    return isset($matches[1]) ? intval($matches[1]) : 0;
-}
-
-function nettoyerCategorie($categorie)
-{
-    $cat = mb_strtolower($categorie);
-    $cat = str_replace(['é', 'è', 'ê', 'à', 'ç'], ['e', 'e', 'e', 'a', 'c'], $cat);
-    return trim($cat);
-}
-
 // 🔍 Chargement des seuils
 $seuils = [];
-$res = $conn->query("SELECT produit_id, seuil FROM seuils_stock");
+$res = $conn->query("SELECT produit_id, categorie, seuil FROM seuils_stock");
 while ($row = $res->fetch_assoc()) {
     $key = nettoyerCategorie($row['categorie']);
     $seuils[$key] = intval($row['seuil']);
 }
+
 // 🔗 Chargement des fournisseurs par catégorie
 $fournisseurs = [];
 $fRes = $conn->query("SELECT nom, categorie FROM fournisseur");
@@ -39,14 +26,20 @@ while ($f = $fRes->fetch_assoc()) {
     }
     $fournisseurs[$catKey][] = $f['nom'];
 }
+
 // 📦 Analyse des produits
 $produits = $conn->query("SELECT nom, quantite, categorie, date_peremption FROM produits");
 $liste = [];
+$notifications = [];
+
 $today = date('Y-m-d');
 $sevenDays = date('Y-m-d', strtotime('+7 days'));
 
 while ($p = $produits->fetch_assoc()) {
-    $qte = extraireQuantite($p['quantite']);
+    $qteInfo = ExtraireQuantite($p['quantite']);
+    $qteValeur = $qteInfo['valeur'];
+    $qteAffichage = $qteInfo['affichage'];
+
     $cat = nettoyerCategorie($p['categorie']);
     $seuil = $seuils[$cat] ?? 50;
     $exp = $p['date_peremption'];
@@ -54,25 +47,27 @@ while ($p = $produits->fetch_assoc()) {
     $raisons = [];
     $suggestion = "";
 
-    // 🟥 Critère : produit périmé
+    // 🟥 Périmé
     if ($exp && $exp < $today) {
         $raisons[] = "❌ Périmé";
         $suggestion = "Remplacement";
+        $notifications[] = "❌ {$p['nom']} périmé depuis le " . date('d/m/Y', strtotime($exp));
     }
 
-    // 🟨 Critère : périmption ≤ 7 jours
+    // 🟨 Péremption ≤ 7j
     elseif ($exp && $exp <= $sevenDays) {
         $raisons[] = "⏰ Péremption ≤ 7j";
         $suggestion = "Remplacement";
+        $notifications[] = "⏰ {$p['nom']} périme le " . date('d/m/Y', strtotime($exp));
     }
 
-    // 📉 Critère : stock faible
-    if ($qte <= $seuil) {
+    // 📉 Stock faible
+    if ($qteValeur <= $seuil) {
         $raisons[] = "📉 Stock faible";
-        // Ne pas écraser suggestion précédente si déjà définie
         if ($suggestion === "") {
             $suggestion = $seuil * 2;
         }
+        $notifications[] = "📉 {$p['nom']} en stock critique ({$qteAffichage})";
     }
 
     if (!empty($raisons)) {
@@ -80,21 +75,41 @@ while ($p = $produits->fetch_assoc()) {
             "nom" => $p['nom'],
             "raison" => implode(" + ", $raisons),
             "suggestion" => $suggestion,
-            "quantite" => $qte,
-            "date_peremption" => $exp ?: "—"
+            "quantite" => $qteAffichage,
+            "date_peremption" => $exp ?: "—",
+            "fournisseurs" => $fournisseurs[$cat] ?? ["Aucun fournisseur associé"]
         ];
-
-        // 🔗 Ajout des fournisseurs associés
-        if (isset($fournisseurs[$cat])) {
-            $item["fournisseurs"] = $fournisseurs[$cat];
-        } else {
-            $item["fournisseurs"] = ["Aucun fournisseur associé"];
-        }
-
         $liste[] = $item;
     }
 }
 
-echo json_encode($liste);
+// ✅ Réponse unique et bien formée
+echo json_encode([
+    "produits" => $liste,
+    "notifications" => $notifications
+]);
+
 $conn->close();
+
+
+// 🔧 Fonctions utilitaires
+function nettoyerCategorie($categorie)
+{
+    $cat = mb_strtolower($categorie);
+    $cat = str_replace(['é', 'è', 'ê', 'à', 'ç'], ['e', 'e', 'e', 'a', 'c'], $cat);
+    return trim($cat);
+}
+
+function ExtraireQuantite($quantiteBrute)
+{
+    preg_match('/([\d\.,]+)\s*(\D+)/', $quantiteBrute, $matches);
+    $valeur = isset($matches[1]) ? floatval(str_replace(',', '.', $matches[1])) : null;
+    $unite = isset($matches[2]) ? trim($matches[2]) : null;
+
+    return [
+        'valeur' => $valeur,
+        'unite' => $unite,
+        'affichage' => $valeur . ' ' . $unite
+    ];
+}
 ?>

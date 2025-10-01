@@ -250,16 +250,18 @@ function fetchData() {
 
                 // 🔄 Génération de la pastille
                 let pastilleClass = "", pastilleText = "";
+
                 if (dateClass === "perime") {
                     pastilleClass = "alert";
-                    pastilleText = "❌ Périmé";
+                    pastilleText = '<i class="fas fa-ban" style="color:red;"></i> Périmé';
                 } else if (dateClass === "bientot-perime") {
                     pastilleClass = "warn";
-                    pastilleText = "⏰ Bientôt (≤ 7j)";
+                    pastilleText = '<i class="fas fa-clock" style="color:orange;"></i> Bientôt (≤ 7j)';
                 } else {
                     pastilleClass = "ok";
-                    pastilleText = "✅ OK";
+                    pastilleText = '<i class="fas fa-check-circle" style="color:green;"></i> OK';
                 }
+                
 
                 tbody.innerHTML += `
                     <tr class="${classes}">

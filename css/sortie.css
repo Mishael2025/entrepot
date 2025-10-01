@@ -5,16 +5,18 @@
     --fond-carte: linear-gradient(135deg, #1e2a42, #2c3e50);
     --ombre-carte: rgba(0, 0, 0, 0.3);
 }
+
 #role-label {
-  float: right;
-  font-weight: bold;
-  margin-right: 8px;
+    float: right;
+    font-weight: bold;
+    margin-right: 8px;
 }
 
 .role-badge {
-  background-color: blue;
-  border-radius: 5px;
+    background-color: blue;
+    border-radius: 5px;
 }
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -64,42 +66,47 @@ body {
 
 /* Styles pour le bouton d'impression */
 
+#imprimer-rapport-btn {
+    background-color: var(--couleur-secondaire);
+    color: var(--couleur-texte);
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 300px;
+}
+#imprimer-rapport-btn:hover {
+    background-color: #27ae60;
+}
 
 #rapport-container {
-  position: relative;
-  max-height: 80vh;
-  
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding-bottom: 60px;
- 
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding-bottom: 60px;
+    /* espace réservé au footer */
+    background-color: #fff;
 }
 
 .rapport-footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 10px;
-  background-color: #f9f9f9;
-  text-align: right;
-  box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
-}
-
-#rapport-container button {
-  background-color: var(--couleur-primaire);
-  color: var(--couleur-texte);
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ccc;
+    text-align: right;
 }
 
 
-#stock-out-form button:hover {
-    background-color: #2980b9;
-}
+
+
 
 /* Styles pour le sidebar de stock */
 #stock-sidebar {
@@ -335,10 +342,12 @@ body {
     margin: auto;
     margin-left: 300px;
 }
-#rapport-content{
+
+#rapport-content {
     border: solid 1px dashed red;
-    background-color:ghostwhite;
+    background-color: ghostwhite;
 }
+
 /* 🧾 Titres */
 #rapport-container h1,
 #rapport-container h2,

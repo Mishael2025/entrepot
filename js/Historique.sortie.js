@@ -4,6 +4,7 @@
 
 
 
+
 window.updateHistoryDisplay = function () {
   const tbody = document.querySelector("#history-table tbody");
   if (!tbody) {

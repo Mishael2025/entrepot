@@ -6,7 +6,49 @@ document.addEventListener("DOMContentLoaded", () => {
         clock.textContent = now.toLocaleString("fr-FR");
     }, 1000);
 
-    
+    //Produita à surveiller
+    fetch("http://localhost/entrepot/Info/php/suggestions_stock.php")
+        .then(response => response.json())
+        .then(data => {
+            let peremptionCount = 0;
+            let stockFaibleCount = 0;
+
+            const listePeremption = document.getElementById("liste-peremption");
+            const listeCritique = document.getElementById("liste-critique");
+
+            // 🔄 Nettoyage initial
+            listePeremption.innerHTML = "";
+            listeCritique.innerHTML = "";
+
+            data.produits.forEach(produit => {
+                const raison = produit.raison || "";
+                const nom = produit.nom;
+
+                if (raison.includes("Périmé") || raison.includes("Péremption ≤ 7j")) {
+                    peremptionCount++;
+                    const li = document.createElement("li");
+                    li.textContent = nom;
+                    listePeremption.appendChild(li);
+                }
+
+                if (raison.includes("Stock faible")) {
+                    stockFaibleCount++;
+                    const li = document.createElement("li");
+                    li.textContent = nom;
+                    listeCritique.appendChild(li);
+                }
+            });
+
+            // 🔧 Injection des totaux
+            document.getElementById("peremption").textContent = peremptionCount;
+            document.getElementById("produits-critique").textContent = stockFaibleCount;
+        })
+        .catch(error => {
+            console.error("Erreur lors du chargement des données :", error);
+            document.getElementById("peremption").textContent = "⚠️";
+            document.getElementById("produits-critique").textContent = "⚠️";
+        });
+
 
     fetch("http://localhost/entrepot/Info/php/acceuil_api.php")
         .then(res => res.json())
@@ -21,57 +63,65 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("volume-stock").textContent = total;
             }
 
-            // 🔔 Notifications
-            const notifList = document.getElementById("notif-list");
-            notifList.innerHTML = "";
-            data.notifications.forEach(msg => {
-                const li = document.createElement("li");
-                li.textContent = msg;
-                notifList.appendChild(li);
-            });
+            fetch("http://localhost/entrepot/Info/php/suggestions_stock.php")
+                .then(response => response.json())
+                .then(data => {
+                    // 🔔 Notifications
+                    const notifList = document.getElementById("notif-liste");
+                    notifList.innerHTML = "";
 
-            // 📈 Sparkline des sorties
-            const ctx = document.getElementById("sparkline")?.getContext("2d");
-            if (ctx) {
-                new Chart(ctx, {
-                    type: "line",
-                    data: {
-                        labels: data.sparkline.labels,
-                        datasets: [{
-                            label: "Sorties",
-                            data: data.sparkline.values,
-                            borderColor: "#3498db",
-                            fill: false
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true } }
+                    if (Array.isArray(data.notifications) && data.notifications.length > 0) {
+                        data.notifications.forEach(msg => {
+                            const li = document.createElement("li");
+                            li.innerHTML = `<i class="fas fa-bell"></i> ${msg}`;
+                            notifList.appendChild(li);
+                        });
+                    } else {
+                        notifList.innerHTML = "<li><i class='fas fa-info-circle'></i> Aucune notification pour le moment</li>";
                     }
+
+                    // 🧠 Produits à surveiller
+                    const surveillerList = document.getElementById("produits-a-surveiller-list");
+                    surveillerList.innerHTML = "";
+
+                    if (Array.isArray(data.produits)) {
+                        data.produits.forEach(produit => {
+                            const nom = produit.nom;
+                            const quantite = produit.quantite;
+                            const categorie = produit.categorie;
+                            const raison = produit.raison || "";
+
+                            const critique = raison.includes("Stock faible");
+                            const estPerime = raison.includes("Périmé") && !raison.includes("≤ 7j");
+                            const bientotPerime = raison.includes("Péremption ≤ 7j");
+
+                            if (critique || estPerime || bientotPerime) {
+                                const li = document.createElement("li");
+                                let badgeHTML = "";
+
+                                if (critique && (estPerime || bientotPerime)) {
+                                    badgeHTML = `<span class="badge badge-double"><i class="fas fa-triangle-exclamation"></i> <i class="fas fa-clock"></i> Critique + Péremption</span>`;
+                                } else if (critique) {
+                                    badgeHTML = `<span class="badge badge-critique"><i class="fas fa-triangle-exclamation"></i> Stock critique</span>`;
+                                } else if (estPerime) {
+                                    badgeHTML = `<span class="badge badge-perime"><i class="fas fa-ban"></i> Périmé</span>`;
+                                } else if (bientotPerime) {
+                                    badgeHTML = `<span class="badge badge-bientot"><i class="fas fa-clock"></i> Bientôt périmé</span>`;
+                                }
+
+                                li.innerHTML = `<strong>${nom}</strong> — ${quantite} <br/>${badgeHTML}`;
+                                surveillerList.appendChild(li);
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("❌ Erreur API :", error);
+                    document.getElementById("notif-liste").innerHTML = "<li>⚠️ Impossible de charger les notifications</li>";
+                    document.getElementById("produits-a-surveiller-list").innerHTML = "<li>⚠️ Impossible de charger les produits à surveiller</li>";
                 });
-            }
 
-            const jours = data.sparkline.labels.length || 1;
 
-            // 🧠 Produits à surveiller
-            const surveillerList = document.getElementById("produits-a-surveiller-list");
-            surveillerList.innerHTML = "";
-            Object.entries(data.produits).forEach(([nom, p]) => {
-                if (p.critique || p.bientot_perime) {
-                    const li = document.createElement("li");
-                    let badgeHTML = "";
-                    if (p.critique && p.bientot_perime) {
-                        badgeHTML = `<span class="badge badge-double"><i class="fas fa-triangle-exclamation"></i> <i class="fas fa-clock"></i> Critique + Péremption</span>`;
-                    } else if (p.critique) {
-                        badgeHTML = `<span class="badge badge-critique"><i class="fas fa-triangle-exclamation"></i> Stock critique</span>`;
-                    } else if (p.bientot_perime) {
-                        badgeHTML = `<span class="badge badge-bientot"><i class="fas fa-clock"></i> Bientôt périmé</span>`;
-                    }
-                    li.innerHTML = `<strong>${nom}</strong> — ${p.quantite} ${p.unite} (${p.categorie})<br/>${badgeHTML}`;
-                    surveillerList.appendChild(li);
-                }
-            });
 
             // 🔝 Produits les plus sortis cette semaine
             const evolutionContainer = document.getElementById("evolution-produits");
@@ -123,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             evolutionContainer.appendChild(legende);
-    
+
 
             //  Fournisseurs
             const fournisseurList = document.getElementById("total-fournisseurs");
@@ -172,6 +222,9 @@ document.addEventListener("DOMContentLoaded", () => {
             // 🧭 Cockpit analytique par produit
             const cockpitContainer = document.getElementById("cockpit-par-produit");
             cockpitContainer.innerHTML = "";
+
+            const jours = 7;
+
             Object.entries(data.produits).forEach(([nom, p]) => {
                 const bloc = document.createElement("div");
                 bloc.className = "stat-card produit-cockpit";
@@ -183,33 +236,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 const badgeClass = pression === "Haute" ? "badge badge-pression" : "badge badge-ok";
 
                 bloc.innerHTML = `
-                  <div class="produit-header">
-                    <h4><i class="fas fa-cube"></i> ${nom}</h4>
+                <div class="produit-header">
+                  <h4><i class="fas fa-cube"></i> ${nom}</h4>
+                </div>
+                <div class="produit-grid">
+                  <div class="cell">
+                    <strong>${sorties}</strong><br/>Sorties cette semaine
                   </div>
-                  <div class="produit-grid">
-                    <div class="cell">
-                      <strong>${sorties}</strong><br/>Sorties cette semaine
-                    </div>
-                    <div class="cell">
-                      ${entrees} / ${sorties}<br/>Entrées vs Sorties
-                    </div>
-                    <div class="cell">
-                      <span class="${badgeClass}">Pression : ${pression}</span>
-                    </div>
-                    <div class="cell">
-                      ${sorties} sur ${jours} jours<br/>
-                      <span class="badge badge-frequence">
-                        <i class="fas fa-calendar-day"></i> ${frequence}/jour
-                      </span>
-                    </div>
+                  <div class="cell">
+                    ${entrees} / ${sorties}<br/>Entrées vs Sorties
                   </div>
-`;
+                  <div class="cell">
+                    <span class="${badgeClass}">Pression : ${pression}</span>
+                  </div>
+                  <div class="cell">
+                    ${sorties} sur ${jours} jours<br/>
+                    <span class="badge badge-frequence">
+                      <i class="fas fa-calendar-day"></i> ${frequence}/jour
+                    </span>
+                  </div>
+                </div>
+              `;
                 cockpitContainer.appendChild(bloc);
             });
-        })
-        .catch(err => console.error("❌ Erreur API :", err));
 
 
 
-  
-});
+
+
+        });
+})

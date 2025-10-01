@@ -1,3 +1,18 @@
+//Bouton pour imprimer le rapport journalier
+document.addEventListener("DOMContentLoaded", () => {
+  const printBtn = document.getElementById("imprimer-rapport-btn");
+  if (printBtn) {
+    printBtn.addEventListener("click", () => {
+      const rapportHTML = document.getElementById("rapport-content").innerHTML;
+      const printWindow = window.open("", "_blank", "width=800,height=600");
+      printWindow.document.body.innerHTML = rapportHTML;
+      printWindow.document.title = "Rapport journalier";
+      printWindow.focus();
+      printWindow.print();
+    });
+  }
+});
+
 function chargerProduitsEnCartes() {
     fetch("http://localhost/entrepot/Info/php/produits_api.php")
         .then(res => res.json())
@@ -464,22 +479,6 @@ async function renderCharts() {
 
     console.log("✅ Graphiques prêts à être affichés sur sélection.");
 }
-
-
-//Bouton pour imprimer le rapport journalier
-document.getElementById("print-btn").addEventListener("click", () => {
-    const rapportHTML = document.getElementById("rapport-content").innerHTML;
-
-    const printWindow = window.open("", "_blank", "width=800,height=600");
-    printWindow.document.body.innerHTML = rapportHTML;
-    printWindow.document.title = "Rapport journalier";
-    printWindow.focus();
-    printWindow.print();
-});
-
-
-
-
 
 //chargement des rapports journaliers
 async function chargerListeProduits() {

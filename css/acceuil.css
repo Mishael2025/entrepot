@@ -83,43 +83,43 @@ section.volumes-produits h2 {
 
 /*produits les plus sortis pendant la semaine*/
 .evolution-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
 }
 
 .barre-globale {
-  height: 24px;
-  border-radius: 12px;
-  overflow: hidden;
-  display: flex;
-  background-color: #eee;
+    height: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    background-color: #eee;
 }
 
 .segment {
-  height: 100%;
-  display: block;
+    height: 100%;
+    display: block;
 }
 
 .legende-produits {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .legende-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
 }
 
 .pastille {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
 
 
@@ -383,8 +383,29 @@ section.volumes-produits h2 {
     color: white;
 }
 
+#notif-list li {
+    margin-bottom: 6px;
+    padding: 6px 10px;
+    border-left: 4px solid #ccc;
+    background: #f9f9f9;
+}
+
+#notif-list li:has(.fa-ban) {
+    border-color: #d9534f;
+}
+
+#notif-list li:has(.fa-clock) {
+    border-color: #f0ad4e;
+}
+
+#notif-list li:has(.fa-triangle-exclamation) {
+    border-color: #f0ad4e;
+}
+.badge-pression {
+    background-color: rgba(231, 76, 60, 0.6);
+}
 .badge-critique {
-    background-color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.6);
 }
 
 .badge-bientot {
@@ -393,6 +414,10 @@ section.volumes-produits h2 {
 
 .badge-double {
     background-color: #c0392b;
+}
+
+.badge-perime {
+    background-color: #e74c3c;
 }
 
 .dashboard-grid {

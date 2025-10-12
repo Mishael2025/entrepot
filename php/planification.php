@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $produit_id = $input['produit_id'];
     $quantite = $input['quantite'];
     $date_prevue = $input['date_prevue'];
-    $commentaire = $input['commentaire'] ?? null;
+    $commentaire = $input['commentaire'];
     $notifie = $input['notifie'] ?? 0;
 
     if ($type === 'entrée') {
@@ -51,9 +51,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         $utilisateur_id = $input['utilisateur_id']; // ou récupéré depuis session
-        $fournisseur_nom = $input['fournisseur_nom'] ?? null;
+        $fournisseur_nom = $input['fournisseur_nom'];
 
-        
+
         $stmt = $conn->prepare("INSERT INTO planifications (produit_id, type, quantite, date_prevue, utilisateur_id, commentaire, fournisseur_nom, notifie) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
         $stmt->bind_param("isdssiii", $produit_id, $type, $quantite, $date_prevue, $utilisateur_id, $commentaire, $fournisseur_nom, $notifie);
@@ -78,13 +78,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 //  Récupération des planifications à venir
 if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["upcoming"])) {
-    $sql = "SELECT p.*, pr.nom AS produit_nom, f.nom AS fournisseur_nom
-            FROM planifications p
-            JOIN produits pr ON pr.id = p.produit_id
-            LEFT JOIN fournisseur f ON f.nom = p.fournisseur_nom
+    $sql = "SELECT p.*, pr.nom AS produit_nom
+        FROM planifications p
+        JOIN produits pr ON pr.id = p.produit_id
+        WHERE DATE(p.date_prevue) >= CURDATE()
+        ORDER BY p.quantite ASC";
 
-            WHERE p.date_prevue >= NOW()
-            ORDER BY p.date_prevue ASC";
 
     $result = mysqli_query($conn, $sql);
     $rows = [];
@@ -92,10 +91,11 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["upcoming"])) {
         $rows[] = $row;
     }
 
-    echo json_encode($rows);
+    echo json_encode($rows, JSON_UNESCAPED_UNICODE);
     $conn->close();
     exit;
 }
+
 
 echo json_encode(["success" => false, "message" => "Requête invalide"]);
 ?>

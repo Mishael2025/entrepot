@@ -14,11 +14,12 @@ if ($conn->connect_error) {
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['id'])) {
         $id = intval($_GET['id']);
-        $res = $conn->query("SELECT p.*, f.nom AS fournisseur_nom
-FROM planifications p
-LEFT JOIN fournisseurs f ON f.id = p.fournisseur_id
-");
-        echo json_encode($res->fetch_assoc());
+        $res = $conn->query("SELECT * FROM fournisseur WHERE id = $id");
+        if ($res && $res->num_rows > 0) {
+            echo json_encode($res->fetch_assoc(), JSON_UNESCAPED_UNICODE);
+        } else {
+            echo json_encode(["success" => false, "message" => "Fournisseur introuvable"]);
+        }
     } else {
         $res = $conn->query("SELECT * FROM fournisseur ORDER BY nom ASC");
         $liste = [];
@@ -29,6 +30,7 @@ LEFT JOIN fournisseurs f ON f.id = p.fournisseur_id
     }
     exit;
 }
+
 
 //  Méthode POST : Ajouter un nouveau fournisseur
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

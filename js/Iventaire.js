@@ -220,12 +220,18 @@ async function chargerFournisseurs() {
 document.getElementById("planification-form").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const type = document.getElementById("type").value;
-    let fournisseurNom = null;
+    const type = document.getElementById("type").value.trim();
+    if (!type) {
+        alert(" Veuillez sélectionner un type.");
+        return;
+    }
+
+    const commentaire = document.getElementById("commentaire").value.trim();
+    let fournisseurNom = "";
 
     if (type === "entrée") {
         const raw = document.getElementById("fournisseur-planifie").value;
-        fournisseurNom = raw !== "" ? raw : null;
+        fournisseurNom = raw !== "" ? raw : "";
     }
 
     const payload = {
@@ -233,8 +239,8 @@ document.getElementById("planification-form").addEventListener("submit", async (
         type,
         quantite: parseFloat(document.getElementById("quantite-planifiee").value),
         date_prevue: document.getElementById("date-prevue").value,
-        commentaire: document.getElementById("commentaire").value.trim(),
-        fournisseur_nom: fournisseurNom, // ✅ on envoie le nom ici
+        commentaire,
+        fournisseur_nom: fournisseurNom,
         utilisateur_id: SessionManager.getInt("user_id")
     };
 
@@ -243,7 +249,9 @@ document.getElementById("planification-form").addEventListener("submit", async (
         return;
     }
 
-    const res = await fetch("http://localhost/entrepot/Info/php/planification.php", {
+    console.log(" Données envoyées :", payload);
+
+    const res = await fetch("/entrepot/Info/php/planification.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -252,22 +260,27 @@ document.getElementById("planification-form").addEventListener("submit", async (
     const json = await res.json();
     if (json.success) {
         alert("✅ Planification enregistrée !");
-        console.log("📦 Données envoyées :", payload);
         document.getElementById("planification-form").reset();
         afficherPlanifications();
     } else {
         alert("❌ Échec : " + (json.message || "Erreur inconnue"));
     }
 });
+
 // 🔄 Affichage conditionnel du fournisseur
-document.getElementById("type").addEventListener("change", (e) => {
-    const fournisseurDiv = document.getElementById("fournisseur-div");
-    if (e.target.value === "entrée") {
-        fournisseurDiv.style.display = "block";
-    } else {
-        fournisseurDiv.style.display = "none";
-    }
-});
+const typeSelect = document.getElementById("type");
+const fournisseurDiv = document.getElementById("fournisseur-div");
+
+if (typeSelect && fournisseurDiv) {
+    typeSelect.addEventListener("change", (e) => {
+        if (e.target.value === "entrée") {
+            fournisseurDiv.style.display = "block";
+        } else {
+            fournisseurDiv.style.display = "none";
+        }
+    });
+}
+
 
 document.getElementById("filtrer-produit").addEventListener("input", e => {
     const filtre = e.target.value.toLowerCase();
@@ -285,7 +298,7 @@ document.getElementById("filtrer-produits").addEventListener("input", e => {
     });
 });
 
-// 📅 Affichage des planifications
+//  Affichage des planifications
 async function afficherPlanifications() {
     const res = await fetch("/entrepot/Info/php/planification.php?upcoming=true");
     const data = await res.json();
@@ -296,16 +309,15 @@ async function afficherPlanifications() {
     const table = document.createElement("table");
     table.innerHTML = `
         <tr>
-            <th>Produit</th><th>Type</th><th>Quantité</th><th>Date</th><th>Commentaire</th><th>Fournisseur</th>
+            <th>Produit</th><th>Quantité</th><th>Date</th><th>Commentaire</th><th>Fournisseur</th>
         </tr>
     `;
     table.id = "table-planifications";
     data.forEach(p => {
         const row = document.createElement("tr");
         row.innerHTML = `
-            <td>${p.produit_nom}</td>
-            <td>${p.type}</td>
-            <td>${p.quantite} kg</td>
+            <td>${p.produit_nom || "-"}</td>
+           <td>${p.quantite} kg</td>
             <td>${new Date(p.date_prevue).toLocaleString()}</td>
             <td>${p.commentaire || "-"}</td>
             <td>${p.fournisseur_nom || "-"}</td>

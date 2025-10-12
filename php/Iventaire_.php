@@ -43,19 +43,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
 $input = json_decode(file_get_contents("php://input"), true);
 
 // 🔐 Vérification de la méthode
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // ✅ Traitement POST ici
+    $input = json_decode(file_get_contents("php://input"), true);
+
     if (!$input || !isset($input['produit_id'], $input['quantite_theorique'], $input['quantite_observee'], $input['ecart'], $input['utilisateur_id'])) {
         http_response_code(400);
         echo json_encode(["success" => false, "message" => "Données incomplètes"]);
         exit;
     }
+
     foreach (['produit_id', 'quantite_theorique', 'quantite_observee', 'ecart', 'utilisateur_id'] as $champ) {
         if (!isset($input[$champ])) {
             error_log("Champ manquant : $champ");
         }
     }
 
-    //  Vérification existence du produit
     $produitId = intval($input['produit_id']);
     $check = $conn->prepare("SELECT COUNT(*) FROM produits WHERE id = ?");
     $check->bind_param("i", $produitId);
@@ -70,16 +73,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         exit;
     }
 
-    // 🔄 Récupération des données
     $quantiteTheorique = floatval($input['quantite_theorique']);
     $quantiteObservee = floatval($input['quantite_observee']);
     $ecart = floatval($input['ecart']);
     $justification = mysqli_real_escape_string($conn, $input['justification'] ?? "");
     $utilisateurId = intval($input['utilisateur_id']);
 
-    // 🗃️ Enregistrement
     $sql = "INSERT INTO inventaire_physique (produit_id, quantite_theorique, quantite_reelle, ecart, justification, utilisateur_id, date_inventaire)
-        VALUES (?, ?, ?, ?, ?, ?, NOW())";
+            VALUES (?, ?, ?, ?, ?, ?, NOW())";
 
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("idddsi", $produitId, $quantiteTheorique, $quantiteObservee, $ecart, $justification, $utilisateurId);
@@ -95,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(["success" => false, "message" => "Méthode non autorisée"]);
     exit;
 }
+
 
 
 $stmt->close();

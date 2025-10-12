@@ -261,7 +261,7 @@ function fetchData() {
                     pastilleClass = "ok";
                     pastilleText = '<i class="fas fa-check-circle" style="color:green;"></i> OK';
                 }
-                
+
 
                 tbody.innerHTML += `
                     <tr class="${classes}">
@@ -297,26 +297,31 @@ function fetchSuggestions() {
             const tbody = document.getElementById("suggestion-body");
             tbody.innerHTML = "";
 
-            data.forEach(item => {
+            const produits = Array.isArray(data.produits) ? data.produits : [];
+
+            produits.forEach(item => {
                 const info = item.quantite !== undefined
-                    ? `${item.quantite} unités`
+                    ? `${item.quantite}`
                     : item.date_peremption || "—";
+
                 const fournisseurs = Array.isArray(item.fournisseurs) && item.fournisseurs.length > 0
                     ? item.fournisseurs.join(", ")
-                    : item.fournisseur || "Aucun fournisseur";
+                    : "Aucun fournisseur";
+
                 tbody.innerHTML += `
-            <tr>
-            <td>${item.nom}</td>
-            <td>${item.raison}</td>
-            <td>${info}</td>
-            <td>${item.suggestion}</td>
-            <td>${fournisseurs}</td>
-            </tr>
-            `;
+                    <tr>
+                        <td>${item.nom}</td>
+                        <td>${item.raison}</td>
+                        <td>${info}</td>
+                        <td>${item.suggestion}</td>
+                        <td>${fournisseurs}</td>
+                    </tr>
+                `;
             });
         })
         .catch(error => console.error("❌ Erreur :", error));
 }
+
 fetch("http://localhost/entrepot/Info/php/suggestions_stock.php")
     .then(r => r.json())
     .then(data => {
